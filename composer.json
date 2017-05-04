@@ -1,0 +1,21 @@
+{
+  "name": "novaway/elasticsearch-client",
+  "description": "A lightweight PHP client for Elasticsearch",
+  "type": "library",
+  "keywords": ["elasticsearch"],
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "githost:dev-team/elasticsearch-client.git"
+    }
+  ],
+  "require": {
+    "php": "^7.0",
+    "elasticsearch/elasticsearch": "^5.2"
+  },
+  "autoload": {
+    "psr-4": {"Novaway\\ElasticsearchClient\\": "src/"}
+  }
+}
+
