@@ -12,10 +12,13 @@
   ],
   "require": {
     "php": "^7.0",
-    "elasticsearch/elasticsearch": "^5.2"
+    "elasticsearch/elasticsearch": "^5.0",
+    "symfony/dependency-injection": "^3.0"
+  },
+  "suggest": {
+    "symfony/serializer": "Is required when working with the SymfonySerializerBridge"
   },
   "autoload": {
     "psr-4": {"Novaway\\ElasticsearchClient\\": "src/"}
   }
 }
-
