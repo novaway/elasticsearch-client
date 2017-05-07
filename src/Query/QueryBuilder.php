@@ -2,7 +2,7 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
-use Novaway\ElasticsearchClient\Filter\FilterInterface;
+use Novaway\ElasticsearchClient\Filter\Filter;
 use Novaway\ElasticsearchClient\FunctionScore\FunctionScoreInterface;
 
 class QueryBuilder
@@ -11,17 +11,13 @@ class QueryBuilder
     const DEFAUT_LIMIT = 10;
     const DEFAUT_MIN_SCORE = 0.01;
 
-    const FILTER_CONDITION_MUST = 'must';
-    const FILTER_CONDITION_SHOULD = 'should';
-    const FILTER_MUST_NOT = 'must_not';
-
     /** @var array */
     private $queryBody;
 
     /** @var FunctionScoreInterface[] */
     private $functionScoreCollection;
 
-    /** @var FilterInterface[] */
+    /** @var Filter[] */
     private $filterCollection;
 
     /** @var MatchQuery[] */
@@ -32,13 +28,13 @@ class QueryBuilder
      */
     public function __construct($offset = self::DEFAUT_OFFSET, $limit = self::DEFAUT_LIMIT, $minScore = self::DEFAUT_MIN_SCORE)
     {
-        $this->queryBody               = [];
+        $this->queryBody = [];
         $this->functionScoreCollection = [];
-        $this->filterCollection        = [];
-        $this->matchCollection         = [];
+        $this->filterCollection = [];
+        $this->matchCollection = [];
 
-        $this->queryBody['from']      = $offset;
-        $this->queryBody['size']      = $limit;
+        $this->queryBody['from'] = $offset;
+        $this->queryBody['size'] = $limit;
         $this->queryBody['min_score'] = $minScore;
     }
 
@@ -84,6 +80,10 @@ class QueryBuilder
      */
     public function match($field, $value, $combiningFactor = CombiningFactor::SHOULD): QueryBuilder
     {
+        if (!in_array($combiningFactor, [CombiningFactor::SHOULD, CombiningFactor::MUST, CombiningFactor::MUST_NOT])) {
+            throw new \InvalidArgumentException('Match queries should either be combined by "should", "must" or "must_not"');
+        }
+
         $this->matchCollection[] = new MatchQuery($field, $value, $combiningFactor);
 
         return $this;
@@ -91,7 +91,7 @@ class QueryBuilder
 
     /**
      * @param FunctionScoreInterface $functionScore
-     * @param string                 $nestedTo
+     * @param string $nestedTo
      *
      * @return QueryBuilder
      */
@@ -103,18 +103,13 @@ class QueryBuilder
     }
 
     /**
-     * @param FilterInterface $filter
-     * @param string          $condition (should or must)
+     * @param Filter $filter
      *
      * @return QueryBuilder
      */
-    public function addFilter(FilterInterface $filter, $condition = self::FILTER_CONDITION_MUST): QueryBuilder
+    public function addFilter(Filter $filter): QueryBuilder
     {
-        if (!in_array($condition, [self::FILTER_CONDITION_MUST, self::FILTER_CONDITION_SHOULD])) {
-            throw new \InvalidArgumentException('Filter conditions should either be "should" or "must"');
-        }
-
-        $this->filterCollection[$condition][] = $filter->formatForQuery();
+        $this->filterCollection[] = $filter->formatForQuery();
 
         return $this;
     }
@@ -129,9 +124,12 @@ class QueryBuilder
         }
 
         if (count($this->filterCollection)) {
-            $this->queryBody['filter']['bool'] = $this->filterCollection;
+            $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
         }
 
+        if(count($this->matchCollection) === 0) {
+            $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
+        }
         foreach ($this->matchCollection as $match) {
             $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
         }

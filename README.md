@@ -100,7 +100,8 @@ const LIMIT = 10;
 $queryBuilder = QueryBuilder::createNew(0, 10, 0.3);
 ```
 
-> **TODO** : Use a result formater
+> + **TODO** : Use a result formater
++ **TODO** : Filtering results
 
 ### Clear the index
 

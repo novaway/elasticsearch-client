@@ -2,43 +2,36 @@
 
 namespace Novaway\ElasticsearchClient\Filter;
 
-class InArrayFilter implements FilterInterface
+class InArrayFilter
 {
+    /** @var string */
+    private $property;
     /** @var array */
-    private $params;
+    private $values;
 
     /**
-     * @inheritDoc
+     * InArrayFilter constructor.
+     * @param string $property
+     * @param array $values
      */
-    public function __construct(array $params = [])
+    public function __construct(string $property, array $values)
     {
-        $this->params = $params;
+        $this->property = $property;
+        $this->values = $values;
     }
 
     /**
      * @inheritDoc
      */
-    public function formatForQuery()
+    public function formatForQuery(): array
     {
-        $params = $this->params;
-
-        if (!isset($params['field'], $params['values'])) {
-            return null;
-        }
-
-        if (!count($params['values'])) {
-            return null;
-        }
-
-        $field = $params['field'];
-
         return [
             'bool' => [
-                'should' => array_map(function ($value) use ($field) {
-                    return ['term' => [$field => $value]];
-                }, $params['values'])
+                'should' => array_map(function ($value) {
+                    $matchFilter = new TermFilter($this->property, $value);
+                    return $matchFilter->formatForQuery();
+                }, $values)
             ]
         ];
     }
-
 }
