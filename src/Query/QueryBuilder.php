@@ -103,6 +103,20 @@ class QueryBuilder
     }
 
     /**
+     * @param array $functionScores
+     *
+     * @return QueryBuilder
+     */
+    public function setFunctionScores(array $functionScores): QueryBuilder
+    {
+        $this->functionScoreCollection[] = array_map(function(Filter $functionScore) {
+            return $functionScore->formatForQuery();
+        }, $functionScores);
+
+        return $this;
+    }
+
+    /**
      * @param Filter $filter
      *
      * @return QueryBuilder
@@ -110,6 +124,20 @@ class QueryBuilder
     public function addFilter(Filter $filter): QueryBuilder
     {
         $this->filterCollection[] = $filter->formatForQuery();
+
+        return $this;
+    }
+
+    /**
+     * @param array $filters
+     *
+     * @return QueryBuilder
+     */
+    public function setFilters(array $filters): QueryBuilder
+    {
+        $this->filterCollection[] = array_map(function(Filter $filter) {
+            return $filter->formatForQuery();
+        }, $filters);
 
         return $this;
     }
@@ -127,7 +155,7 @@ class QueryBuilder
             $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
         }
 
-        if(count($this->matchCollection) === 0) {
+        if (count($this->matchCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->matchCollection as $match) {
