@@ -109,7 +109,7 @@ class QueryBuilder
      */
     public function setFunctionScores(array $functionScores): QueryBuilder
     {
-        $this->functionScoreCollection[] = array_map(function(Filter $functionScore) {
+        $this->functionScoreCollection = array_map(function(Filter $functionScore) {
             return $functionScore->formatForQuery();
         }, $functionScores);
 
@@ -135,7 +135,7 @@ class QueryBuilder
      */
     public function setFilters(array $filters): QueryBuilder
     {
-        $this->filterCollection[] = array_map(function(Filter $filter) {
+        $this->filterCollection = array_map(function(Filter $filter) {
             return $filter->formatForQuery();
         }, $filters);
 
