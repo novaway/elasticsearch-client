@@ -6,9 +6,9 @@ use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
 {
-    const DEFAUT_OFFSET = 0;
-    const DEFAUT_LIMIT = 10;
-    const DEFAUT_MIN_SCORE = 0.01;
+    const DEFAULT_OFFSET = 0;
+    const DEFAULT_LIMIT = 10;
+    const DEFAULT_MIN_SCORE = 0.01;
 
     /** @var array */
     private $queryBody;
@@ -22,7 +22,7 @@ class QueryBuilder
     /**
      * QueryBuilder constructor.
      */
-    public function __construct($offset = self::DEFAUT_OFFSET, $limit = self::DEFAUT_LIMIT, $minScore = self::DEFAUT_MIN_SCORE)
+    public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
         $this->queryBody = [];
         $this->filterCollection = [];
@@ -34,11 +34,13 @@ class QueryBuilder
     }
 
     /**
-     * @param Index $index
+     * @param int $offset
+     * @param int $limit
+     * @param float $minScore
      *
      * @return QueryBuilder
      */
-    public static function createNew($offset = self::DEFAUT_OFFSET, $limit = self::DEFAUT_LIMIT, $minScore = self::DEFAUT_MIN_SCORE)
+    public static function createNew($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE): QueryBuilder
     {
         return new self($offset, $limit, $minScore);
     }
