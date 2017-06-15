@@ -3,7 +3,6 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 use Novaway\ElasticsearchClient\Filter\Filter;
-use Novaway\ElasticsearchClient\FunctionScore\FunctionScoreInterface;
 
 class QueryBuilder
 {
@@ -13,9 +12,6 @@ class QueryBuilder
 
     /** @var array */
     private $queryBody;
-
-    /** @var FunctionScoreInterface[] */
-    private $functionScoreCollection;
 
     /** @var Filter[] */
     private $filterCollection;
@@ -29,7 +25,6 @@ class QueryBuilder
     public function __construct($offset = self::DEFAUT_OFFSET, $limit = self::DEFAUT_LIMIT, $minScore = self::DEFAUT_MIN_SCORE)
     {
         $this->queryBody = [];
-        $this->functionScoreCollection = [];
         $this->filterCollection = [];
         $this->matchCollection = [];
 
@@ -90,33 +85,6 @@ class QueryBuilder
     }
 
     /**
-     * @param FunctionScoreInterface $functionScore
-     * @param string $nestedTo
-     *
-     * @return QueryBuilder
-     */
-    public function addFunctionScore(FunctionScoreInterface $functionScore): QueryBuilder
-    {
-        $this->functionScoreCollection[] = $functionScore->formatForQuery();
-
-        return $this;
-    }
-
-    /**
-     * @param array $functionScores
-     *
-     * @return QueryBuilder
-     */
-    public function setFunctionScores(array $functionScores): QueryBuilder
-    {
-        $this->functionScoreCollection = array_map(function(Filter $functionScore) {
-            return $functionScore->formatForQuery();
-        }, $functionScores);
-
-        return $this;
-    }
-
-    /**
      * @param Filter $filter
      *
      * @return QueryBuilder
@@ -147,10 +115,6 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
-        if (count($this->functionScoreCollection)) {
-            $this->queryBody['query']['function_score']['functions'] = $this->functionScoreCollection;
-        }
-
         if (count($this->filterCollection)) {
             $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
         }
