@@ -5,11 +5,9 @@ namespace Novaway\ElasticsearchClient;
 use Novaway\ElasticsearchClient\Exception\InvalidConfigurationException;
 use Novaway\ElasticsearchClient\Query\Result;
 use Novaway\ElasticsearchClient\Query\ResultTransformer;
-use Novaway\ElasticsearchClient\Query\ResultTransformerFactory;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Serializers\SerializerInterface;
-use Symfony\Component\Serializer\Serializer;
 
 class Index
 {
@@ -27,7 +25,6 @@ class Index
      * @param string $name
      * @param array $indexConfig
      * @param SerializerInterface $serializer
-     * @param ResultTransformerFactory $resultTransformerFactory
      */
     public function __construct(
         array $hosts = [],

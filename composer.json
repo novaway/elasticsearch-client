@@ -2,7 +2,9 @@
   "name": "novaway/elasticsearch-client",
   "description": "A lightweight PHP client for Elasticsearch",
   "type": "library",
-  "keywords": ["elasticsearch"],
+  "keywords": [
+    "elasticsearch"
+  ],
   "license": "MIT",
   "repositories": [
     {
@@ -15,10 +17,23 @@
     "elasticsearch/elasticsearch": "^2.3",
     "symfony/dependency-injection": "^3.0"
   },
+  "require-dev": {
+    "atoum/atoum": "^3.0",
+    "atoum/stubs": "^2.5",
+    "behat/behat": "^3.3",
+    "symfony/serializer": "^3.3"
+  },
   "suggest": {
     "symfony/serializer": "Is required when working with the SymfonySerializerBridge"
   },
   "autoload": {
-    "psr-4": {"Novaway\\ElasticsearchClient\\": "src/"}
+    "psr-4": {
+      "Novaway\\ElasticsearchClient\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Test\\Unit\\Novaway\\ElasticsearchClient\\": "test/unit"
+    }
   }
 }
