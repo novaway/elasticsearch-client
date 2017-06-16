@@ -1,0 +1,19 @@
+version: '2'
+services:
+
+    elasticsearch:
+        image: elasticsearch:2.3
+        ports:
+            - 9200:9200
+        volumes:
+            - esdata:/usr/share/elasticsearch/data
+        networks:
+            default:
+                aliases:
+                    - service.elasticsearch
+
+volumes:
+    esdata: {}
+
+networks:
+    default: {}

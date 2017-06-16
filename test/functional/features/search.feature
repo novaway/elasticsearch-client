@@ -1,0 +1,2 @@
+Feature: Search on index
+

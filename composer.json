@@ -21,7 +21,9 @@
     "atoum/atoum": "^3.0",
     "atoum/stubs": "^2.5",
     "behat/behat": "^3.3",
-    "symfony/serializer": "^3.3"
+    "symfony/serializer": "^3.3",
+    "guzzlehttp/ringphp": "^1.1",
+    "symfony/yaml": "^3.3"
   },
   "suggest": {
     "symfony/serializer": "Is required when working with the SymfonySerializerBridge"
@@ -33,7 +35,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Test\\Unit\\Novaway\\ElasticsearchClient\\": "test/unit"
+      "Test\\Unit\\Novaway\\ElasticsearchClient\\": "test/unit",
+      "Test\\Functional\\Novaway\\ElasticsearchClient\\Context\\":"test/functional/bootstrap"
     }
   }
 }
