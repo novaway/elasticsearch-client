@@ -100,9 +100,9 @@ class FeatureContext implements Context
         }
 
         $this->httpPut(\sprintf('/%s/my_type/%s', $indexName, uniqid()), [
-            'first_name' => 'Cedric',
-            'nick_name' => 'Skwi',
-            'age' => 33,
+            'first_name' => 'Barry',
+            'nick_name' => 'Flash',
+            'age' => 32,
         ]);
 
         $this->assert->integer($this->countIndexInsertion($indexName))->isGreaterThan(0);
@@ -133,9 +133,9 @@ class FeatureContext implements Context
     }
 
     /**
-     * @When I add objects of type :objectType with data to index :indexName :
+     * @When I add objects of type :objectType to index :indexName with data :
      */
-    public function iAddObjectsOfTypeWithDataToIndex($objectType, $indexName, TableNode $objectList)
+    public function iAddObjectsOfTypeToIndexWithData($objectType, $indexName, TableNode $objectList)
     {
         $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
 
@@ -144,6 +144,17 @@ class FeatureContext implements Context
             $objectId = $objectListRow['id'];
             $objectIndexer->index(new IndexableObject($objectId, $objectListRow), $objectType);
         }
+    }
+
+    /**
+     * @When I update object of type :objectType with id :id in index :indexName with data :
+     */
+    public function iUpdateObjectOfTypeWithIdInIndexWithData($objectType, $id, $indexName, TableNode $objectList)
+    {
+        $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
+        $newData = $objectList->getHash()[0];
+
+        $objectIndexer->index(new IndexableObject($id, $newData), $objectType);
     }
 
     /**
