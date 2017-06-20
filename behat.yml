@@ -1,0 +1,12 @@
+default:
+    autoload:
+        '': %paths.base%/test/functional/bootstrap
+    formatters:
+        pretty: true
+
+    suites:
+        default:
+            paths:
+                - "%paths.base%/test/functional/features/"
+            contexts:
+                - Test\Functional\Novaway\ElasticsearchClient\Context\FeatureContext
