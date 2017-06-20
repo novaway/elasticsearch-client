@@ -21,4 +21,4 @@ before_script:
 
 script:
   - vendor/bin/atoum
-  - phantomjs Resources/js/run_jsunit.js Resources/js/manager_test.html
+  - vendor/bin/behat
