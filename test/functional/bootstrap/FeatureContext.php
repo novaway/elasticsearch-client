@@ -7,8 +7,15 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
+use Novaway\ElasticsearchClient\Filter\ComparisonFilter;
+use Novaway\ElasticsearchClient\Filter\InArrayFilter;
+use Novaway\ElasticsearchClient\Filter\RangeFilter;
+use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
+use Novaway\ElasticsearchClient\Query\QueryBuilder;
+use Novaway\ElasticsearchClient\Query\Result;
+use Novaway\ElasticsearchClient\QueryExecutor;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
 
@@ -19,8 +26,14 @@ class FeatureContext implements Context
 {
     /** @var AssertGenerator */
     private $assert;
+    /** @var Index */
+    private $index;
     /** @var array */
     private $defaultConfiguration;
+    /** @var QueryBuilder */
+    private $queryBuilder;
+    /** @var Result */
+    private $result;
 
     /**
      * FeatureContext constructor.
@@ -28,7 +41,7 @@ class FeatureContext implements Context
     public function __construct()
     {
         $this->assert = new AssertGenerator();
-        $this->defaultConfiguration = Yaml::parse(file_get_contents(__DIR__.'/data/config.yml'));
+        $this->defaultConfiguration = Yaml::parse(file_get_contents(__DIR__ . '/data/config.yml'));
     }
 
     /**
@@ -59,7 +72,7 @@ class FeatureContext implements Context
      */
     public function iCreateAnIndexNamedWithTheConfigurationFrom(string $indexName, string $configFile)
     {
-        $config = Yaml::parse(file_get_contents(__DIR__.'/'.$configFile));
+        $config = Yaml::parse(file_get_contents(__DIR__ . '/' . $configFile));
         $this->getIndex($indexName, $config);
     }
 
@@ -84,7 +97,7 @@ class FeatureContext implements Context
         $mappingDataHash = $mappingData->getHash();
         foreach ($mappingDataHash as $mappingDataRow) {
             $this->assert->string($response[$indexName]['mappings'][$typeName]['properties'][$mappingDataRow['property']]['type'])->isEqualTo($mappingDataRow['type']);
-            if($mappingDataRow['analyzer']) {
+            if ($mappingDataRow['analyzer']) {
                 $this->assert->string($response[$indexName]['mappings'][$typeName]['properties'][$mappingDataRow['property']]['analyzer'])->isEqualTo($mappingDataRow['analyzer']);
             }
         }
@@ -141,9 +154,11 @@ class FeatureContext implements Context
 
         $objectListHash = $objectList->getHash();
         foreach ($objectListHash as $objectListRow) {
-            $objectId = $objectListRow['id'];
-            $objectIndexer->index(new IndexableObject($objectId, $objectListRow), $objectType);
+            $indexableObject = new IndexableObject($objectListRow['id'], $objectListRow);
+            $objectIndexer->index($indexableObject, $objectType);
         }
+
+        sleep(1);
     }
 
     /**
@@ -188,11 +203,124 @@ class FeatureContext implements Context
     }
 
     /**
+     * @Given I build a query matching :
+     */
+    public function iBuildAQueryMatching(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $this->queryBuilder->match($queryRow['field'], $queryRow['value'], $queryRow['condition']);
+        }
+    }
+
+    /**
+     * @Given I build the query with filter :
+     * @Given I build a query with filter :
+     */
+    public function iBuildAQueryWithFilter(TableNode $filterTable)
+    {
+        $typeClasses = [
+            'term' => TermFilter::class,
+            'in_array' => InArrayFilter::class,
+            'range' => RangeFilter::class,
+        ];
+
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+
+        $filterHash = $filterTable->getHash();
+        foreach ($filterHash as $filterRow) {
+
+            $typeClass = $typeClasses[$filterRow['type']];
+            unset($filterRow['type']);
+
+            if($typeClass === InArrayFilter::class) {
+                $filterRow['value'] = explode(';', $filterRow['value']);
+            }
+
+            $this->queryBuilder->addFilter(new $typeClass(...array_values($filterRow)));
+        }
+    }
+
+    /**
+     * @When I execute it on the index named :indexName for type :objectType
+     */
+    public function iExecuteItOnTheIndexNamed($indexName, $objectType)
+    {
+        $queryExecutor = new QueryExecutor($this->getIndex($indexName));
+        $this->result = $queryExecutor->execute($this->queryBuilder->getQueryBody(), $objectType);
+    }
+
+    /**
+     * @Then the result should contain exactly ids :idList
+     */
+    public function theResultShouldContainExactlyIds($idList)
+    {
+        $foundCount = 0;
+
+        foreach ($this->result->hits() as $hit) {
+            $foundCount += in_array($hit['id'], $idList) ? 1 : 0;
+        }
+
+        $this->assert->integer($this->result->totalHits())->isEqualTo(count($idList));
+        $this->assert->integer($foundCount)->isEqualTo(count($idList));
+    }
+
+    /**
+     * @Then the result should contain only ids :idList
+     */
+    public function theResultShouldContainOnlyIds($idList)
+    {
+        $foundCount = 0;
+
+        foreach ($this->result->hits() as $hit) {
+            $foundCount += in_array($hit['id'], $idList) ? 1 : 0;
+        }
+
+        $this->assert->integer($foundCount)->isEqualTo(count($idList));
+    }
+
+    /**
+     * @Then the result should contain :totalCount hits
+     */
+    public function theResultShouldContainHits($totalCount)
+    {
+        $this->assert->integer($this->result->totalHits())->isEqualTo($totalCount);
+    }
+
+    /**
+     * @Given I set query offset to :offset and limit to :limit
+     */
+    public function iSetQueryOffsetToAndLimitTo($offset, $limit)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $this->queryBuilder->setLimit($limit);
+        $this->queryBuilder->setOffset($offset);
+    }
+
+    /**
+     * @Given I set query minimum score to :min
+     */
+    public function iSetQueryMinimumScoreTo($min)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $this->queryBuilder->setMinimumScore($min);
+    }
+
+    /**
      * @Then todo
      */
     public function todo()
     {
         throw new PendingException();
+    }
+
+    /**
+     * @Transform /^\[(.*)\]$/
+     */
+    public function castStringToArray($string)
+    {
+        return explode(';', $string);
     }
 
     /**
@@ -203,7 +331,11 @@ class FeatureContext implements Context
      */
     private function getIndex(string $indexName, array $config = null): Index
     {
-        return new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
+        if (!$this->index) {
+            $this->index = new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
+        }
+
+        return $this->index;
     }
 
     /**

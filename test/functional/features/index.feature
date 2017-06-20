@@ -19,29 +19,29 @@ Feature: Add and remove data to the elasticsearch index
 
     Scenario: Index object
         Given I reload the index named "my_index"
-        When I add objects of type "my_object" to index "my_index" with data :
+        When I add objects of type "my_type" to index "my_index" with data :
             | id | first_name  | nick_name | age |
             | 1  | Barry       | flash     | 33  |
-        Then the object of type "my_object" indexed in "my_index" with id "1" has data :
+        Then the object of type "my_type" indexed in "my_index" with id "1" has data :
             | first_name  | nick_name | age |
             | Barry       | flash     | 33  |
 
     Scenario: Update object
         Given I reload the index named "my_index"
-        And I add objects of type "my_object" to index "my_index" with data :
+        And I add objects of type "my_type" to index "my_index" with data :
             | id | first_name  | nick_name | age |
             | 1  | Barry      | flash     | 33  |
-        When I update object of type "my_object" with id "1" in index "my_index" with data :
+        When I update object of type "my_type" with id "1" in index "my_index" with data :
             | first_name  | nick_name | age |
             | Barry       | Savitar   | 35  |
-        Then the object of type "my_object" indexed in "my_index" with id "1" has data :
+        Then the object of type "my_type" indexed in "my_index" with id "1" has data :
             | first_name  | nick_name | age |
             | Barry       | Savitar   | 35  |
 
     Scenario: Delete object
         Given I reload the index named "my_index"
-        And I add objects of type "my_object" to index "my_index" with data :
+        And I add objects of type "my_type" to index "my_index" with data :
             | id | first_name  | nick_name | age |
             | 1  | Barry       | flash     | 33  |
-        When I delete the object with id "1" of type "my_object" indexed in "my_index"
-        Then the object of type "my_object" indexed in "my_index" with id "1" does not exist
+        When I delete the object with id "1" of type "my_type" indexed in "my_index"
+        Then the object of type "my_type" indexed in "my_index" with id "1" does not exist

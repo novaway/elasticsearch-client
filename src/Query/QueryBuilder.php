@@ -70,6 +70,18 @@ class QueryBuilder
     }
 
     /**
+     * @param $minScore
+     *
+     * @return QueryBuilder
+     */
+    public function setMinimumScore($minScore): QueryBuilder
+    {
+        $this->queryBody['min_score'] = $minScore;
+
+        return $this;
+    }
+
+    /**
      * @param $field
      * @param $value
      *
@@ -105,7 +117,7 @@ class QueryBuilder
      */
     public function setFilters(array $filters): QueryBuilder
     {
-        $this->filterCollection = array_map(function(Filter $filter) {
+        $this->filterCollection = array_map(function (Filter $filter) {
             return $filter->formatForQuery();
         }, $filters);
 
