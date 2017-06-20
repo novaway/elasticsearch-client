@@ -82,6 +82,6 @@ Feature: Search on index
             | field       | value  | condition |
             | nick_name   | batman | should    |
             | description | batman | should    |
-        And I set query minimum score to 0.1
+        And I set query minimum score to 0.5
         When I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[3;6;4]"
