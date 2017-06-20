@@ -15,7 +15,7 @@ php:
   - 7.1
   - 7.0
 
-before_script:
+install:
   - composer selfupdate
   - composer update
 
