@@ -2,7 +2,7 @@
 
 namespace Novaway\ElasticsearchClient\Filter;
 
-class InArrayFilter
+class InArrayFilter implements Filter
 {
     /** @var string */
     private $property;
@@ -30,7 +30,7 @@ class InArrayFilter
                 'should' => array_map(function ($value) {
                     $matchFilter = new TermFilter($this->property, $value);
                     return $matchFilter->formatForQuery();
-                }, $values)
+                }, $this->values)
             ]
         ];
     }
