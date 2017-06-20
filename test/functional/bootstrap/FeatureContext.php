@@ -7,7 +7,6 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
-use Novaway\ElasticsearchClient\Filter\ComparisonFilter;
 use Novaway\ElasticsearchClient\Filter\InArrayFilter;
 use Novaway\ElasticsearchClient\Filter\RangeFilter;
 use Novaway\ElasticsearchClient\Filter\TermFilter;
@@ -55,7 +54,7 @@ class FeatureContext implements Context
             return;
         }
 
-        $this->httpDelete('/my_index/');
+        $this->httpDelete('/my_index');
     }
 
     /**
@@ -377,9 +376,11 @@ class FeatureContext implements Context
     private function httpDelete(string $uri)
     {
         $response = $this->httpCall('DELETE', $uri);
+
         if ($response['status'] === 200) {
             return;
         }
+
 
         throw new \Exception('Index has not been deleted');
     }
@@ -409,9 +410,12 @@ class FeatureContext implements Context
             'http_method' => $method,
             'uri' => $uri,
             'headers' => ['host' => ['127.0.0.1:9200']],
-            'body' => json_encode($data),
             'future' => false,
         ];
+
+        if($data) {
+            $request['body'] =  json_encode($data);
+        }
 
         return $handler($request);
     }

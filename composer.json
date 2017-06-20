@@ -14,7 +14,7 @@
   ],
   "require": {
     "php": "^7.0",
-    "elasticsearch/elasticsearch": "^2.3",
+    "elasticsearch/elasticsearch": "^5.2",
     "symfony/dependency-injection": "^3.0"
   },
   "require-dev": {

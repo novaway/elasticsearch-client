@@ -88,10 +88,10 @@ class Index
     public function search(array $searchParams, ResultTransformer $resultTransformer = null)
     {
         $searchParams['index'] = $this->name;
+
         $searchResult = $this->client->search($searchParams);
-
+dump($searchResult['hits']);
         $result = Result::createFromArray($searchResult);
-
         if ($resultTransformer) {
             $result = $resultTransformer->formatResult($result);
         }

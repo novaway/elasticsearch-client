@@ -134,7 +134,7 @@ class QueryBuilder
         }
 
         if (count($this->matchCollection) === 0) {
-            $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
+            $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = (object)[];
         }
         foreach ($this->matchCollection as $match) {
             $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
