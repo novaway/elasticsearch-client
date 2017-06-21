@@ -12,7 +12,7 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - docker-compose pull
-  - docker-compose start
+  - docker-compose up
 
 language: php
 
