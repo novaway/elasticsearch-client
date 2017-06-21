@@ -6,12 +6,6 @@
     "elasticsearch"
   ],
   "license": "MIT",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "githost:dev-team/elasticsearch-client.git"
-    }
-  ],
   "require": {
     "php": "^7.0",
     "elasticsearch/elasticsearch": "^5.2",
