@@ -84,7 +84,7 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['must']->array['match_all']->isEqualTo([])
+                ->array['query']->array['bool']->array['must']->object['match_all']->isEqualTo((object)[])
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
             ->array($this->testedInstance->getQueryBody())
