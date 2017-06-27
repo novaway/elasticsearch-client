@@ -49,7 +49,7 @@ $index = new \Novaway\ElasticsearchClient\Index(
 
 In order to be searched, objects should be indexed as a serialized version. In order to be indexed, Object should implement `\Novaway\ElasticsearchClient\Indexable` interface.
 
-By default, objects are serialized with [Elasticsearch-PHP's SmartSerializer](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_serializers.html#_smartserializer), but you can chose to [use a custom serializer](doc/working-with-a-custom-serializer.md).
+By default, objects are serialized with [Elasticsearch-PHP's SmartSerializer](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_serializers.html#_smartserializer), but you can choose to [use a custom serializer](doc/working-with-a-custom-serializer.md).
 
 ```php
 $objectIndexer = new \Novaway\ElasticsearchClient\ObjectIndexer($index);
