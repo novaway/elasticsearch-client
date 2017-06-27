@@ -2,7 +2,6 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
-use mageekguy\atoum\asserters\object;
 use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
