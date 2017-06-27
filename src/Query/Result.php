@@ -34,9 +34,10 @@ class Result
             if (isset($hit['_source'])) {
                 $hitFormated = $hit['_source'];
             }
-
-            foreach ($hit['highlight'] as $key => $highlight) {
-                $hitFormated[$key] = current($highlight);
+            if (isset($hit['highlight'])) {
+                foreach ($hit['highlight'] as $key => $highlight) {
+                    $hitFormated[$key] = current($highlight);
+                }
             }
 
             return $hitFormated;
