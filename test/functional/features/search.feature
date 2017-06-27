@@ -19,7 +19,7 @@ Feature: Search on index
             | field       | value  | condition |
             | description | batman | should    |
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[4;5;6]"
+        Then the result should contain exactly ids "[4;5;6;7]"
 
     Scenario: Search over several field
         Given I build a query matching :
@@ -27,7 +27,7 @@ Feature: Search on index
             | nick_name   | batman | should    |
             | description | batman | should    |
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;4;5;6]"
+        Then the result should contain exactly ids "[3;4;5;6;7]"
 
     Scenario: Combine SHOULD an MUST matches
         Given I build a query matching :
@@ -35,7 +35,7 @@ Feature: Search on index
             | nick_name   | batman | must      |
             | description | batman | should    |
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3]"
+        Then the result should contain exactly ids "[3;7]"
 
     Scenario: Term filter
         Given I build a query with filter :
@@ -75,8 +75,8 @@ Feature: Search on index
             | description | batman | should    |
         And I set query offset to 1 and limit to 2
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain only ids "[6;4]"
-        And  the result should contain 4 hits
+        Then the result should contain only ids "[3;6]"
+        And  the result should contain 5 hits
 
     Scenario: Minimum score
         Given I build a query matching :
@@ -85,7 +85,7 @@ Feature: Search on index
             | description | batman | should    |
         And I set query minimum score to 0.1
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;6;4]"
+        Then the result should contain exactly ids "[7;3;6;4]"
 
     Scenario: Highlight after Search over several field
         Given I build a query matching :
