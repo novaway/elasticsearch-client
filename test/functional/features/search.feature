@@ -12,6 +12,7 @@ Feature: Search on index
             | 4  | Barbara    | Batgirl      | 27  | female | I team up with Batman to fight crime                            |
             | 5  | Oliver     | Green Arrow  | 35  | male   | I'm rich and I fight crime, pretty much like Batman, with a bow |
             | 6  | Selena     | Catwoman     | 38  | female | I <3 cats ... and batman                                        |
+            | 7  | Skwi       | Batman       | 33  | male   | I <3 pasta ... and batman                                        |
 
     Scenario: Search on one fields
         Given I build a query matching :
@@ -85,3 +86,15 @@ Feature: Search on index
         And I set query minimum score to 0.1
         When I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[3;6;4]"
+
+    Scenario: Highlight after Search over several field
+        Given I build a query matching :
+            | field       | value  | condition |
+            | nick_name   | batman | should    |
+            | description | batman | should    |
+        And I set highlight tags to "<strong>" and "</strong>" for description
+        And I set highlight tags to "<em>" and "</em>" for nick_name
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result with the id 7 should contain "<em>Batman</em>" in "nick_name"
+        And the result with the id 7 should contain "I <3 pasta ... and <strong>batman</strong>" in "description"
+        And the result with the id 3 should contain "<em>Batman</em>" in "nick_name"

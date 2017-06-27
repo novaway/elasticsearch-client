@@ -2,6 +2,7 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
+use mageekguy\atoum\asserters\object;
 use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
@@ -77,6 +78,24 @@ class QueryBuilder
     public function setMinimumScore($minScore): QueryBuilder
     {
         $this->queryBody['min_score'] = $minScore;
+
+        return $this;
+    }
+
+    /**
+     * @param string $field
+     * @param array $preTags
+     * @param array $postTags
+     * @return QueryBuilder
+     */
+    public function setHighlightTags(string $field, array $preTags, array $postTags): QueryBuilder
+    {
+        $this->queryBody['highlight']['fields'][] = [
+            $field => [
+                "pre_tags" => $preTags,
+                "post_tags" => $postTags
+            ]
+        ];
 
         return $this;
     }
