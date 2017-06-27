@@ -47,9 +47,9 @@ $index = new \Novaway\ElasticsearchClient\Index(
 
 ### Index an object
 
-In order to be searched, objects should be indexed as a serialized version. In order to be indexed, Object sshould implement `\Novaway\ElasticsearchClient\Indexable` interface.
+In order to be searched, objects should be indexed as a serialized version. In order to be indexed, Object should implement `\Novaway\ElasticsearchClient\Indexable` interface.
 
-By default, objects are serialized by [Elasticsearch-PHP's SmartSerializer](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_serializers.html#_smartserializer), but you can chose to [use a custom serializer](doc/working-with-a-custom-serializer.md).
+By default, objects are serialized with [Elasticsearch-PHP's SmartSerializer](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_serializers.html#_smartserializer), but you can choose to [use a custom serializer](doc/working-with-a-custom-serializer.md).
 
 ```php
 $objectIndexer = new \Novaway\ElasticsearchClient\ObjectIndexer($index);
@@ -90,7 +90,7 @@ $queryBody = QueryBuilder::createNew()
 $queryExecutor->execute($queryBody, 'my_type');
 ```
 
-The `QueryBuilder` allow you to define a limit and an offset for search result, and to chose the minimum score to display.
+The `QueryBuilder` allow you to define a limit and an offset for a search result, and choose the minimum score to display.
 
 ```php
 const MIN_SCORE = 0.4;
@@ -105,16 +105,16 @@ $queryBuilder = QueryBuilder::createNew(0, 10, 0.3);
 
 ### Clear the index
 
-You might want, for some reason, to purge an index. The `reload` method drops and recreate the index.
+You might want, for some reason, to purge an index. The `reload` method drops and recreates the index.
 
 ```php
 $index->reload();
 ```
 
 
-## Recommanded usage with Symfony
+## Recommended usage with Symfony
 
-If you are using this library in a symfony project, we recommand to use it is as service.
+If you are using this library in a symfony project, we recommend to use it as service.
 
 ```yml
 # services.yml
