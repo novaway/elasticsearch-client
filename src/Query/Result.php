@@ -32,8 +32,14 @@ class Result
         $totalHits = isset($arrayResult['hits']['total']) ? $arrayResult['hits']['total'] : 0;
         $hits = isset($arrayResult['hits']['hits']) ? array_map(function ($hit) {
             if (isset($hit['_source'])) {
-                return $hit['_source'];
+                $hitFormated = $hit['_source'];
             }
+
+            foreach ($hit['highlight'] as $key => $highlight) {
+                $hitFormated[$key] = current($highlight);
+            }
+
+            return $hitFormated;
         }, $arrayResult['hits']['hits']) : [];
 
         return new self($totalHits, $hits);
