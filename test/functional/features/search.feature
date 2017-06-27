@@ -12,13 +12,14 @@ Feature: Search on index
             | 4  | Barbara    | Batgirl      | 27  | female | I team up with Batman to fight crime                            |
             | 5  | Oliver     | Green Arrow  | 35  | male   | I'm rich and I fight crime, pretty much like Batman, with a bow |
             | 6  | Selena     | Catwoman     | 38  | female | I <3 cats ... and batman                                        |
+            | 7  | Skwi       | Batman       | 33  | male   | I <3 pasta ... and batman                                        |
 
     Scenario: Search on one fields
         Given I build a query matching :
             | field       | value  | condition |
             | description | batman | should    |
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[4;5;6]"
+        Then the result should contain exactly ids "[4;5;6;7]"
 
     Scenario: Search over several field
         Given I build a query matching :
@@ -26,7 +27,7 @@ Feature: Search on index
             | nick_name   | batman | should    |
             | description | batman | should    |
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;4;5;6]"
+        Then the result should contain exactly ids "[3;4;5;6;7]"
 
     Scenario: Combine SHOULD an MUST matches
         Given I build a query matching :
@@ -34,7 +35,7 @@ Feature: Search on index
             | nick_name   | batman | must      |
             | description | batman | should    |
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3]"
+        Then the result should contain exactly ids "[3;7]"
 
     Scenario: Term filter
         Given I build a query with filter :
@@ -74,8 +75,8 @@ Feature: Search on index
             | description | batman | should    |
         And I set query offset to 1 and limit to 2
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain only ids "[6;4]"
-        And  the result should contain 4 hits
+        Then the result should contain only ids "[3;6]"
+        And  the result should contain 5 hits
 
     Scenario: Minimum score
         Given I build a query matching :
@@ -84,4 +85,16 @@ Feature: Search on index
             | description | batman | should    |
         And I set query minimum score to 0.5
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;6;4]"
+        Then the result should contain exactly ids "[3;6;7]"
+
+    Scenario: Highlight after Search over several field
+        Given I build a query matching :
+            | field       | value  | condition |
+            | nick_name   | batman | should    |
+            | description | batman | should    |
+        And I set highlight tags to "<strong>" and "</strong>" for description
+        And I set highlight tags to "<em>" and "</em>" for nick_name
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result with the id 7 should contain "<em>Batman</em>" in "nick_name"
+        And the result with the id 7 should contain "I <3 pasta ... and <strong>batman</strong>" in "description"
+        And the result with the id 3 should contain "<em>Batman</em>" in "nick_name"

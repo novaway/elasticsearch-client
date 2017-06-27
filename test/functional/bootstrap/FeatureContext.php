@@ -307,6 +307,30 @@ class FeatureContext implements Context
     }
 
     /**
+     * @Given I set highlight tags to :preTags and :postTags for :field
+     */
+    public function iSetHilghlightTagsTo($preTags, $postTags, $field)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $this->queryBuilder->setHighlightTags($field, [$preTags], [$postTags]);
+    }
+
+    /**
+     * @Then the result with the id :id should contain :highlight in :field
+     */
+    public function theResultShouldContainHighlight($id, $highlight, $field)
+    {
+        foreach ($this->result->hits() as $hit) {
+            if ((int)$hit['id'] == $id && $hit[$field] == $highlight) {
+                return true;
+                break;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @Then todo
      */
     public function todo()

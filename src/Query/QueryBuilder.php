@@ -82,6 +82,24 @@ class QueryBuilder
     }
 
     /**
+     * @param string $field
+     * @param array $preTags
+     * @param array $postTags
+     * @return QueryBuilder
+     */
+    public function setHighlightTags(string $field, array $preTags, array $postTags): QueryBuilder
+    {
+        $this->queryBody['highlight']['fields'][] = [
+            $field => [
+                "pre_tags" => $preTags,
+                "post_tags" => $postTags
+            ]
+        ];
+
+        return $this;
+    }
+
+    /**
      * @param $field
      * @param $value
      *
