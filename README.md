@@ -2,6 +2,10 @@
 
 A lightweight PHP 7.0+ client for Elasticsearch, providing features over [Elasticsearch-PHP](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html)
 
+> **Disclaimer** : You are on a branch based on the 1.7 version of the Elasticsearch server.   
+This version is no longer maintained and the branch only exist for historical reasons.  
+If you are still working with a 1.X version of Elasticsearch, we highly encourage you to upgrade as soon as possible.
+
 ## Installation
 
 Install using [composer](https://getcomposer.org):
