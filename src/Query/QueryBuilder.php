@@ -147,16 +147,38 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
-        if (count($this->filterCollection)) {
-            $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
-        }
+        $boolQuery = [];
 
         if (count($this->matchCollection) === 0) {
-            $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
+            $boolQuery['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->matchCollection as $match) {
-            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
+            $boolQuery['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
         }
+
+        if (count($this->filterCollection)) {
+            $this->queryBody['query']['filtered'] = $boolQuery;
+            $this->queryBody['query']['filtered']['filter'] = $this->filterCollection;
+        } else {
+            $this->queryBody = $boolQuery;
+        }
+
+
+        /*
+
+  "query": {
+    "filtered": {
+      "query": {
+        "match": { "tweet": "full text search" }
+      },
+      "filter": {
+        "range": { "created": { "gte": "now-1d/d" }}
+      }
+    }
+  }
+}
+         */
+
 
         return $this->queryBody;
     }
