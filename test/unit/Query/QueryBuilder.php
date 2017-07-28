@@ -84,11 +84,11 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['must']->array['match_all']->isEqualTo([])
+                ->array['query']->array['filtered']->array['query']->array['bool']->array[CombiningFactor::MUST]->array['match_all']->isEqualTo([])
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
+                ->array['query']->array['filtered']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['filter']->array[1]->isEqualTo(['term' => ['color' => 'blue']])
+                ->array['query']->array['filtered']->array['filter']->array[1]->isEqualTo(['term' => ['color' => 'blue']])
         ;
     }
 
@@ -127,13 +127,13 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['must']->notHasKey('match_all')
+                ->array['query']->array['filtered']->array['query']->array['bool']->array[CombiningFactor::MUST]->notHasKey('match_all')
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
+                ->array['query']->array['filtered']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array[CombiningFactor::MUST]->array[0]->isEqualTo(['match' => ['firstname' => 'cedric']])
+                ->array['query']->array['filtered']->array['query']->array['bool']->array[CombiningFactor::MUST]->array[0]->isEqualTo(['match' => ['firstname' => 'cedric']])
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array[CombiningFactor::SHOULD]->array[0]->isEqualTo(['match' => ['nickname' => 'skwi']])
+                ->array['query']->array['filtered']->array['query']->array['bool']->array[CombiningFactor::SHOULD]->array[0]->isEqualTo(['match' => ['nickname' => 'skwi']])
         ;
     }
 
