@@ -167,7 +167,6 @@ class QueryBuilder
         if (count($this->filterCollection)) {
             $this->queryBody['query']['filtered'] = $boolQuery;
             $this->queryBody['query']['filtered']['filter'] = $this->filterCollection;
-//            var_dump($this->queryBody);
         } else {
             $this->queryBody = array_merge($boolQuery, $this->queryBody);
         }
