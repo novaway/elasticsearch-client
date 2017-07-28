@@ -81,6 +81,14 @@ class QueryBuilder
         return $this;
     }
 
+    public function addSort($field, $order): QueryBuilder
+    {
+        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
+
+        return $this;
+    }
+
+
     /**
      * @param string $field
      * @param array $preTags
