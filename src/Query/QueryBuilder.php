@@ -83,6 +83,14 @@ class QueryBuilder
         return $this;
     }
 
+    public function addSort($field, $order): QueryBuilder
+    {
+        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
+
+        return $this;
+    }
+
+
     /**
      * @param string $field
      * @param array $preTags
@@ -165,8 +173,16 @@ class QueryBuilder
         foreach ($this->matchCollection as $match) {
             $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
         }
+
         foreach ($this->aggregationCollection as $agg) {
             $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
+        }
+
+        if (count($this->filterCollection)) {
+            $this->queryBody['query']['filtered'] = $boolQuery;
+            $this->queryBody['query']['filtered']['filter'] = $this->filterCollection;
+        } else {
+            $this->queryBody = array_merge($boolQuery, $this->queryBody);
         }
 
         return $this->queryBody;
