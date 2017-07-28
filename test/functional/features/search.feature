@@ -85,7 +85,7 @@ Feature: Search on index
             | description | batman | should    |
         And I set query minimum score to 0.1
         When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[7;3;6;4;5]"
+        Then the result should contain exactly ids "[7;3;6;4]"
 
     Scenario: Highlight after Search over several field
         Given I build a query matching :

@@ -81,6 +81,14 @@ class QueryBuilder
         return $this;
     }
 
+    public function addSort($field, $order): QueryBuilder
+    {
+        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
+
+        return $this;
+    }
+
+
     /**
      * @param string $field
      * @param array $preTags
@@ -160,7 +168,7 @@ class QueryBuilder
             $this->queryBody['query']['filtered'] = $boolQuery;
             $this->queryBody['query']['filtered']['filter'] = $this->filterCollection;
         } else {
-            $this->queryBody = $boolQuery;
+            $this->queryBody = array_merge($boolQuery, $this->queryBody);
         }
 
 
