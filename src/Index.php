@@ -12,13 +12,13 @@ use Elasticsearch\Serializers\SerializerInterface;
 class Index
 {
     /** @var Client */
-    private $client;
+    protected $client;
 
     /** @var string */
-    private $name;
+    protected $name;
 
     /** @var array */
-    private $config;
+    protected $config;
 
     /**
      * @param array $hosts
