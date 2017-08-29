@@ -11,13 +11,13 @@ class QueryBuilder
     const DEFAULT_MIN_SCORE = 0.01;
 
     /** @var array */
-    private $queryBody;
+    protected $queryBody;
 
     /** @var Filter[] */
-    private $filterCollection;
+    protected $filterCollection;
 
     /** @var MatchQuery[] */
-    private $matchCollection;
+    protected $matchCollection;
 
     /**
      * QueryBuilder constructor.
