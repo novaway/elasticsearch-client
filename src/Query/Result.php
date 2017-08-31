@@ -10,16 +10,24 @@ class Result
     /** @var array */
     private $hits;
 
+    /** @var  array */
+    private $aggregations;
+
     /**
      * Result constructor.
      *
      * @param integer $totalHits
      * @param array $hits
      */
-    public function __construct($totalHits, $hits)
+    public function __construct(
+        int $totalHits,
+        array $hits,
+        array $aggregations = []
+    )
     {
         $this->hits = $hits;
         $this->totalHits = $totalHits;
+        $this->aggregations = $aggregations;
     }
 
     /**
@@ -43,7 +51,21 @@ class Result
             return $hitFormated;
         }, $arrayResult['hits']['hits']) : [];
 
-        return new self($totalHits, $hits);
+        $aggregations = isset($arrayResult['aggregations']) ? array_map(function ($aggregation) {
+            if (isset($aggregation['buckets'])) {
+                // bucket aggregation
+                return $aggregation['buckets'];
+            }
+            if (array_key_exists('value', $aggregation)) {
+                // metric aggregation
+                // in that case, array_key_exist is mandatory instead of isset,
+                // as the result can legitimately be null
+                return $aggregation['value'];
+            }
+            return $aggregation;
+        }, $arrayResult['aggregations']) : [];
+
+        return new self($totalHits, $hits, $aggregations);
     }
 
     /**
@@ -59,6 +81,15 @@ class Result
      */
     public function hits()
     {
+
         return $this->hits;
+    }
+
+    /**
+     * @return array
+     */
+    public function aggregations()
+    {
+        return $this->aggregations;
     }
 }
