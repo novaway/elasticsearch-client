@@ -70,7 +70,7 @@ class Result
                     return $aggregation['value'];
                 }
                 return $aggregation;
-            }, $arrayResult['aggregations'];
+            }, $arrayResult['aggregations']);
 
         }
 
