@@ -17,10 +17,10 @@ class Aggregation
 
     /**
      * Aggregation constructor.
-     * @param $name         name of the key in results
-     * @param $category     category of aggregation : terms, max, avg ...
-     * @param $field        field on which the aggregation is done
-     * @param $options      extraneous parameters given to the aggregation, needed in some categories
+     * @param string    $name         name of the key in results
+     * @param string    $category     category of aggregation : terms, max, avg ...
+     * @param string    $field        field on which the aggregation is done
+     * @param array     $options      extraneous parameters given to the aggregation, needed in some categories
      */
     public function __construct(string $name, string $category, string $field, array $options = [])
     {

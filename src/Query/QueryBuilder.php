@@ -23,9 +23,6 @@ class QueryBuilder
     /** @var Aggregation[]  */
     protected $aggregationCollection;
 
-    /**
-     * QueryBuilder constructor.
-     */
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
         $this->queryBody = [];
