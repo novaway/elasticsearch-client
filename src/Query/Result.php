@@ -57,7 +57,7 @@ class Result
                 return $aggregation['buckets'];
             }
             if (array_key_exists('value', $aggregation)) {
-                // metric aggregation
+                // Single scalar metric aggregation
                 // in that case, array_key_exist is mandatory instead of isset,
                 // as the result can legitimately be null
                 return $aggregation['value'];
