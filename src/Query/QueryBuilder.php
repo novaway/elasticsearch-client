@@ -166,7 +166,7 @@ class QueryBuilder
             $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
         }
         foreach ($this->aggregationCollection as $agg) {
-            $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->formatParameters();
+            $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
         }
 
         return $this->queryBody;

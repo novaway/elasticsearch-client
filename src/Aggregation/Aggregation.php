@@ -62,7 +62,7 @@ class Aggregation
         return $this->options;
     }
 
-    public function formatParameters(): array
+    public function getParameters(): array
     {
         return array_merge(['field' => $this->getField()], $this->getOptions());
     }
