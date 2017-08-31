@@ -137,4 +137,37 @@ class QueryBuilder extends test
         ;
     }
 
+    public function testAddAggregation()
+    {
+        $mockAvgAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('avg_likes', 'avg', 'likes');
+        $mockAvgAggregation->getMockController()->getParameters = ['field' => 'likes'];
+        $mockAvgAggregation->getMockController()->getName = 'avg_likes';
+        $mockAvgAggregation->getMockController()->getCategory = 'avg';
+
+        $mockTermsAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('users', 'terms', 'user');
+        $mockTermsAggregation->getMockController()->getParameters = ['field' => 'user'];
+        $mockTermsAggregation->getMockController()->getName = 'users';
+        $mockTermsAggregation->getMockController()->getCategory = 'terms';
+
+        $mockRangeAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('date_range', 'date_range', 'date', ['format' => 'MM-yyy']);
+        $mockRangeAggregation->getMockController()->getParameters = ['field' => 'date', 'format' => 'MM-yyy'];
+        $mockRangeAggregation->getMockController()->getName = 'date_range';
+        $mockRangeAggregation->getMockController()->getCategory = 'date_range';
+
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addAggregation($mockAvgAggregation),
+                $this->testedInstance->addAggregation($mockTermsAggregation),
+                $this->testedInstance->addAggregation($mockRangeAggregation)
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody())
+            ->array['aggregations']->array['avg_likes']->array['avg']->string['field']->isEqualTo('likes')
+            ->array($this->testedInstance->getQueryBody())
+            ->array['aggregations']->array['users']->array['terms']->string['field']->isEqualTo('user')
+            ->array($this->testedInstance->getQueryBody())
+            ->array['aggregations']->array['date_range']->array['date_range']->string['format']->isEqualTo('MM-yyy')
+        ;
+    }
 }
