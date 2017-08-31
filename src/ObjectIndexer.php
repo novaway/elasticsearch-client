@@ -19,7 +19,6 @@ class ObjectIndexer
     /**
      * @param Indexable $object
      * @param string $type
-     * @param string $type
      */
     public function index(Indexable $object, $type)
     {
@@ -38,7 +37,6 @@ class ObjectIndexer
     /**
      * @param Indexable $object
      * @param string $type
-     * @param string $type
      */
     public function remove(Indexable $object, $type)
     {
@@ -47,7 +45,6 @@ class ObjectIndexer
 
     /**
      * @param Indexable $object
-     * @param string $type
      * @param string $type
      */
     public function removeById(string $objectId, $type)

@@ -2,6 +2,7 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
+use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
@@ -19,14 +20,15 @@ class QueryBuilder
     /** @var MatchQuery[] */
     protected $matchCollection;
 
-    /**
-     * QueryBuilder constructor.
-     */
+    /** @var Aggregation[]  */
+    protected $aggregationCollection;
+
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
         $this->queryBody = [];
         $this->filterCollection = [];
         $this->matchCollection = [];
+        $this->aggregationCollection = [];
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -142,6 +144,12 @@ class QueryBuilder
         return $this;
     }
 
+    public function addAggregation(Aggregation $aggregation): QueryBuilder
+    {
+        $this->aggregationCollection[] = $aggregation;
+
+        return $this;
+    }
     /**
      * @return array
      */
@@ -156,6 +164,9 @@ class QueryBuilder
         }
         foreach ($this->matchCollection as $match) {
             $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
+        }
+        foreach ($this->aggregationCollection as $agg) {
+            $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
         }
 
         return $this->queryBody;

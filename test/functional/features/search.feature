@@ -98,3 +98,13 @@ Feature: Search on index
         Then the result with the id 7 should contain "<em>Batman</em>" in "nick_name"
         And the result with the id 7 should contain "I <3 pasta ... and <strong>batman</strong>" in "description"
         And the result with the id 3 should contain "<em>Batman</em>" in "nick_name"
+
+    Scenario: Aggregations
+        Given I build a query with aggregation :
+            | name          | category  | field     |
+            | sum_age       | sum       | age       |
+            | genders       | terms     | gender    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result for aggregation "sum_age" should contain 1121
+        And the bucket result for aggregation "genders" should contain 4 result for "male"
+        And the bucket result for aggregation "genders" should contain 3 result for "female"
