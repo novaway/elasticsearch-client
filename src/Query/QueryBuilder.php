@@ -163,15 +163,13 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
-        if (count($this->filterCollection)) {
-            $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
-        }
+        $boolQuery = [];
 
         if (count($this->matchCollection) === 0) {
-            $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
+            $boolQuery['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->matchCollection as $match) {
-            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
+            $boolQuery['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
         }
 
         foreach ($this->aggregationCollection as $agg) {
