@@ -166,10 +166,10 @@ class QueryBuilder
         $boolQuery = [];
 
         if (count($this->matchCollection) === 0) {
-            $boolQuery['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
+            $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->matchCollection as $match) {
-            $boolQuery['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
+            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
         }
 
         foreach ($this->aggregationCollection as $agg) {
@@ -177,10 +177,7 @@ class QueryBuilder
         }
 
         if (count($this->filterCollection)) {
-            $this->queryBody['query']['filtered'] = $boolQuery;
-            $this->queryBody['query']['filtered']['filter'] = $this->filterCollection;
-        } else {
-            $this->queryBody = array_merge($boolQuery, $this->queryBody);
+            $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
         }
 
         return $this->queryBody;
