@@ -84,7 +84,7 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['must']->array['match_all']->isEqualTo([])
+                ->array['query']->array['bool']->array[CombiningFactor::MUST]->array['match_all']->isEqualTo([])
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
             ->array($this->testedInstance->getQueryBody())
@@ -127,7 +127,7 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['must']->notHasKey('match_all')
+                ->array['query']->array['bool']->array[CombiningFactor::MUST]->notHasKey('match_all')
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
             ->array($this->testedInstance->getQueryBody())
