@@ -84,7 +84,7 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['must']->object['match_all']->isEqualTo((object)[])
+                ->array['query']->array['bool']->array[CombiningFactor::MUST]->castToArray['match_all']->isEqualTo([])
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
             ->array($this->testedInstance->getQueryBody())
@@ -127,7 +127,7 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['must']->notHasKey('match_all')
+                ->array['query']->array['bool']->array[CombiningFactor::MUST]->notHasKey('match_all')
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
             ->array($this->testedInstance->getQueryBody())
@@ -137,4 +137,50 @@ class QueryBuilder extends test
         ;
     }
 
+    public function testAddAggregation()
+    {
+        $mockAvgAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('avg_likes', 'avg', 'likes');
+        $mockAvgAggregation->getMockController()->getParameters = ['field' => 'likes'];
+        $mockAvgAggregation->getMockController()->getName = 'avg_likes';
+        $mockAvgAggregation->getMockController()->getCategory = 'avg';
+
+        $mockTermsAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('users', 'terms', 'user');
+        $mockTermsAggregation->getMockController()->getParameters = ['field' => 'user'];
+        $mockTermsAggregation->getMockController()->getName = 'users';
+        $mockTermsAggregation->getMockController()->getCategory = 'terms';
+
+        $mockRangeAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('date_range', 'date_range', 'date', ['format' => 'MM-yyy']);
+        $mockRangeAggregation->getMockController()->getParameters = ['field' => 'date', 'format' => 'MM-yyy'];
+        $mockRangeAggregation->getMockController()->getName = 'date_range';
+        $mockRangeAggregation->getMockController()->getCategory = 'date_range';
+
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addAggregation($mockAvgAggregation),
+                $this->testedInstance->addAggregation($mockTermsAggregation),
+                $this->testedInstance->addAggregation($mockRangeAggregation)
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody()['aggregations'])
+            ->isEqualTo([
+                'avg_likes' => [
+                    'avg' => [
+                        'field' => 'likes'
+                        ],
+                    ],
+                'users' => [
+                    'terms' => [
+                        'field' => 'user'
+                    ]
+                ],
+                'date_range' => [
+                    'date_range' => [
+                        'field' => 'date',
+                        'format' => 'MM-yyy'
+                    ]
+                ],
+            ])
+        ;
+    }
 }

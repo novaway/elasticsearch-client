@@ -19,3 +19,5 @@ mappings:
                 search_analyzer: standard
             age:
                 type: integer
+            gender:
+                type: keyword
