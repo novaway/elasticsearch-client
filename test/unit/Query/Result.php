@@ -45,6 +45,23 @@ class Result extends test
                         ]
                     ]
                 ]
+            ],
+            'aggregations' => [
+                'avg_likes' => [
+                    'value' => 2
+                ],
+                'users' => [
+                    'buckets' => [
+                        [
+                            'key' => 'skwi',
+                            'count' => 1
+                        ],
+                        [
+                            'key' => 'ced',
+                            'count' => 1
+                        ],
+                    ]
+                ]
             ]
         ];
 
@@ -59,6 +76,8 @@ class Result extends test
             ->array($result->hits())->array[1]->string['date']->isEqualTo('2016-12-02T11:24:36')
             ->array($result->hits())->array[1]->string['message']->isEqualTo('testing php client')
             ->array($result->hits())->array[1]->integer['likes']->isEqualTo(4)
+            ->array($result->aggregations())->integer['avg_likes']->isEqualTo(2)
+            ->array($result->aggregations())->array['users']->array[1]->string['key']->isEqualTo('ced')
         ;
 
     }
