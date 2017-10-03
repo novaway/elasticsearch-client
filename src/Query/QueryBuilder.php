@@ -2,6 +2,7 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
+use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
@@ -19,14 +20,15 @@ class QueryBuilder
     /** @var MatchQuery[] */
     protected $matchCollection;
 
-    /**
-     * QueryBuilder constructor.
-     */
+    /** @var Aggregation[]  */
+    protected $aggregationCollection;
+
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
         $this->queryBody = [];
         $this->filterCollection = [];
         $this->matchCollection = [];
+        $this->aggregationCollection = [];
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -150,19 +152,28 @@ class QueryBuilder
         return $this;
     }
 
+    public function addAggregation(Aggregation $aggregation): QueryBuilder
+    {
+        $this->aggregationCollection[] = $aggregation;
+
+        return $this;
+    }
     /**
      * @return array
      */
     public function getQueryBody(): array
     {
+
         $boolQuery = [];
 
         if (count($this->matchCollection) === 0) {
             $boolQuery['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
+
         foreach ($this->matchCollection as $match) {
             $boolQuery['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
         }
+
 
         if (count($this->filterCollection)) {
             $this->queryBody['query']['filtered'] = $boolQuery;
@@ -171,22 +182,9 @@ class QueryBuilder
             $this->queryBody = array_merge($boolQuery, $this->queryBody);
         }
 
-
-        /*
-
-  "query": {
-    "filtered": {
-      "query": {
-        "match": { "tweet": "full text search" }
-      },
-      "filter": {
-        "range": { "created": { "gte": "now-1d/d" }}
-      }
-    }
-  }
-}
-         */
-
+        foreach ($this->aggregationCollection as $agg) {
+            $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
+        }
 
         return $this->queryBody;
     }
