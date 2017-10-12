@@ -16,13 +16,6 @@ test: test-unit test-behavior ## launch full test suite
 test-unit: ## launch unit tests
 	./vendor/bin/atoum
 test-behavior: docker-up ## launch behavior tests
-	@/bin/echo -n "Waiting for elasticsearch to be ready ..."
-	n=`curl --write-out %{http_code} --silent --output /dev/null http://localhost:9200/_cluster/health`; \
-    while [ $${n} -ne 200 ] ; do \
-		/bin/echo -n "." ; \
-        n=`curl --write-out %{http_code} --silent --output /dev/null http://localhost:9200/_cluster/health`; \
-	done; \
-	echo " READY !" ; \
-	true
+	./scripts/waitForElastic.sh
 	./vendor/bin/behat
 	make docker-down
