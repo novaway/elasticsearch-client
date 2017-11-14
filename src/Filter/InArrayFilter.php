@@ -2,6 +2,8 @@
 
 namespace Novaway\ElasticsearchClient\Filter;
 
+use Novaway\ElasticsearchClient\Query\CombiningFactor;
+
 class InArrayFilter implements Filter
 {
     /** @var string */

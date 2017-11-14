@@ -12,4 +12,5 @@ interface Clause
      * @return array
      */
     public function formatForQuery(): array;
+
 }

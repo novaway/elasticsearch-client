@@ -158,6 +158,14 @@ class QueryBuilder
 
         return $this;
     }
+
+    public function addQuery(Query $query): QueryBuilder
+    {
+        $this->matchCollection[] = $query;
+
+        return $this;
+    }
+
     /**
      * @return array
      */
