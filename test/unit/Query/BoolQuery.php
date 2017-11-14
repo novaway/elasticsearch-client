@@ -18,9 +18,9 @@ class BoolQuery extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addQuery($mockFirstNameQuery),
-                $this->testedInstance->addQuery($mockGenderQuery),
-                $this->testedInstance->addQuery($mockLastNameQuery)
+                $this->testedInstance->addClause($mockFirstNameQuery),
+                $this->testedInstance->addClause($mockGenderQuery),
+                $this->testedInstance->addClause($mockLastNameQuery)
             )
             ->then
             ->array($this->testedInstance->formatForQuery())

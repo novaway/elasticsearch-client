@@ -166,6 +166,11 @@ class QueryBuilder
         return $this;
     }
 
+    public function getClauseCollection()
+    {
+        return array_merge($this->matchCollection, $this->filterCollection);
+    }
+
     /**
      * @return array
      */
@@ -176,16 +181,12 @@ class QueryBuilder
         if (count($this->matchCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
-        foreach ($this->matchCollection as $match) {
-            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = $match->formatForQuery();
+        foreach ($this->getClauseCollection() as $clause) {
+            $this->queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
         }
 
         foreach ($this->aggregationCollection as $agg) {
             $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
-        }
-
-        foreach ($this->filterCollection as $filter) {
-            $this->queryBody['query']['bool']['filter'][] = $filter->formatForQuery();
         }
 
         return $this->queryBody;

@@ -159,3 +159,12 @@ Feature: Search on index
             | first_name        | Diana         | must    |
         When I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[2]"
+
+    Scenario: Combining queries and filters inside a Bool Query
+        Given I build a should bool query with :
+            | field      | value       | condition |
+            | gender     | male        | should    |
+            | gender     | female      | should    |
+            | age        | 910         | filter    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"

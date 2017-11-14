@@ -15,6 +15,7 @@ use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
 use Novaway\ElasticsearchClient\Query\BoolQuery;
+use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\MatchQuery;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
@@ -356,7 +357,12 @@ class FeatureContext implements Context
         $boolQuery = new BoolQuery($combining);
         $queryHash = $queryTable->getHash();
         foreach ($queryHash as $queryRow) {
-            $boolQuery->addQuery(new MatchQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+            if ( $queryRow['condition'] == CombiningFactor::FILTER) {
+                $boolQuery->addClause(new TermFilter($queryRow['field'], $queryRow['value']));
+            } else {
+                $boolQuery->addClause(new MatchQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+            }
+
         }
         $this->queryBuilder->addQuery($boolQuery);
     }

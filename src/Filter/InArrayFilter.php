@@ -10,16 +10,27 @@ class InArrayFilter implements Filter
     private $property;
     /** @var array */
     private $values;
+    /** @var string */
+    private $combiningFactor;
 
     /**
      * InArrayFilter constructor.
      * @param string $property
      * @param array $values
      */
-    public function __construct(string $property, array $values)
+    public function __construct(string $property, array $values, string $combiningFactor = CombiningFactor::FILTER)
     {
         $this->property = $property;
         $this->values = $values;
+        $this->combiningFactor = $combiningFactor;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCombiningFactor(): string
+    {
+        return $this->combiningFactor;
     }
 
     /**

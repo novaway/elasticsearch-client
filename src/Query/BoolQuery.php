@@ -4,18 +4,20 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 
+use Novaway\ElasticsearchClient\Clause;
+
 class BoolQuery implements Query
 {
 
     /** @var string */
     private $combiningFactor;
-    /** @var Query[] */
-    private $queries;
+    /** @var Clause[] */
+    private $clauses;
 
     public function __construct(string $combiningFactor = CombiningFactor::MUST)
     {
         $this->combiningFactor = $combiningFactor;
-        $this->queries = [];
+        $this->clauses = [];
     }
 
     public function getCombiningFactor(): string
@@ -23,23 +25,15 @@ class BoolQuery implements Query
         return $this->combiningFactor;
     }
 
-    public function getQueries(): array
+    public function addClause(Clause $clause)
     {
-        return $this->queries;
+        $this->clauses[] = $clause;
     }
-
-
-
-    public function addQuery(Query $query)
-    {
-        $this->queries[] = $query;
-    }
-
     public function formatForQuery(): array
     {
         $res = [];
-        foreach ($this->queries as $query) {
-            $res[$query->getCombiningFactor()][] = $query->formatForQuery();
+        foreach ($this->clauses as $clause) {
+            $res[$clause->getCombiningFactor()][] = $clause->formatForQuery();
         }
 
         return ['bool' => $res];

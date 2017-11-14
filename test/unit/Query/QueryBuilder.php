@@ -74,9 +74,11 @@ class QueryBuilder extends test
     {
         $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
+        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $mockFilterColor = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterColor->getMockController()->formatForQuery = ['term' => ['color' => 'blue']];
+        $mockFilterColor->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $this
             ->given($this->newTestedInstance())
@@ -98,9 +100,11 @@ class QueryBuilder extends test
     {
         $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
+        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $mockFilterColor = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterColor->getMockController()->formatForQuery = ['term' => ['color' => 'blue']];
+        $mockFilterColor->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $this
             ->given($this->newTestedInstance())
@@ -119,6 +123,7 @@ class QueryBuilder extends test
     {
         $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
+        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $this
             ->given($this->newTestedInstance())
