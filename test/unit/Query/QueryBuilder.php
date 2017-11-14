@@ -3,7 +3,9 @@
 namespace Test\Unit\Novaway\ElasticsearchClient\Query;
 
 use atoum\test;
+use Novaway\ElasticsearchClient\Query\BoolQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Novaway\ElasticsearchClient\Query\MatchQuery;
 
 class QueryBuilder extends test
 {
@@ -72,9 +74,11 @@ class QueryBuilder extends test
     {
         $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
+        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $mockFilterColor = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterColor->getMockController()->formatForQuery = ['term' => ['color' => 'blue']];
+        $mockFilterColor->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $this
             ->given($this->newTestedInstance())
@@ -96,9 +100,11 @@ class QueryBuilder extends test
     {
         $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
+        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $mockFilterColor = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterColor->getMockController()->formatForQuery = ['term' => ['color' => 'blue']];
+        $mockFilterColor->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $this
             ->given($this->newTestedInstance())
@@ -117,6 +123,7 @@ class QueryBuilder extends test
     {
         $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
         $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
+        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $this
             ->given($this->newTestedInstance())
@@ -181,6 +188,23 @@ class QueryBuilder extends test
                     ]
                 ],
             ])
+        ;
+
+    }
+
+
+    public function testAddQuery()
+    {
+        $mockQuery = new \mock\Novaway\ElasticsearchClient\Query\MatchQuery('firstname', 'cedric', CombiningFactor::MUST);
+
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addQuery($mockQuery)
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody())
+            ->array['query']->array['bool']->array[CombiningFactor::MUST]->array[0]->isEqualTo(['match' => ['firstname' => 'cedric']])
         ;
     }
 }

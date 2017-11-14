@@ -12,4 +12,11 @@ interface Clause
      * @return array
      */
     public function formatForQuery(): array;
+
+    /**
+     * Return the key under which the clause will be stored in the query
+     *
+     * @return string
+     */
+    public function getCombiningFactor(): string;
 }
