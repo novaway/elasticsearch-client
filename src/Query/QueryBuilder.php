@@ -2,6 +2,7 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
+use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
@@ -19,14 +20,15 @@ class QueryBuilder
     /** @var Query[] */
     protected $matchCollection;
 
-    /**
-     * QueryBuilder constructor.
-     */
+    /** @var Aggregation[]  */
+    protected $aggregationCollection;
+
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
         $this->queryBody = [];
         $this->filterCollection = [];
         $this->matchCollection = [];
+        $this->aggregationCollection = [];
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -80,6 +82,14 @@ class QueryBuilder
 
         return $this;
     }
+
+    public function addSort($field, $order): QueryBuilder
+    {
+        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
+
+        return $this;
+    }
+
 
     /**
      * @param string $field
@@ -142,20 +152,32 @@ class QueryBuilder
         return $this;
     }
 
+    public function addAggregation(Aggregation $aggregation): QueryBuilder
+    {
+        $this->aggregationCollection[] = $aggregation;
+
+        return $this;
+    }
     /**
      * @return array
      */
     public function getQueryBody(): array
     {
-        foreach ($this->filterCollection as $filter) {
-            $this->queryBody['query']['bool']['filter'][] = $filter->formatForQuery();
-        }
+        $boolQuery = [];
 
         if (count($this->matchCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->matchCollection as $match) {
             $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = $match->formatForQuery();
+        }
+
+        foreach ($this->aggregationCollection as $agg) {
+            $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
+        }
+
+        foreach ($this->filterCollection as $filter) {
+            $this->queryBody['query']['bool']['filter'][] = $filter->formatForQuery();
         }
 
         return $this->queryBody;
