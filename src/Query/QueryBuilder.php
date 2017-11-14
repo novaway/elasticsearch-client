@@ -16,7 +16,7 @@ class QueryBuilder
     /** @var Filter[] */
     protected $filterCollection;
 
-    /** @var MatchQuery[] */
+    /** @var Query[] */
     protected $matchCollection;
 
     /**

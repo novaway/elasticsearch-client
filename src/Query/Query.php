@@ -4,7 +4,7 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 
-interface Query
+interface Query extends Clause
 {
     public function formatForQuery(): array;
 }
