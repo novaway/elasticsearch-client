@@ -123,7 +123,7 @@ class QueryBuilder
      */
     public function addFilter(Filter $filter): QueryBuilder
     {
-        $this->filterCollection[] = $filter->formatForQuery();
+        $this->filterCollection[] = $filter;
 
         return $this;
     }
@@ -136,7 +136,7 @@ class QueryBuilder
     public function setFilters(array $filters): QueryBuilder
     {
         $this->filterCollection = array_map(function (Filter $filter) {
-            return $filter->formatForQuery();
+            return $filter;
         }, $filters);
 
         return $this;
@@ -147,15 +147,15 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
-        if (count($this->filterCollection)) {
-            $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
+        foreach ($this->filterCollection as $filter) {
+            $this->queryBody['query']['bool']['filter'][] = $filter->formatForQuery();
         }
 
         if (count($this->matchCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->matchCollection as $match) {
-            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
+            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = $match->formatForQuery();
         }
 
         return $this->queryBody;

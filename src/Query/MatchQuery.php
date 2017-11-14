@@ -2,7 +2,7 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
-class MatchQuery
+class MatchQuery implements Query
 {
     /** @var string */
     private $combiningFactor;
@@ -49,5 +49,18 @@ class MatchQuery
     {
         return $this->value;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function formatForQuery(): array
+    {
+        return [
+                'match' => [
+                    $this->getField() => $this->getValue()
+                ]
+            ];
+    }
+
 
 }
