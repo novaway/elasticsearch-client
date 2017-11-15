@@ -29,18 +29,18 @@ class BoolQuery extends test
                     'must' => [
                         [
                             'match' => [
-                                'firstname' => 'bruce'
+                                'firstname' => ['query' =>'bruce', 'operator' => 'AND']
                             ],
                         ],[
                             'match' => [
-                                'gender' => 'male'
+                                'gender' => ['query' => 'male', 'operator' => 'AND']
                             ],
                         ]
                     ],
                     'must_not' => [
                         [
                             'match' => [
-                                'lastname' => 'wayne'
+                                'lastname' => ['query' => 'wayne', 'operator' => 'AND']
                             ]
                         ]
                     ],

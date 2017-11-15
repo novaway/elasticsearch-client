@@ -6,12 +6,12 @@ class MatchQuery implements Query
 {
     /** @var string */
     private $combiningFactor;
-
     /** @var string */
     private $field;
-
     /** @var mixed */
     private $value;
+    /** @var array  */
+    private $options;
 
     /**
      * MatchQuery constructor.
@@ -19,11 +19,12 @@ class MatchQuery implements Query
      * @param string $field
      * @param mixed  $value
      */
-    public function __construct($field, $value, $combiningFactor = CombiningFactor::MUST)
+    public function __construct($field, $value, $combiningFactor = CombiningFactor::MUST, array $options = ['operator' => 'AND'])
     {
         $this->field = $field;
         $this->value = $value;
         $this->combiningFactor = $combiningFactor;
+        $this->options = $options;
     }
 
     /**
@@ -57,7 +58,9 @@ class MatchQuery implements Query
     {
         return [
                 'match' => [
-                    $this->getField() => $this->getValue()
+                    $this->getField() =>  array_merge([
+                        'query' => $this->getValue()
+                    ], $this->options)
                 ]
             ];
     }
