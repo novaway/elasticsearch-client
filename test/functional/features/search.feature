@@ -98,3 +98,73 @@ Feature: Search on index
         Then the result with the id 7 should contain "<em>Batman</em>" in "nick_name"
         And the result with the id 7 should contain "I <3 pasta ... and <strong>batman</strong>" in "description"
         And the result with the id 3 should contain "<em>Batman</em>" in "nick_name"
+
+    Scenario: Aggregations
+        Given I build a query with aggregation :
+            | name          | category  | field     |
+            | sum_age       | sum       | age       |
+            | genders       | terms     | gender    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result for aggregation "sum_age" should contain 1121
+        And the bucket result for aggregation "genders" should contain 4 result for "male"
+        And the bucket result for aggregation "genders" should contain 3 result for "female"
+
+    Scenario: Simple Bool Query
+        Given I build a must bool query with :
+            | field         | value       | condition |
+            | age           | 910         | should    |
+            | age           | 45          | should    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[3;2]"
+
+    Scenario: Multiple should Bool Query
+        Given I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 910           | should    |
+        And I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 45            | should    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[3;2]"
+
+    Scenario: Multiple must Bool Query
+        Given I build a must bool query with :
+            | field             | value         | condition |
+            | age               | 910           | should    |
+            | age               | 45            | should    |
+        And I build a must bool query with :
+            | field             | value         | condition |
+            | first_name        | Diana         | should    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"
+
+    Scenario: Combining MUST and SHOULD inside a Bool Query
+        Given I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 910           | should    |
+            | age               | 45            | should    |
+            | first_name        | Diana         | must    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"
+
+    Scenario: Combining MUST and SHOULD outside a Bool Query
+        Given I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 910           | should    |
+        And I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 45            | should    |
+        And I build a must bool query with :
+            | field             | value         | condition |
+            | first_name        | Diana         | must    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"
+
+    Scenario: Combining queries and filters inside a Bool Query
+        Given I build a should bool query with :
+            | field      | value       | condition |
+            | gender     | male        | should    |
+            | gender     | female      | should    |
+            | age        | 910         | filter    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"

@@ -2,6 +2,7 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
+use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
@@ -16,17 +17,18 @@ class QueryBuilder
     /** @var Filter[] */
     protected $filterCollection;
 
-    /** @var MatchQuery[] */
+    /** @var Query[] */
     protected $matchCollection;
 
-    /**
-     * QueryBuilder constructor.
-     */
+    /** @var Aggregation[]  */
+    protected $aggregationCollection;
+
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
         $this->queryBody = [];
         $this->filterCollection = [];
         $this->matchCollection = [];
+        $this->aggregationCollection = [];
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -81,6 +83,14 @@ class QueryBuilder
         return $this;
     }
 
+    public function addSort($field, $order): QueryBuilder
+    {
+        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
+
+        return $this;
+    }
+
+
     /**
      * @param string $field
      * @param array $preTags
@@ -123,7 +133,7 @@ class QueryBuilder
      */
     public function addFilter(Filter $filter): QueryBuilder
     {
-        $this->filterCollection[] = $filter->formatForQuery();
+        $this->filterCollection[] = $filter;
 
         return $this;
     }
@@ -136,10 +146,29 @@ class QueryBuilder
     public function setFilters(array $filters): QueryBuilder
     {
         $this->filterCollection = array_map(function (Filter $filter) {
-            return $filter->formatForQuery();
+            return $filter;
         }, $filters);
 
         return $this;
+    }
+
+    public function addAggregation(Aggregation $aggregation): QueryBuilder
+    {
+        $this->aggregationCollection[] = $aggregation;
+
+        return $this;
+    }
+
+    public function addQuery(Query $query): QueryBuilder
+    {
+        $this->matchCollection[] = $query;
+
+        return $this;
+    }
+
+    public function getClauseCollection()
+    {
+        return array_merge($this->matchCollection, $this->filterCollection);
     }
 
     /**
@@ -147,15 +176,17 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
-        if (count($this->filterCollection)) {
-            $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
-        }
+        $boolQuery = [];
 
         if (count($this->matchCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
-        foreach ($this->matchCollection as $match) {
-            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
+        foreach ($this->getClauseCollection() as $clause) {
+            $this->queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
+        }
+
+        foreach ($this->aggregationCollection as $agg) {
+            $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
         }
 
         return $this->queryBody;

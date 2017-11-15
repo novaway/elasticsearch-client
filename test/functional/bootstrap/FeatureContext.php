@@ -7,12 +7,16 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
+use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Filter\ComparisonFilter;
 use Novaway\ElasticsearchClient\Filter\InArrayFilter;
 use Novaway\ElasticsearchClient\Filter\RangeFilter;
 use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
+use Novaway\ElasticsearchClient\Query\BoolQuery;
+use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Novaway\ElasticsearchClient\Query\MatchQuery;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
 use Novaway\ElasticsearchClient\QueryExecutor;
@@ -329,6 +333,60 @@ class FeatureContext implements Context
         }
 
         return false;
+    }
+
+    /**
+     * @Given I build the query with aggregation :
+     * @Given I build a query with aggregation :
+     */
+    public function iBuildAQueryWithAggregation(TableNode $aggregationTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $aggregationHash = $aggregationTable->getHash();
+        foreach ($aggregationHash as $aggregationRow) {
+            $this->queryBuilder->addAggregation(new Aggregation($aggregationRow['name'], $aggregationRow['category'], $aggregationRow['field']));
+        }
+    }
+
+    /**
+     * @Given I build a :combining bool query with :
+     */
+    public function iBuildABoolQueryWithQueries($combining, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $boolQuery = new BoolQuery($combining);
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            if ( $queryRow['condition'] == CombiningFactor::FILTER) {
+                $boolQuery->addClause(new TermFilter($queryRow['field'], $queryRow['value']));
+            } else {
+                $boolQuery->addClause(new MatchQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+            }
+
+        }
+        $this->queryBuilder->addQuery($boolQuery);
+    }
+
+    /**
+     * @Then the result for aggregation :name should contain :value
+     */
+    public function theScalarResultShouldContain($name, $value)
+    {
+        $this->assert->float($this->result->aggregations()[$name])->isEqualTo($value);
+    }
+
+    /**
+     * @Then the bucket result for aggregation :name should contain :count result for :value
+     */
+    public function theBucketResultShouldContain($name, $value, $count)
+    {
+        foreach ($this->result->aggregations()[$name] as $key => $bucket) {
+            if ($bucket['key'] == $value) {
+                $this->assert->integer($bucket['doc_count'])->isEqualTo($count);
+                return true;
+            }
+        }
+        throw new \Exception("No result found for $value");
     }
 
     /**
