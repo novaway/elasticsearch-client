@@ -17,7 +17,7 @@ class QueryBuilder
     /** @var Filter[] */
     protected $filterCollection;
 
-    /** @var Query[] */
+    /** @var MatchQuery[] */
     protected $matchCollection;
 
     /** @var Aggregation[]  */
@@ -133,7 +133,7 @@ class QueryBuilder
      */
     public function addFilter(Filter $filter): QueryBuilder
     {
-        $this->filterCollection[] = $filter;
+        $this->filterCollection[] = $filter->formatForQuery();
 
         return $this;
     }
@@ -146,7 +146,7 @@ class QueryBuilder
     public function setFilters(array $filters): QueryBuilder
     {
         $this->filterCollection = array_map(function (Filter $filter) {
-            return $filter;
+            return $filter->formatForQuery();
         }, $filters);
 
         return $this;
@@ -158,19 +158,6 @@ class QueryBuilder
 
         return $this;
     }
-
-    public function addQuery(Query $query): QueryBuilder
-    {
-        $this->matchCollection[] = $query;
-
-        return $this;
-    }
-
-    public function getClauseCollection()
-    {
-        return array_merge($this->matchCollection, $this->filterCollection);
-    }
-
     /**
      * @return array
      */
@@ -181,12 +168,16 @@ class QueryBuilder
         if (count($this->matchCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
-        foreach ($this->getClauseCollection() as $clause) {
-            $this->queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
+        foreach ($this->matchCollection as $match) {
+            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
         }
 
         foreach ($this->aggregationCollection as $agg) {
             $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
+        }
+
+        if (count($this->filterCollection)) {
+            $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
         }
 
         return $this->queryBody;
