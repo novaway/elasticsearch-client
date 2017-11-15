@@ -51,4 +51,4 @@ The aggregations are available in the `Result` object via the `Result::aggregati
 ]
 ```
 
-You can use plenty of other aggragation methods detailed [on the official documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html).
+You can use plenty of other aggregation methods detailed [on the official documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html).
