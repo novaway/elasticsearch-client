@@ -100,8 +100,14 @@ const LIMIT = 10;
 $queryBuilder = QueryBuilder::createNew(0, 10, 0.3);
 ```
 
-> + **TODO** : Use a result formater
-+ **TODO** : Filtering results
+#### Advanced Querying
+
+This client provide several ways to improve querying :
+
+- Filtering *(missing documentation)*
+- [Aggregations](doc/aggregation.md)
+- Result Formating *(missing documentation)*
+
 
 ### Clear the index
 
