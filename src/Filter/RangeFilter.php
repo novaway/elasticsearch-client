@@ -2,6 +2,8 @@
 
 namespace Novaway\ElasticsearchClient\Filter;
 
+use Novaway\ElasticsearchClient\Query\CombiningFactor;
+
 class RangeFilter implements Filter
 {
     const GREATER_THAN_OPERATOR = 'gt';
@@ -15,6 +17,8 @@ class RangeFilter implements Filter
     private $value;
     /** @var array */
     private $operator;
+    /** @var string */
+    private $combiningFactor;
 
     /**
      * RangeFilter constructor.
@@ -22,7 +26,7 @@ class RangeFilter implements Filter
      * @param $value
      * @param $operator
      */
-    public function __construct(string $property, $value, $operator)
+    public function __construct(string $property, $value, $operator, string $combiningFactor = CombiningFactor::FILTER)
     {
         if(is_array($value) && !is_array($operator)) {
             throw new \InvalidArgumentException("Operator should be an array when range filter value is an array");
@@ -37,6 +41,15 @@ class RangeFilter implements Filter
         $this->property = $property;
         $this->value = is_array($value) ? $value : [$value];
         $this->operator = is_array($operator) ? $operator : [$operator];
+        $this->combiningFactor = $combiningFactor;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCombiningFactor(): string
+    {
+        return $this->combiningFactor;
     }
 
     /**
