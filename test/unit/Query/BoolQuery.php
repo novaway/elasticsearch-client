@@ -6,21 +6,18 @@ namespace Test\Unit\Novaway\ElasticsearchClient\Query;
 
 use atoum\test;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Novaway\ElasticsearchClient\Query\MatchQuery;
 
 class BoolQuery extends test
 {
     public function testAddQuery()
     {
-        $mockFirstNameQuery = new \mock\Novaway\ElasticsearchClient\Query\MatchQuery('firstname', 'bruce', CombiningFactor::MUST);
-        $mockGenderQuery = new \mock\Novaway\ElasticsearchClient\Query\MatchQuery('gender', 'male', CombiningFactor::MUST);
-        $mockLastNameQuery = new \mock\Novaway\ElasticsearchClient\Query\MatchQuery('lastname', 'wayne', CombiningFactor::MUST_NOT);
-
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addClause($mockFirstNameQuery),
-                $this->testedInstance->addClause($mockGenderQuery),
-                $this->testedInstance->addClause($mockLastNameQuery)
+                $this->testedInstance->addClause(new MatchQuery('firstname', 'bruce', CombiningFactor::MUST)),
+                $this->testedInstance->addClause(new MatchQuery('gender', 'male', CombiningFactor::MUST)),
+                $this->testedInstance->addClause(new MatchQuery('lastname', 'wayne', CombiningFactor::MUST_NOT))
             )
             ->then
             ->array($this->testedInstance->formatForQuery())
