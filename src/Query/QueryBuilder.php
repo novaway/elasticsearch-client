@@ -18,7 +18,7 @@ class QueryBuilder
     protected $filterCollection;
 
     /** @var Query[] */
-    protected $matchCollection;
+    protected $queryCollection;
 
     /** @var Aggregation[]  */
     protected $aggregationCollection;
@@ -27,7 +27,7 @@ class QueryBuilder
     {
         $this->queryBody = [];
         $this->filterCollection = [];
-        $this->matchCollection = [];
+        $this->queryCollection = [];
         $this->aggregationCollection = [];
 
         $this->queryBody['from'] = $offset;
@@ -121,7 +121,7 @@ class QueryBuilder
             throw new \InvalidArgumentException('Match queries should either be combined by "should", "must" or "must_not"');
         }
 
-        $this->matchCollection[] = new MatchQuery($field, $value, $combiningFactor);
+        $this->queryCollection[] = new MatchQuery($field, $value, $combiningFactor);
 
         return $this;
     }
@@ -145,9 +145,7 @@ class QueryBuilder
      */
     public function setFilters(array $filters): QueryBuilder
     {
-        $this->filterCollection = array_map(function (Filter $filter) {
-            return $filter;
-        }, $filters);
+        $this->filterCollection = $filter;
 
         return $this;
     }
@@ -161,14 +159,14 @@ class QueryBuilder
 
     public function addQuery(Query $query): QueryBuilder
     {
-        $this->matchCollection[] = $query;
+        $this->queryCollection[] = $query;
 
         return $this;
     }
 
     public function getClauseCollection()
     {
-        return array_merge($this->matchCollection, $this->filterCollection);
+        return array_merge($this->queryCollection, $this->filterCollection);
     }
 
     /**
@@ -178,7 +176,7 @@ class QueryBuilder
     {
         $boolQuery = [];
 
-        if (count($this->matchCollection) === 0) {
+        if (count($this->queryCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->getClauseCollection() as $clause) {

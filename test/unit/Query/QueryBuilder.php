@@ -195,12 +195,11 @@ class QueryBuilder extends test
 
     public function testAddQuery()
     {
-        $mockQuery = new \mock\Novaway\ElasticsearchClient\Query\MatchQuery('firstname', 'cedric', CombiningFactor::MUST);
 
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addQuery($mockQuery)
+                $this->testedInstance->addQuery(new MatchQuery('firstname', 'cedric', CombiningFactor::MUST))
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
