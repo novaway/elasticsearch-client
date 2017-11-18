@@ -8,8 +8,9 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
+use Novaway\ElasticsearchClient\Clause;
 
-interface Query
+interface Query extends Clause
 {
 
 }

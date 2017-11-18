@@ -3,6 +3,8 @@
 namespace Test\Unit\Novaway\ElasticsearchClient\Query;
 
 use atoum\test;
+use Novaway\ElasticsearchClient\Aggregation\Aggregation;
+use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Query\BoolQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\MatchQuery;
@@ -72,19 +74,12 @@ class QueryBuilder extends test
 
     public function testAddFilter()
     {
-        $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
-        $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
-        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
-
-        $mockFilterColor = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
-        $mockFilterColor->getMockController()->formatForQuery = ['term' => ['color' => 'blue']];
-        $mockFilterColor->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addFilter($mockFilterSize),
-                $this->testedInstance->addFilter($mockFilterColor)
+                $this->testedInstance->addFilter(new TermFilter('size', 'M')),
+                $this->testedInstance->addFilter(new TermFilter('color', 'blue'))
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
@@ -98,18 +93,11 @@ class QueryBuilder extends test
 
     public function setMultipleFiltersAtOnce()
     {
-        $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
-        $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
-        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
-
-        $mockFilterColor = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
-        $mockFilterColor->getMockController()->formatForQuery = ['term' => ['color' => 'blue']];
-        $mockFilterColor->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
 
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->setFilters([$mockFilterSize, $mockFilterColor])
+                $this->testedInstance->setFilters([new TermFilter('size', 'M'), new TermFilter('color', 'blue')])
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
@@ -121,14 +109,10 @@ class QueryBuilder extends test
 
     public function testAddCombination()
     {
-        $mockFilterSize = new \mock\Novaway\ElasticsearchClient\Filter\Filter;
-        $mockFilterSize->getMockController()->formatForQuery = ['term' => ['size' => 'M']];
-        $mockFilterSize->getMockController()->getCombiningFactor = CombiningFactor::FILTER;
-
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addFilter($mockFilterSize),
+                $this->testedInstance->addFilter(new TermFilter('size', 'M')),
                 $this->testedInstance->match('firstname', 'cedric', CombiningFactor::MUST),
                 $this->testedInstance->match('nickname', 'skwi', CombiningFactor::SHOULD)
             )
@@ -146,27 +130,12 @@ class QueryBuilder extends test
 
     public function testAddAggregation()
     {
-        $mockAvgAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('avg_likes', 'avg', 'likes');
-        $mockAvgAggregation->getMockController()->getParameters = ['field' => 'likes'];
-        $mockAvgAggregation->getMockController()->getName = 'avg_likes';
-        $mockAvgAggregation->getMockController()->getCategory = 'avg';
-
-        $mockTermsAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('users', 'terms', 'user');
-        $mockTermsAggregation->getMockController()->getParameters = ['field' => 'user'];
-        $mockTermsAggregation->getMockController()->getName = 'users';
-        $mockTermsAggregation->getMockController()->getCategory = 'terms';
-
-        $mockRangeAggregation = new \mock\Novaway\ElasticsearchClient\Aggregation\Aggregation('date_range', 'date_range', 'date', ['format' => 'MM-yyy']);
-        $mockRangeAggregation->getMockController()->getParameters = ['field' => 'date', 'format' => 'MM-yyy'];
-        $mockRangeAggregation->getMockController()->getName = 'date_range';
-        $mockRangeAggregation->getMockController()->getCategory = 'date_range';
-
-        $this
+          $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addAggregation($mockAvgAggregation),
-                $this->testedInstance->addAggregation($mockTermsAggregation),
-                $this->testedInstance->addAggregation($mockRangeAggregation)
+                $this->testedInstance->addAggregation(new Aggregation('avg_likes', 'avg', 'likes')),
+                $this->testedInstance->addAggregation(new Aggregation('users', 'terms', 'user')),
+                $this->testedInstance->addAggregation(new Aggregation('date_range', 'date_range', 'date', ['format' => 'MM-yyy']))
             )
             ->then
             ->array($this->testedInstance->getQueryBody()['aggregations'])

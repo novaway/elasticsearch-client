@@ -3,6 +3,7 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
+use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
@@ -17,6 +18,12 @@ class QueryBuilder
     /** @var Filter[] */
     protected $filterCollection;
 
+    /**
+     * @var MatchQuery[]
+     * @deprecated
+     */
+    protected $matchCollection;
+
     /** @var Query[] */
     protected $queryCollection;
 
@@ -27,6 +34,7 @@ class QueryBuilder
     {
         $this->queryBody = [];
         $this->filterCollection = [];
+        $this->matchCollection = [];
         $this->queryCollection = [];
         $this->aggregationCollection = [];
 
@@ -145,7 +153,7 @@ class QueryBuilder
      */
     public function setFilters(array $filters): QueryBuilder
     {
-        $this->filterCollection = $filter;
+        $this->filterCollection = $filters;
 
         return $this;
     }
@@ -164,9 +172,12 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * @return Clause[]
+     */
     public function getClauseCollection()
     {
-        return array_merge($this->queryCollection, $this->filterCollection);
+        return array_merge($this->queryCollection, $this->filterCollection, $this->matchCollection);
     }
 
     /**
@@ -174,8 +185,6 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
-        $boolQuery = [];
-
         if (count($this->queryCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
