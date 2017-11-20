@@ -3,6 +3,7 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
+use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
 
 class QueryBuilder
@@ -17,8 +18,14 @@ class QueryBuilder
     /** @var Filter[] */
     protected $filterCollection;
 
-    /** @var MatchQuery[] */
+    /**
+     * @var MatchQuery[]
+     * @deprecated
+     */
     protected $matchCollection;
+
+    /** @var Query[] */
+    protected $queryCollection;
 
     /** @var Aggregation[]  */
     protected $aggregationCollection;
@@ -28,6 +35,7 @@ class QueryBuilder
         $this->queryBody = [];
         $this->filterCollection = [];
         $this->matchCollection = [];
+        $this->queryCollection = [];
         $this->aggregationCollection = [];
 
         $this->queryBody['from'] = $offset;
@@ -121,7 +129,7 @@ class QueryBuilder
             throw new \InvalidArgumentException('Match queries should either be combined by "should", "must" or "must_not"');
         }
 
-        $this->matchCollection[] = new MatchQuery($field, $value, $combiningFactor);
+        $this->queryCollection[] = new MatchQuery($field, $value, $combiningFactor);
 
         return $this;
     }
@@ -133,7 +141,7 @@ class QueryBuilder
      */
     public function addFilter(Filter $filter): QueryBuilder
     {
-        $this->filterCollection[] = $filter->formatForQuery();
+        $this->filterCollection[] = $filter;
 
         return $this;
     }
@@ -145,9 +153,7 @@ class QueryBuilder
      */
     public function setFilters(array $filters): QueryBuilder
     {
-        $this->filterCollection = array_map(function (Filter $filter) {
-            return $filter->formatForQuery();
-        }, $filters);
+        $this->filterCollection = $filters;
 
         return $this;
     }
@@ -158,26 +164,36 @@ class QueryBuilder
 
         return $this;
     }
+
+    public function addQuery(Query $query): QueryBuilder
+    {
+        $this->queryCollection[] = $query;
+
+        return $this;
+    }
+
+    /**
+     * @return Clause[]
+     */
+    public function getClauseCollection()
+    {
+        return array_merge($this->queryCollection, $this->filterCollection, $this->matchCollection);
+    }
+
     /**
      * @return array
      */
     public function getQueryBody(): array
     {
-        $boolQuery = [];
-
-        if (count($this->matchCollection) === 0) {
+        if (count($this->queryCollection) === 0) {
             $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
-        foreach ($this->matchCollection as $match) {
-            $this->queryBody['query']['bool'][$match->getCombiningFactor()][] = ['match' => [$match->getField() => $match->getValue()]];
+        foreach ($this->getClauseCollection() as $clause) {
+            $this->queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
         }
 
         foreach ($this->aggregationCollection as $agg) {
             $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
-        }
-
-        if (count($this->filterCollection)) {
-            $this->queryBody['query']['bool']['filter'] = $this->filterCollection;
         }
 
         return $this->queryBody;

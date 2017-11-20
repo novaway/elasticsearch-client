@@ -2,12 +2,9 @@
 
 namespace Novaway\ElasticsearchClient\Filter;
 
-interface Filter
+use Novaway\ElasticsearchClient\Clause;
+
+interface Filter extends Clause
 {
-    /**
-     * Return filter configuration for query
-     *
-     * @return array
-     */
-    public function formatForQuery(): array;
+
 }
