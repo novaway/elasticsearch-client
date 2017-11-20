@@ -16,6 +16,9 @@ use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
+use Novaway\ElasticsearchClient\Query\BoolQuery;
+use Novaway\ElasticsearchClient\Query\MatchQuery;
+use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
@@ -365,6 +368,25 @@ class FeatureContext implements Context
             }
         }
         throw new \Exception("No result found for $value");
+    }
+
+    /**
+     * @Given I build a :combining bool query with :
+     */
+    public function iBuildABoolQueryWithQueries($combining, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $boolQuery = new BoolQuery($combining);
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            if ( $queryRow['condition'] == CombiningFactor::FILTER) {
+                $boolQuery->addClause(new TermFilter($queryRow['field'], $queryRow['value']));
+            } else {
+                $boolQuery->addClause(new MatchQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+            }
+
+        }
+        $this->queryBuilder->addQuery($boolQuery);
     }
 
     /**
