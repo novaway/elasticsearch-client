@@ -172,6 +172,6 @@ Feature: Search on index
 
     Scenario: Search City with geodistance
         Given I create geo objects of type "my_geo_type" to index "my_index"
-        And I search cities with a coordinate "45.764043,4.835658999999964 " at "200" km
+        And I search cities with a coordinate "45.764043,4.835658999999964" at "200" km
         When I execute it on the index named "my_index" for type "my_geo_type"
         Then the result should contain exactly ids "[1;3]"

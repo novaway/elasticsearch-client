@@ -9,6 +9,7 @@ use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Filter\ComparisonFilter;
+use Novaway\ElasticsearchClient\Filter\GeoDistanceFilter;
 use Novaway\ElasticsearchClient\Filter\InArrayFilter;
 use Novaway\ElasticsearchClient\Filter\RangeFilter;
 use Novaway\ElasticsearchClient\Filter\TermFilter;
@@ -185,15 +186,12 @@ class FeatureContext implements Context
 
         $cityArray =
             [
-                ['id ' => 1, 'city_name' => 'lyon', 'location' => ['lat' => '45.764043', 'lon' => '4.835658999999964' ]],
-                ['id ' => 2, 'city_name' => 'paris', 'location' => ['lat' => '48.85661400000001', 'lon' => '2.3522219000000177' ]],
-                ['id ' => 3, 'city_name' => 'mâcon', 'location' => ['lat' => '46.30688389999999', 'lon' => '4.828731000000062' ]]
+                ['id' => 1, 'city_name' => 'lyon', 'location' => ['lat' => '45.764043', 'lon' => '4.835658999999964' ]],
+                ['id' => 2, 'city_name' => 'paris', 'location' => ['lat' => '48.85661400000001', 'lon' => '2.3522219000000177' ]],
+                ['id' => 3, 'city_name' => 'mâcon', 'location' => ['lat' => '46.30688389999999', 'lon' => '4.828731000000062' ]]
             ];
 
-        dump($cityArray);
-
         foreach ($cityArray as $cityRow) {
-            dump($cityRow);
             $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
             $objectIndexer->index($indexableObject, 'my_geo_type');
         }
@@ -202,13 +200,13 @@ class FeatureContext implements Context
     }
 
     /**
-     * @Given: I search cities with a coordinate :coordinate at :distance km
+     * @Given I search cities with a coordinate :coordinate at :distance km
      */
-    public function iSearchCitiesWithCoordinateAtDistance($coordinate, $distance)
+    public function iSearchCitiesWithACoordinateAtDistance($coordinate, $distance)
     {
         $arrayCoordinate = explode(',', $coordinate);
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
-        $queryBuilder->addFilter(new GeoDistanceFilter('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance));
+        $this->queryBuilder->addFilter(new GeoDistanceFilter('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance));
     }
 
 
