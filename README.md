@@ -100,6 +100,27 @@ const LIMIT = 10;
 $queryBuilder = QueryBuilder::createNew(0, 10, 0.3);
 ```
 
+#### GeoDistance query
+Add property on the index :
+```json
+{
+//...
+    "_source": {
+    //...
+        "field_name" : {
+            "lat" : 40.12,
+            "lon" : -71.34
+        }
+//...
+    }
+}
+```
+
+Add `Filter` in the `QueryBuilder` :
+```php
+$queryBuilder->addFilter(new GeoDistanceFilter('field_name', 'latitude_value', 'longitude_value', 'nb_kilometer'));
+```
+
 > + **TODO** : Use a result formater
 + **TODO** : Filtering results
 
@@ -132,6 +153,8 @@ parameters:
                         analyzer: standard
                     age:
                         type: integer
+                    location:
+                        type: geo_point
                         
 services:
     myapp.search.index:
