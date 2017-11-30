@@ -190,9 +190,12 @@ class FeatureContext implements Context
                 ['id ' => 3, 'city_name' => 'mâcon', 'location' => ['lat' => '46.30688389999999', 'lon' => '4.828731000000062' ]]
             ];
 
+        dump($cityArray);
+
         foreach ($cityArray as $cityRow) {
+            dump($cityRow);
             $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
-            $objectIndexer->index($indexableObject, $objectType);
+            $objectIndexer->index($indexableObject, 'my_geo_type');
         }
 
         sleep(1);
