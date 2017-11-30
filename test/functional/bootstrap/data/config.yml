@@ -19,3 +19,12 @@ mappings:
                 search_analyzer: standard
             age:
                 type: integer
+    my_geo_type:
+        _source : { enabled : true }
+        properties:
+            city_name:
+                type: string
+                analyzer: standard
+                search_analyzer: standard
+            location:
+                type: geo_point

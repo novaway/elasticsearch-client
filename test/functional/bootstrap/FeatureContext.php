@@ -177,6 +177,39 @@ class FeatureContext implements Context
     }
 
     /**
+     * @When I create geo objects of type "my_geo_type" to index :indexName
+     */
+    public function iCreateObjectsOfTypeMyGeoTypeToIndex($indexName)
+    {
+        $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
+
+        $cityArray =
+            [
+                ['id ' => 1, 'city_name' => 'lyon', 'location' => ['lat' => '45.764043', 'lon' => '4.835658999999964' ]],
+                ['id ' => 2, 'city_name' => 'paris', 'location' => ['lat' => '48.85661400000001', 'lon' => '2.3522219000000177' ]],
+                ['id ' => 3, 'city_name' => 'mâcon', 'location' => ['lat' => '46.30688389999999', 'lon' => '4.828731000000062' ]]
+            ];
+
+        foreach ($cityArray as $cityRow) {
+            $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
+            $objectIndexer->index($indexableObject, $objectType);
+        }
+
+        sleep(1);
+    }
+
+    /**
+     * @Given: I search cities with a coordinate :coordinate at :distance km
+     */
+    public function iSearchCitiesWithCoordinateAtDistance($coordinate, $distance)
+    {
+        $arrayCoordinate = explode(',', $coordinate);
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryBuilder->addFilter(new GeoDistanceFilter('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance));
+    }
+
+
+    /**
      * @Then the object of type :objectType indexed in :indexName with id :id has data :
      */
     public function theObjectOfTypeIndexedInWithIdHasData($objectType, $indexName, $id, TableNode $expectedDataList)
