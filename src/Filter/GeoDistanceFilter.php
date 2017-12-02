@@ -31,7 +31,7 @@ class GeoDistanceFilter implements Filter
      * @param string $unit Should be one of those https://www.elastic.co/guide/en/elasticsearch/reference/2.3/common-options.html#distance-units
      * @param array $options Used to pass options from https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-geo-distance-query.html#_options_4
      */
-    public function __construct(string $property, float $latitude, float $longitude, int $distance, string $combiningFactor = CombiningFactor::FILTER, string $unit = 'km', $options = [])
+    public function __construct(string $property, float $latitude, float $longitude, int $distance, string $combiningFactor = CombiningFactor::FILTER, string $unit = 'km', array $options = [])
     {
         $this->property  = $property;
         $this->latitude  = $latitude;
