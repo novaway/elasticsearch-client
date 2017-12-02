@@ -200,13 +200,13 @@ class FeatureContext implements Context
     }
 
     /**
-     * @Given I search cities with a coordinate :coordinate at :distance km
+     * @Given I search cities with a coordinate :coordinate at :distance :unit
      */
-    public function iSearchCitiesWithACoordinateAtDistance($coordinate, $distance)
+    public function iSearchCitiesWithACoordinateAtDistance($coordinate, $distance, $unit)
     {
         $arrayCoordinate = explode(',', $coordinate);
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
-        $this->queryBuilder->addFilter(new GeoDistanceFilter('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance));
+        $this->queryBuilder->addFilter(new GeoDistanceFilter('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance, CombiningFactor::FILTER, $unit));
     }
 
 
