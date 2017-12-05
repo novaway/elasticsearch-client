@@ -21,6 +21,8 @@ use Novaway\ElasticsearchClient\Query\BoolQuery;
 use Novaway\ElasticsearchClient\Query\MatchQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
+use Novaway\ElasticsearchClient\Sort\FunctionScore;
+use Novaway\ElasticsearchClient\Sort\RandomScore;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
 
@@ -421,6 +423,14 @@ class FeatureContext implements Context
 
         }
         $this->queryBuilder->addQuery($boolQuery);
+    }
+    /**
+     * @When I add a random score with :seed as seed
+     */
+    public function iAddARandomSortWithSeed(string $seed)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $this->queryBuilder->addFunctionScore(new RandomScore($seed));
     }
 
     /**

@@ -8,6 +8,7 @@ use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Query\BoolQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\MatchQuery;
+use Novaway\ElasticsearchClient\Score\RandomScore;
 
 class QueryBuilder extends test
 {
@@ -173,6 +174,27 @@ class QueryBuilder extends test
             ->then
             ->array($this->testedInstance->getQueryBody())
             ->array['query']->array['bool']->array[CombiningFactor::MUST]->array[0]->isEqualTo(['match' => ['firstname' => ['query' => 'cedric', 'operator' => 'AND']]])
+        ;
+    }
+
+    public function testAddRandomScore()
+    {
+
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addQuery(new MatchQuery('firstname', 'cedric', CombiningFactor::MUST)),
+                $this->testedInstance->addFunctionScore(new RandomScore('testSeed'))
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody()['query'])
+            ->hasKey('function_score')
+            ->array($this->testedInstance->getQueryBody()['query']['function_score'])
+            ->hasKey('functions')
+            ->array($this->testedInstance->getQueryBody()['query']['function_score']['functions'][0])
+            ->isEqualTo([
+                'random_score' => ['seed' => 'testSeed']
+            ]);
         ;
     }
 }

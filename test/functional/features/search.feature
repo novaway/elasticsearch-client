@@ -14,164 +14,172 @@ Feature: Search on index
             | 6  | Selena     | Catwoman     | 38  | female | I <3 cats ... and batman                                        |
             | 7  | Skwi       | Batman       | 33  | male   | I <3 pasta ... and batman                                        |
 
-    Scenario: Search on one fields
-        Given I build a query matching :
-            | field       | value  | condition |
-            | description | batman | should    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[4;5;6;7]"
+#    Scenario: Search on one fields
+#        Given I build a query matching :
+#            | field       | value  | condition |
+#            | description | batman | should    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[4;5;6;7]"
+#
+#    Scenario: Search over several field
+#        Given I build a query matching :
+#            | field       | value  | condition |
+#            | nick_name   | batman | should    |
+#            | description | batman | should    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[3;4;5;6;7]"
+#
+#    Scenario: Combine SHOULD an MUST matches
+#        Given I build a query matching :
+#            | field       | value  | condition |
+#            | nick_name   | batman | must      |
+#            | description | batman | should    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[3;7]"
+#
+#    Scenario: Term filter
+#        Given I build a query with filter :
+#            | type | field  | value  |
+#            | term | gender | female |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[2;4;6]"
+#
+#    Scenario: InArray filter
+#        Given I build a query with filter :
+#            | type     | field | value |
+#            | in_array | age   | 45;35 |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[3;5]"
+#
+#    Scenario: Range filter
+#        Given I build a query with filter :
+#            | type  | field | value | operator |
+#            | range | age   | 40    | gte      |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[2;3]"
+#
+#    Scenario: Combine matches and filters
+#        Given I build a query matching :
+#            | field       | value  | condition |
+#            | description | batman | should    |
+#        And I build the query with filter :
+#            | type  | field | value | operator |
+#            | range | age   | 30    | lt       |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[4]"
+#
+#    Scenario: Offset and Limit results
+#        Given I build a query matching :
+#            | field       | value  | condition |
+#            | nick_name   | batman | should    |
+#            | description | batman | should    |
+#        And I set query offset to 1 and limit to 2
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain only ids "[3;6]"
+#        And  the result should contain 5 hits
+#
+#    Scenario: Minimum score
+#        Given I build a query matching :
+#            | field       | value  | condition |
+#            | nick_name   | batman | should    |
+#            | description | batman | should    |
+#        And I set query minimum score to 0.1
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[7;3;6;4]"
+#
+#    Scenario: Highlight after Search over several field
+#        Given I build a query matching :
+#            | field       | value  | condition |
+#            | nick_name   | batman | should    |
+#            | description | batman | should    |
+#        And I set highlight tags to "<strong>" and "</strong>" for description
+#        And I set highlight tags to "<em>" and "</em>" for nick_name
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result with the id 7 should contain "<em>Batman</em>" in "nick_name"
+#        And the result with the id 7 should contain "I <3 pasta ... and <strong>batman</strong>" in "description"
+#        And the result with the id 3 should contain "<em>Batman</em>" in "nick_name"
+#
+#    Scenario: Aggregations
+#        Given I build a query with aggregation :
+#            | name          | category  | field     |
+#            | sum_age       | sum       | age       |
+#            | genders       | terms     | gender    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result for aggregation "sum_age" should contain 1121
+#        And the bucket result for aggregation "genders" should contain 4 result for "male"
+#        And the bucket result for aggregation "genders" should contain 3 result for "female"
+#
+#
+#    Scenario: Simple Bool Query
+#        Given I build a must bool query with :
+#            | field         | value       | condition |
+#            | age           | 910         | should    |
+#            | age           | 45          | should    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[3;2]"
+#
+#    Scenario: Multiple should Bool Query
+#        Given I build a should bool query with :
+#            | field             | value         | condition |
+#            | age               | 910           | should    |
+#        And I build a should bool query with :
+#            | field             | value         | condition |
+#            | age               | 45            | should    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[3;2]"
+#
+#    Scenario: Multiple must Bool Query
+#        Given I build a must bool query with :
+#            | field             | value         | condition |
+#            | age               | 910           | should    |
+#            | age               | 45            | should    |
+#        And I build a must bool query with :
+#            | field             | value         | condition |
+#            | first_name        | Diana         | should    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[2]"
+#
+#    Scenario: Combining MUST and SHOULD inside a Bool Query
+#        Given I build a should bool query with :
+#            | field             | value         | condition |
+#            | age               | 910           | should    |
+#            | age               | 45            | should    |
+#            | first_name        | Diana         | must    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[2]"
+#
+#    Scenario: Combining MUST and SHOULD outside a Bool Query
+#        Given I build a should bool query with :
+#            | field             | value         | condition |
+#            | age               | 910           | should    |
+#        And I build a should bool query with :
+#            | field             | value         | condition |
+#            | age               | 45            | should    |
+#        And I build a must bool query with :
+#            | field             | value         | condition |
+#            | first_name        | Diana         | must    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[2]"
+#
+#    Scenario: Combining queries and filters inside a Bool Query
+#        Given I build a should bool query with :
+#            | field      | value       | condition |
+#            | gender     | male        | should    |
+#            | gender     | female      | should    |
+#            | age        | 910         | filter    |
+#        When I execute it on the index named "my_index" for type "my_type"
+#        Then the result should contain exactly ids "[2]"
+#
+#    Scenario: Search City with geodistance
+#        Given I create geo objects of type "my_geo_type" to index "my_index"
+#        And I search cities with a coordinate "45.764043,4.835658999999964" at "200" km
+#        When I execute it on the index named "my_index" for type "my_geo_type"
+#        Then the result should contain exactly ids "[1;3]"
 
-    Scenario: Search over several field
-        Given I build a query matching :
-            | field       | value  | condition |
-            | nick_name   | batman | should    |
-            | description | batman | should    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;4;5;6;7]"
-
-    Scenario: Combine SHOULD an MUST matches
-        Given I build a query matching :
-            | field       | value  | condition |
-            | nick_name   | batman | must      |
-            | description | batman | should    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;7]"
-
-    Scenario: Term filter
+    Scenario: Add random sort and the
         Given I build a query with filter :
             | type | field  | value  |
             | term | gender | female |
-        When I execute it on the index named "my_index" for type "my_type"
+        When I add a random score with "MyTestSeed" as seed
+        And  I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[2;4;6]"
-
-    Scenario: InArray filter
-        Given I build a query with filter :
-            | type     | field | value |
-            | in_array | age   | 45;35 |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;5]"
-
-    Scenario: Range filter
-        Given I build a query with filter :
-            | type  | field | value | operator |
-            | range | age   | 40    | gte      |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[2;3]"
-
-    Scenario: Combine matches and filters
-        Given I build a query matching :
-            | field       | value  | condition |
-            | description | batman | should    |
-        And I build the query with filter :
-            | type  | field | value | operator |
-            | range | age   | 30    | lt       |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[4]"
-
-    Scenario: Offset and Limit results
-        Given I build a query matching :
-            | field       | value  | condition |
-            | nick_name   | batman | should    |
-            | description | batman | should    |
-        And I set query offset to 1 and limit to 2
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain only ids "[3;6]"
-        And  the result should contain 5 hits
-
-    Scenario: Minimum score
-        Given I build a query matching :
-            | field       | value  | condition |
-            | nick_name   | batman | should    |
-            | description | batman | should    |
-        And I set query minimum score to 0.1
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[7;3;6;4]"
-
-    Scenario: Highlight after Search over several field
-        Given I build a query matching :
-            | field       | value  | condition |
-            | nick_name   | batman | should    |
-            | description | batman | should    |
-        And I set highlight tags to "<strong>" and "</strong>" for description
-        And I set highlight tags to "<em>" and "</em>" for nick_name
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result with the id 7 should contain "<em>Batman</em>" in "nick_name"
-        And the result with the id 7 should contain "I <3 pasta ... and <strong>batman</strong>" in "description"
-        And the result with the id 3 should contain "<em>Batman</em>" in "nick_name"
-
-    Scenario: Aggregations
-        Given I build a query with aggregation :
-            | name          | category  | field     |
-            | sum_age       | sum       | age       |
-            | genders       | terms     | gender    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result for aggregation "sum_age" should contain 1121
-        And the bucket result for aggregation "genders" should contain 4 result for "male"
-        And the bucket result for aggregation "genders" should contain 3 result for "female"
-
-
-    Scenario: Simple Bool Query
-        Given I build a must bool query with :
-            | field         | value       | condition |
-            | age           | 910         | should    |
-            | age           | 45          | should    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;2]"
-
-    Scenario: Multiple should Bool Query
-        Given I build a should bool query with :
-            | field             | value         | condition |
-            | age               | 910           | should    |
-        And I build a should bool query with :
-            | field             | value         | condition |
-            | age               | 45            | should    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[3;2]"
-
-    Scenario: Multiple must Bool Query
-        Given I build a must bool query with :
-            | field             | value         | condition |
-            | age               | 910           | should    |
-            | age               | 45            | should    |
-        And I build a must bool query with :
-            | field             | value         | condition |
-            | first_name        | Diana         | should    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[2]"
-
-    Scenario: Combining MUST and SHOULD inside a Bool Query
-        Given I build a should bool query with :
-            | field             | value         | condition |
-            | age               | 910           | should    |
-            | age               | 45            | should    |
-            | first_name        | Diana         | must    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[2]"
-
-    Scenario: Combining MUST and SHOULD outside a Bool Query
-        Given I build a should bool query with :
-            | field             | value         | condition |
-            | age               | 910           | should    |
-        And I build a should bool query with :
-            | field             | value         | condition |
-            | age               | 45            | should    |
-        And I build a must bool query with :
-            | field             | value         | condition |
-            | first_name        | Diana         | must    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[2]"
-
-    Scenario: Combining queries and filters inside a Bool Query
-        Given I build a should bool query with :
-            | field      | value       | condition |
-            | gender     | male        | should    |
-            | gender     | female      | should    |
-            | age        | 910         | filter    |
-        When I execute it on the index named "my_index" for type "my_type"
-        Then the result should contain exactly ids "[2]"
-
-    Scenario: Search City with geodistance
-        Given I create geo objects of type "my_geo_type" to index "my_index"
-        And I search cities with a coordinate "45.764043,4.835658999999964" at "200" km
-        When I execute it on the index named "my_index" for type "my_geo_type"
-        Then the result should contain exactly ids "[1;3]"
