@@ -124,6 +124,17 @@ $queryBuilder->addFilter(new GeoDistanceFilter('field_name', 'latitude_value', '
 > + **TODO** : Use a result formater
 + **TODO** : Filtering results
 
+#### Function Score
+
+Support for [Function Score](https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-function-score-query.html#query-dsl-function-score-query) is added 
+
+Simply add 
+```php
+$queryBuilder->addFunctionScore(new RandomScore($seed));
+```
+
+For now, only [Random Scoring](https://www.elastic.co/guide/en/elasticsearch/guide/current/random-scoring.html) is implemented.
+
 ### Clear the index
 
 You might want, for some reason, to purge an index. The `reload` method drops and recreate the index.

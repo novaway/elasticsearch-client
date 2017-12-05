@@ -5,6 +5,7 @@ namespace Novaway\ElasticsearchClient\Query;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
+use Novaway\ElasticsearchClient\Score\FunctionScore;
 
 class QueryBuilder
 {
@@ -30,6 +31,9 @@ class QueryBuilder
     /** @var Aggregation[]  */
     protected $aggregationCollection;
 
+    /** @var FunctionScore[] */
+    protected $functionScoreCollection;
+
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
         $this->queryBody = [];
@@ -37,6 +41,7 @@ class QueryBuilder
         $this->matchCollection = [];
         $this->queryCollection = [];
         $this->aggregationCollection = [];
+        $this->functionScoreCollection = [];
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -172,6 +177,13 @@ class QueryBuilder
         return $this;
     }
 
+    public function addFunctionScore(FunctionScore $functionScore): QueryBuilder
+    {
+        $this->functionScoreCollection[] = $functionScore;
+
+        return $this;
+    }
+
     /**
      * @return Clause[]
      */
@@ -190,6 +202,18 @@ class QueryBuilder
         }
         foreach ($this->getClauseCollection() as $clause) {
             $this->queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
+        }
+
+        if (!empty($this->functionScoreCollection)) {
+            $query = $this->queryBody['query'];
+            unset($this->queryBody['query']['bool']);
+
+            $function = ['query' => $query];
+
+            foreach ($this->functionScoreCollection as $functionScore) {
+                $function['functions'][] = $functionScore->formatForQuery();
+            }
+            $this->queryBody['query']['function_score'] = $function;
         }
 
         foreach ($this->aggregationCollection as $agg) {
