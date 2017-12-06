@@ -21,8 +21,7 @@ use Novaway\ElasticsearchClient\Query\BoolQuery;
 use Novaway\ElasticsearchClient\Query\MatchQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
-use Novaway\ElasticsearchClient\Sort\FunctionScore;
-use Novaway\ElasticsearchClient\Sort\RandomScore;
+use Novaway\ElasticsearchClient\Score\RandomScore;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
 
@@ -431,6 +430,7 @@ class FeatureContext implements Context
     {
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
         $this->queryBuilder->addFunctionScore(new RandomScore($seed));
+//        var_dump($this->queryBuilder->getQueryBody());
     }
 
     /**
