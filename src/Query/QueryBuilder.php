@@ -36,16 +36,16 @@ class QueryBuilder
 
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
-        $this->queryBody = [];
+        $queryBody = [];
         $this->filterCollection = [];
         $this->matchCollection = [];
         $this->queryCollection = [];
         $this->aggregationCollection = [];
         $this->functionScoreCollection = [];
 
-        $this->queryBody['from'] = $offset;
-        $this->queryBody['size'] = $limit;
-        $this->queryBody['min_score'] = $minScore;
+        $queryBody['from'] = $offset;
+        $queryBody['size'] = $limit;
+        $queryBody['min_score'] = $minScore;
     }
 
     /**
@@ -67,7 +67,7 @@ class QueryBuilder
      */
     public function setOffset($offset): QueryBuilder
     {
-        $this->queryBody['from'] = $offset;
+        $queryBody['from'] = $offset;
 
         return $this;
     }
@@ -79,7 +79,7 @@ class QueryBuilder
      */
     public function setLimit($limit): QueryBuilder
     {
-        $this->queryBody['size'] = $limit;
+        $queryBody['size'] = $limit;
 
         return $this;
     }
@@ -91,14 +91,14 @@ class QueryBuilder
      */
     public function setMinimumScore($minScore): QueryBuilder
     {
-        $this->queryBody['min_score'] = $minScore;
+        $queryBody['min_score'] = $minScore;
 
         return $this;
     }
 
     public function addSort($field, $order): QueryBuilder
     {
-        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
+        $queryBody['sort'][] = [$field => [ 'order' => $order]];
 
         return $this;
     }
@@ -112,7 +112,7 @@ class QueryBuilder
      */
     public function setHighlightTags(string $field, array $preTags, array $postTags): QueryBuilder
     {
-        $this->queryBody['highlight']['fields'][] = [
+        $queryBody['highlight']['fields'][] = [
             $field => [
                 "pre_tags" => $preTags,
                 "post_tags" => $postTags
@@ -197,28 +197,32 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
+        $queryBody = [];
+
         if (count($this->queryCollection) === 0) {
-            $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
+            $queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->getClauseCollection() as $clause) {
-            $this->queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
+            $queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
         }
 
         if (!empty($this->functionScoreCollection)) {
-            $query = $this->queryBody['query'];
-            unset($this->queryBody['query']['bool']);
+            $query = $queryBody['query'];
+            unset($queryBody['query']['bool']);
 
             $function = ['query' => $query];
 
             foreach ($this->functionScoreCollection as $functionScore) {
                 $function['functions'][] = $functionScore->formatForQuery();
             }
-            $this->queryBody['query']['function_score'] = $function;
+            $queryBody['query']['function_score'] = $function;
         }
 
         foreach ($this->aggregationCollection as $agg) {
-            $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
+            $queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
         }
+
+        $this->queryBody = $queryBody;
 
         return $this->queryBody;
     }
