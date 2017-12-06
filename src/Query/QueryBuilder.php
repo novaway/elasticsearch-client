@@ -36,16 +36,16 @@ class QueryBuilder
 
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
-        $queryBody = [];
+        $this->queryBody = [];
         $this->filterCollection = [];
         $this->matchCollection = [];
         $this->queryCollection = [];
         $this->aggregationCollection = [];
         $this->functionScoreCollection = [];
 
-        $queryBody['from'] = $offset;
-        $queryBody['size'] = $limit;
-        $queryBody['min_score'] = $minScore;
+        $this->queryBody['from'] = $offset;
+        $this->queryBody['size'] = $limit;
+        $this->queryBody['min_score'] = $minScore;
     }
 
     /**
@@ -67,7 +67,7 @@ class QueryBuilder
      */
     public function setOffset($offset): QueryBuilder
     {
-        $queryBody['from'] = $offset;
+        $this->queryBody['from'] = $offset;
 
         return $this;
     }
@@ -79,7 +79,7 @@ class QueryBuilder
      */
     public function setLimit($limit): QueryBuilder
     {
-        $queryBody['size'] = $limit;
+        $this->queryBody['size'] = $limit;
 
         return $this;
     }
@@ -91,14 +91,14 @@ class QueryBuilder
      */
     public function setMinimumScore($minScore): QueryBuilder
     {
-        $queryBody['min_score'] = $minScore;
+        $this->queryBody['min_score'] = $minScore;
 
         return $this;
     }
 
     public function addSort($field, $order): QueryBuilder
     {
-        $queryBody['sort'][] = [$field => [ 'order' => $order]];
+        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
 
         return $this;
     }
@@ -112,7 +112,7 @@ class QueryBuilder
      */
     public function setHighlightTags(string $field, array $preTags, array $postTags): QueryBuilder
     {
-        $queryBody['highlight']['fields'][] = [
+        $this->queryBody['highlight']['fields'][] = [
             $field => [
                 "pre_tags" => $preTags,
                 "post_tags" => $postTags
@@ -197,8 +197,6 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
-        $queryBody = [];
-
         if (count($this->queryCollection) === 0) {
             $queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
@@ -222,8 +220,6 @@ class QueryBuilder
             $queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
         }
 
-        $this->queryBody = $queryBody;
-
-        return $this->queryBody;
+        return array_merge($this->queryBody, $queryBody);
     }
 }
