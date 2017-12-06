@@ -430,7 +430,6 @@ class FeatureContext implements Context
     {
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
         $this->queryBuilder->addFunctionScore(new RandomScore($seed));
-//        var_dump($this->queryBuilder->getQueryBody());
     }
 
     /**
