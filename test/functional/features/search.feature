@@ -176,10 +176,24 @@ Feature: Search on index
         When I execute it on the index named "my_index" for type "my_geo_type"
         Then the result should contain exactly ids "[1;3]"
 
-    Scenario: Add random sort and the
+    Scenario: Add random sort and the result is the same
         Given I build a query with filter :
             | type | field  | value  |
             | term | gender | female |
         When I add a random score with "MyTestSeed" as seed
         And  I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[2;4;6]"
+
+    Scenario: Add a linear function sort
+        Given I build a linear decay function with :
+            | field  | origin | offset | scale |
+            | age    | 35     |  1     |  0.8    |
+        When  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[5;1;7]"
+
+    Scenario: Add a gauss function sort
+        Given I build a gauss decay function with :
+            | field  | origin | offset | scale |
+            | age    | 35     |  1     |  0.8    |
+        When  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[5;1;7;6]"

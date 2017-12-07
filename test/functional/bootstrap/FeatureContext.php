@@ -8,7 +8,6 @@ use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
-use Novaway\ElasticsearchClient\Filter\ComparisonFilter;
 use Novaway\ElasticsearchClient\Filter\GeoDistanceFilter;
 use Novaway\ElasticsearchClient\Filter\InArrayFilter;
 use Novaway\ElasticsearchClient\Filter\RangeFilter;
@@ -21,6 +20,7 @@ use Novaway\ElasticsearchClient\Query\BoolQuery;
 use Novaway\ElasticsearchClient\Query\MatchQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
+use Novaway\ElasticsearchClient\Score\DecayFunctionScore;
 use Novaway\ElasticsearchClient\Score\RandomScore;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
@@ -430,6 +430,24 @@ class FeatureContext implements Context
     {
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
         $this->queryBuilder->addFunctionScore(new RandomScore($seed));
+    }
+
+    /**
+     * @Given I build a :function decay function with :
+     */
+    public function iBuildADecayFunction($function, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $this->queryBuilder->addFunctionScore(new DecayFunctionScore(
+                $queryRow['field'],
+                $function,
+                $queryRow['origin'],
+                $queryRow['offset'],
+                $queryRow['scale']
+                ));
+        }
     }
 
     /**
