@@ -12,6 +12,8 @@ class Result
 
     /** @var  array */
     private $aggregations;
+    /** @var int */
+    private $limit;
 
     /**
      * Result constructor.
@@ -19,24 +21,27 @@ class Result
      * @param integer $totalHits
      * @param array $hits
      * @param array $aggregations
+     * @param int|null $limit
      */
     public function __construct(
         int $totalHits,
         array $hits,
-        array $aggregations = []
+        array $aggregations = [],
+        int $limit = null
     )
     {
         $this->hits = $hits;
         $this->totalHits = $totalHits;
         $this->aggregations = $aggregations;
+        $this->limit = $limit;
     }
 
     /**
      * @param array $arrayResult
-     * @param ResultTransformer|null $resultTransformer
+     * @param int|null $limit
      * @return Result
      */
-    public static function createFromArray(array $arrayResult): self
+    public static function createFromArray(array $arrayResult, int $limit = null): self
     {
         $totalHits = isset($arrayResult['hits']['total']) ? $arrayResult['hits']['total'] : 0;
 
@@ -74,7 +79,7 @@ class Result
 
         }
 
-        return new self($totalHits, $hits, $aggregations);
+        return new self($totalHits, $hits, $aggregations, $limit);
     }
 
     /**
@@ -106,15 +111,15 @@ class Result
      * @param int $limit the number of hits per request
      * @return int
      */
-    public function getNumberOfPages(int $limit): int
+    public function numberOfPages(): int
     {
-        if ($limit <= 0) {
-            throw new \InvalidArgumentException("limit parameter must be strictly positive, $limit given");
+        if ($this->limit <= 0) {
+            throw new \InvalidArgumentException("limit parameter must be strictly positive, $this->limit given");
         }
         if (!is_int($this->totalHits)) {
-            throw new \UnexpectedValueException("totalHits seems to be uninitialized, did you call 'getNumberOfPages' on an uninitialised Result ?");
+            throw new \UnexpectedValueException("totalHits seems to be uninitialized, did you call 'numberOfPages' on an uninitialised Result ?");
         }
-        return ceil($this->totalHits / $limit);
+        return ceil($this->totalHits / $this->limit);
     }
 
 }

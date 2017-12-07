@@ -17,7 +17,7 @@ class Result extends test
                 'failed' => 0
             ],
             'hits' => [
-                'total' => 2,
+                'total' => 8,
                 'max_score' => 1.3862944,
                 'hits' => [
                     [
@@ -67,10 +67,10 @@ class Result extends test
 
         $this
             ->given($class = $this->testedClass->getClass())
-            ->if($result = $class::createFromArray($elasticResultData))
+            ->if($result = $class::createFromArray($elasticResultData, 2))
             ->then
             ->integer($result->totalHits())
-                ->isEqualTo(2)
+                ->isEqualTo(8)
             ->array($result->hits())->size->isEqualTo(2)
             ->array($result->hits())->array[1]->string['user']->isEqualTo('ced')
             ->array($result->hits())->array[1]->string['date']->isEqualTo('2016-12-02T11:24:36')
@@ -78,6 +78,8 @@ class Result extends test
             ->array($result->hits())->array[1]->integer['likes']->isEqualTo(4)
             ->array($result->aggregations())->integer['avg_likes']->isEqualTo(2)
             ->array($result->aggregations())->array['users']->array[1]->string['key']->isEqualTo('ced')
+            ->integer($result->numberOfPages())
+                ->isEqualTo(4)
         ;
 
     }
