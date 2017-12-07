@@ -101,4 +101,20 @@ class Result
     {
         return $this->aggregations;
     }
+
+    /**
+     * @param int $limit the number of hits per request
+     * @return int
+     */
+    public function getNumberOfPages(int $limit): int
+    {
+        if ($limit <= 0) {
+            throw new \InvalidArgumentException("limit parameter must be strictly positive, $limit given");
+        }
+        if (!is_int($this->totalHits)) {
+            throw new \UnexpectedValueException("totalHits seems to be uninitialized, did you call 'getNumberOfPages' on an uninitialised Result ?");
+        }
+        return ceil($this->totalHits / $limit);
+    }
+
 }
