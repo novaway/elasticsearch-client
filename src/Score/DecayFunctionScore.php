@@ -9,6 +9,7 @@ class DecayFunctionScore implements FunctionScore
     const GAUSS = 'gauss';
     const EXP = 'exp';
     const LINEAR = 'linear';
+    const DECAY = 0.5;
 
     /** @var string */
     private $property;
@@ -24,7 +25,7 @@ class DecayFunctionScore implements FunctionScore
     /** @var array */
     private $options;
 
-    public function __construct(string $property, string $function, $origin, string $offset, string $scale, float $decay = 0.5, array $options = [])
+    public function __construct(string $property, string $function, $origin, string $offset, string $scale, array $options = [], float $decay = self::DECAY)
     {
 
         $this->property = $property;
