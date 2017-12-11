@@ -27,7 +27,9 @@ class DecayFunctionScore implements FunctionScore
 
     public function __construct(string $property, string $function, $origin, string $offset, string $scale, array $options = [], float $decay = self::DECAY)
     {
-
+        if (!in_array($function, [DecayFunctionScore::GAUSS, DecayFunctionScore::EXP, DecayFunctionScore::LINEAR])) {
+            throw new \InvalidArgumentException(sprintf("function should be one of %s, %s, %s : %s given", DecayFunctionScore::GAUSS, DecayFunctionScore::EXP, DecayFunctionScore::LINEAR, $function));
+        }
         $this->property = $property;
         $this->function = $function;
         $this->origin = $origin;
