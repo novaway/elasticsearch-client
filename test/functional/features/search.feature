@@ -181,3 +181,11 @@ Feature: Search on index
         And I search cities with a coordinate "45.764043,4.835658999999964" at "200" m
         When I execute it on the index named "my_index" for type "my_geo_type"
         Then the result should contain exactly ids "[1]"
+
+    Scenario: Add random sort and the
+        Given I build a query with filter :
+            | type | field  | value  |
+            | term | gender | female |
+        When I add a random score with "MyTestSeed" as seed
+        And  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2;4;6]"

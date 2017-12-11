@@ -5,6 +5,7 @@ namespace Novaway\ElasticsearchClient\Query;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
+use Novaway\ElasticsearchClient\Score\FunctionScore;
 
 class QueryBuilder
 {
@@ -30,6 +31,9 @@ class QueryBuilder
     /** @var Aggregation[]  */
     protected $aggregationCollection;
 
+    /** @var FunctionScore[] */
+    protected $functionScoreCollection;
+
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
         $this->queryBody = [];
@@ -37,6 +41,7 @@ class QueryBuilder
         $this->matchCollection = [];
         $this->queryCollection = [];
         $this->aggregationCollection = [];
+        $this->functionScoreCollection = [];
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -172,6 +177,13 @@ class QueryBuilder
         return $this;
     }
 
+    public function addFunctionScore(FunctionScore $functionScore): QueryBuilder
+    {
+        $this->functionScoreCollection[] = $functionScore;
+
+        return $this;
+    }
+
     /**
      * @return Clause[]
      */
@@ -186,16 +198,28 @@ class QueryBuilder
     public function getQueryBody(): array
     {
         if (count($this->queryCollection) === 0) {
-            $this->queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
+            $queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = [];
         }
         foreach ($this->getClauseCollection() as $clause) {
-            $this->queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
+            $queryBody['query']['bool'][$clause->getCombiningFactor()][] = $clause->formatForQuery();
+        }
+
+        if (!empty($this->functionScoreCollection)) {
+            $query = $queryBody['query'];
+            unset($queryBody['query']['bool']);
+
+            $function = ['query' => $query];
+
+            foreach ($this->functionScoreCollection as $functionScore) {
+                $function['functions'][] = $functionScore->formatForQuery();
+            }
+            $queryBody['query']['function_score'] = $function;
         }
 
         foreach ($this->aggregationCollection as $agg) {
-            $this->queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
+            $queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
         }
 
-        return $this->queryBody;
+        return array_merge($this->queryBody, $queryBody);
     }
 }
