@@ -16,21 +16,30 @@ class GeoDistanceFilter implements Filter
     private $distance;
     /** @var string */
     private $combiningFactor;
+    /** @var string */
+    private $unit;
+    /** @var array */
+    private $options;
 
     /**
      * GeoDistanceFilter constructor.
      * @param string $property
-     * @param float  $latitude
-     * @param float  $longitude
-     * @param int    $distance
+     * @param float $latitude
+     * @param float $longitude
+     * @param int $distance
+     * @param string $combiningFactor
+     * @param string $unit Should be one of those https://www.elastic.co/guide/en/elasticsearch/reference/2.3/common-options.html#distance-units
+     * @param array $options Used to pass options from https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-geo-distance-query.html#_options_4
      */
-    public function __construct(string $property, float $latitude, float $longitude, int $distance, string $combiningFactor = CombiningFactor::FILTER)
+    public function __construct(string $property, float $latitude, float $longitude, int $distance, string $combiningFactor = CombiningFactor::FILTER, string $unit = 'km', array $options = [])
     {
         $this->property  = $property;
         $this->latitude  = $latitude;
         $this->longitude = $longitude;
         $this->distance  = $distance;
         $this->combiningFactor = $combiningFactor;
+        $this->unit = $unit;
+        $this->options = $options;
     }
 
     /**
@@ -47,13 +56,13 @@ class GeoDistanceFilter implements Filter
     public function formatForQuery(): array
     {
         return [
-            'geo_distance' => [
-                'distance'     => sprintf('%dkm', $this->distance),
+            'geo_distance' => array_merge([
+                'distance'     => sprintf('%d%s', $this->distance, $this->unit),
                 $this->property => [
                     'lat' => $this->latitude,
                     'lon' => $this->longitude
                 ]
-            ]
+            ], $this->options)
         ];
     }
 }

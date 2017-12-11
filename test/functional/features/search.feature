@@ -176,6 +176,12 @@ Feature: Search on index
         When I execute it on the index named "my_index" for type "my_geo_type"
         Then the result should contain exactly ids "[1;3]"
 
+    Scenario: Search City with geodistance and different unit
+        Given I create geo objects of type "my_geo_type" to index "my_index"
+        And I search cities with a coordinate "45.764043,4.835658999999964" at "200" m
+        When I execute it on the index named "my_index" for type "my_geo_type"
+        Then the result should contain exactly ids "[1]"
+
     Scenario: Add random sort and the
         Given I build a query with filter :
             | type | field  | value  |
