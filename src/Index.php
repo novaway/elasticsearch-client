@@ -90,7 +90,9 @@ class Index
         $searchParams['index'] = $this->name;
         $searchResult = $this->client->search($searchParams);
 
-        $result = Result::createFromArray($searchResult);
+        $limit = isset($searchParams['body']['size']) ? $searchParams['body']['size'] : null;
+
+        $result = Result::createFromArray($searchResult, $limit);
 
         if ($resultTransformer) {
             $result = $resultTransformer->formatResult($result);
