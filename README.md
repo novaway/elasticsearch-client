@@ -132,8 +132,10 @@ Simply add
 ```php
 $queryBuilder->addFunctionScore(new RandomScore($seed));
 ```
+implemented : 
+* [Random Scoring](https://www.elastic.co/guide/en/elasticsearch/guide/current/random-scoring.html)
+* [Decay function Scoring](https://www.elastic.co/guide/en/elasticsearch/guide/current/decay-functions.html)
 
-For now, only [Random Scoring](https://www.elastic.co/guide/en/elasticsearch/guide/current/random-scoring.html) is implemented.
 
 ### Clear the index
 
