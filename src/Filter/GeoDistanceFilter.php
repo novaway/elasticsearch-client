@@ -12,7 +12,7 @@ class GeoDistanceFilter implements Filter
     private $latitude;
     /** @var float */
     private $longitude;
-    /** @var int */
+    /** @var float */
     private $distance;
     /** @var string */
     private $combiningFactor;
@@ -26,12 +26,12 @@ class GeoDistanceFilter implements Filter
      * @param string $property
      * @param float $latitude
      * @param float $longitude
-     * @param int $distance
+     * @param float $distance
      * @param string $combiningFactor
      * @param string $unit Should be one of those https://www.elastic.co/guide/en/elasticsearch/reference/2.3/common-options.html#distance-units
      * @param array $options Used to pass options from https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-geo-distance-query.html#_options_4
      */
-    public function __construct(string $property, float $latitude, float $longitude, int $distance, string $combiningFactor = CombiningFactor::FILTER, string $unit = 'km', array $options = [])
+    public function __construct(string $property, float $latitude, float $longitude, float $distance, string $combiningFactor = CombiningFactor::FILTER, string $unit = 'km', array $options = [])
     {
         $this->property  = $property;
         $this->latitude  = $latitude;
@@ -57,7 +57,7 @@ class GeoDistanceFilter implements Filter
     {
         return [
             'geo_distance' => array_merge([
-                'distance'     => sprintf('%d%s', $this->distance, $this->unit),
+                'distance'     => sprintf('%01.2f%s', $this->distance, $this->unit),
                 $this->property => [
                     'lat' => $this->latitude,
                     'lon' => $this->longitude

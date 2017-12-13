@@ -15,7 +15,7 @@ class GeoDistanceFilter extends test
             ->array($this->testedInstance->formatForQuery())
             ->isEqualTo([
                 'geo_distance' => [
-                    'distance'     => '200m',
+                    'distance'     => '200.00m',
                     'location' => [
                         'lat' => '4.5',
                         'lon' => '45'
