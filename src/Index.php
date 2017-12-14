@@ -96,6 +96,10 @@ class Index
 
         if ($resultTransformer) {
             $result = $resultTransformer->formatResult($result);
+            if ($result->getLimit() === null) {
+                // keep limit if it has not been set by the transformer
+                $result->setLimit($limit);
+            }
         }
 
         return $result;

@@ -107,6 +107,16 @@ class Result
         return $this->aggregations;
     }
 
+    public function getLimit()
+    {
+        return $this->limit;
+    }
+
+    public function setLimit(int $limit = null)
+    {
+        $this->limit = $limit;
+    }
+
     /**
      * @param int $limit the number of hits per request
      * @return int
