@@ -5,14 +5,14 @@ Feature: Search on index
         Given there is no index named "my_index"
         And I create an index named "my_index" with the configuration from "data/config.yml"
         When I add objects of type "my_type" to index "my_index" with data :
-            | id | first_name | nick_name    | age | gender | description                                                     |
-            | 1  | Barry      | Flash        | 33  | male   | I'm the fastest man alive                                       |
-            | 2  | Diana      | Wonder Woman | 910 | female | I'm badass, period                                              |
-            | 3  | Bruce      | Batman       | 45  | male   | I'm rich and I fight crime, with my dead parents money          |
-            | 4  | Barbara    | Batgirl      | 27  | female | I team up with Batman to fight crime                            |
-            | 5  | Oliver     | Green Arrow  | 35  | male   | I'm rich and I fight crime, pretty much like Batman, with a bow |
-            | 6  | Selena     | Catwoman     | 38  | female | I <3 cats ... and batman                                        |
-            | 7  | Skwi       | Batman       | 33  | male   | I <3 pasta ... and batman                                        |
+            | id | first_name | nick_name    | age | gender | description                                                     | license   |
+            | 1  | Barry      | Flash        | 33  | male   | I'm the fastest man alive                                       | DC Comics |
+            | 2  | Diana      | Wonder Woman | 910 | female | I'm badass, period                                              | DC Comics |
+            | 3  | Bruce      | Batman       | 45  | male   | I'm rich and I fight crime, with my dead parents money          | DC Comics |
+            | 4  | Barbara    | Batgirl      | 27  | female | I team up with Batman to fight crime                            | DC Comics |
+            | 5  | Oliver     | Green Arrow  | 35  | male   | I'm rich and I fight crime, pretty much like Batman, with a bow | DC Comics |
+            | 6  | Selena     | Catwoman     | 38  | female | I <3 cats ... and batman                                        | DC Comics |
+            | 7  | Skwi       | Batman       | 33  | male   | I <3 pasta ... and batman                                       | null      |
 
     Scenario: Search on one fields
         Given I build a query matching :
@@ -166,7 +166,7 @@ Feature: Search on index
             | field      | value       | condition |
             | gender     | male        | should    |
             | gender     | female      | should    |
-            | age        | 910         | filter    |
+            | age        | 910         | filter    License exist|
         When I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[2]"
 
@@ -203,3 +203,10 @@ Feature: Search on index
             | age    | 35     |  1     |  0.8    |
         When  I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[5;1;7;6]"
+
+    Scenario: Exist filter
+        Given I build a query with filter :
+            | type   | field        |
+            | exists | license      |
+        When  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[1;2;3;4;5;6]"

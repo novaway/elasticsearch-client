@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
+use Novaway\ElasticsearchClient\Filter\ExistsFilter;
 use Novaway\ElasticsearchClient\Filter\GeoDistanceFilter;
 use Novaway\ElasticsearchClient\Filter\InArrayFilter;
 use Novaway\ElasticsearchClient\Filter\RangeFilter;
@@ -263,6 +264,7 @@ class FeatureContext implements Context
             'term' => TermFilter::class,
             'in_array' => InArrayFilter::class,
             'range' => RangeFilter::class,
+            'exists' => ExistsFilter::class,
         ];
 
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
