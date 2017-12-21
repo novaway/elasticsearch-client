@@ -104,7 +104,7 @@ Feature: Search on index
             | name          | category  | field     |
             | sum_age       | sum       | age       |
             | genders       | terms     | gender    |
-        When I execute it on the index named "my_in1dex" for type "my_type"
+        When I execute it on the index named "my_index" for type "my_type"
         Then the result for aggregation "sum_age" should contain 1121
         And the bucket result for aggregation "genders" should contain 4 result for "male"
         And the bucket result for aggregation "genders" should contain 3 result for "female"
