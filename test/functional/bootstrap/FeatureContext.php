@@ -34,8 +34,8 @@ class FeatureContext implements Context
 {
     /** @var AssertGenerator */
     private $assert;
-    /** @var Index */
-    private $index;
+    /** @var Index[] */
+    private $indexes;
     /** @var array */
     private $defaultConfiguration;
     /** @var QueryBuilder */
@@ -514,11 +514,11 @@ class FeatureContext implements Context
      */
     private function getIndex(string $indexName, array $config = null): Index
     {
-        if (!$this->index) {
-            $this->index = new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
+        if (!isset($this->indexes[$indexName])) {
+            $this->indexes[$indexName] = new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
         }
 
-        return $this->index;
+        return $this->indexes[$indexName];
     }
 
     /**
