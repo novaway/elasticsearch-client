@@ -11,6 +11,7 @@ use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Filter\ExistsFilter;
 use Novaway\ElasticsearchClient\Filter\GeoDistanceFilter;
 use Novaway\ElasticsearchClient\Filter\InArrayFilter;
+use Novaway\ElasticsearchClient\Filter\NestedFilter;
 use Novaway\ElasticsearchClient\Filter\RangeFilter;
 use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Index;
@@ -196,6 +197,29 @@ class FeatureContext implements Context
         foreach ($cityArray as $cityRow) {
             $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
             $objectIndexer->index($indexableObject, 'my_geo_type');
+        }
+
+        sleep(1);
+    }
+
+    /**
+     * @When I create nested index and populate it on :indexName
+     */
+    public function iCreateObjectsOfNestedTypeToIndex($indexName)
+    {
+        $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
+
+        $cityArray =
+            [
+                ['id' => 1, 'title' => 'Incredible Hulk', 'authors' => [
+                    ['first_name' => 'Jack', 'last_name' => 'Kirby'] ,
+                    ['first_name' => 'Stan', 'last_name' => 'Lee' ]
+                ]],
+            ];
+
+        foreach ($cityArray as $cityRow) {
+            $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
+            $objectIndexer->index($indexableObject, 'nested_type');
         }
 
         sleep(1);
@@ -450,6 +474,20 @@ class FeatureContext implements Context
                 $queryRow['scale']
                 ));
         }
+    }
+
+    /**
+     * @Given I build a nested filter on :property with filters
+     */
+    public function iBuildANestedFilterOnPathWithFilters($property, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $nestedFilter = new NestedFilter($property);
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $nestedFilter->addClause(new TermFilter($queryRow['field'], $queryRow['value']));
+        }
+        $this->queryBuilder->addFilter($nestedFilter);
     }
 
     /**

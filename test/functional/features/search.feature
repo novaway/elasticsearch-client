@@ -210,3 +210,21 @@ Feature: Search on index
             | exists | license      |
         When  I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[1;2;3;4;5;6]"
+
+    Scenario: Nested filter differentiate entries
+        Given I create nested index and populate it on "my_index"
+        And I build a nested filter on "authors" with filters
+            | type | field  | value  |
+            | term | authors.first_name | Jack |
+            | term | authors.last_name | Lee |
+        When  I execute it on the index named "my_index" for type "nested_type"
+        Then the result should contain 0 hits
+
+    Scenario: Nested filter works
+        Given I create nested index and populate it on "my_index"
+        And I build a nested filter on "authors" with filters
+            | type | field  | value  |
+            | term | authors.first_name | Jack |
+            | term | authors.last_name | Kirby |
+        When  I execute it on the index named "my_index" for type "nested_type"
+        Then the result should contain exactly ids "[1]"
