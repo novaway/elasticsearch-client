@@ -237,7 +237,7 @@ Feature: Search on index
         When  I execute it on the index named "my_index" for type "my_type"
         Then the result should contain 0 hits
 
-    Scenario: Cross fieldswork on all fields
+    Scenario: Cross fields work on all fields
         Given I build a "should" multi match query with "cross_fields" searching "bruce batman", and "AND" operator with these fields
             | field  | boost  |
             | first_name | 1 |
