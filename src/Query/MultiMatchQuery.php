@@ -13,7 +13,7 @@ class MultiMatchQuery implements Query
     const PHRASE_PREFIX = 'phrase_prefix';
     /** @var string */
     private $value;
-    /** @var BoostableField[] */
+    /** @var string[]|BoostableField[] */
     private $fields;
     /** @var array */
     private $options;
@@ -44,6 +44,7 @@ class MultiMatchQuery implements Query
     {
         $fields = array_map(function($field) {
             // if the field is a string, the cast doesn't do anything
+            // if the field is a BoostableField, it willl be cast as string using the __toString method
             return (string)$field;
         }, $this->fields);
 
