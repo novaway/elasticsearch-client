@@ -18,7 +18,7 @@ class BoostableField
         $this->boost = $boost;
     }
 
-    public function _toString(): string
+    public function __toString(): string
     {
         return $this->boost == 1 ? $this->field : sprintf('%s^%s', $this->field, $this->boost);
     }
