@@ -16,6 +16,8 @@ use Novaway\ElasticsearchClient\Filter\RangeFilter;
 use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
+use Novaway\ElasticsearchClient\Query\BoostableField;
+use Novaway\ElasticsearchClient\Query\MultiMatchQuery;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
 use Novaway\ElasticsearchClient\Query\BoolQuery;
@@ -26,6 +28,7 @@ use Novaway\ElasticsearchClient\Score\DecayFunctionScore;
 use Novaway\ElasticsearchClient\Score\RandomScore;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
+
 
 /**
  * Defines application features from the specific context.
@@ -489,6 +492,22 @@ class FeatureContext implements Context
         }
         $this->queryBuilder->addFilter($nestedFilter);
     }
+
+    /**
+     * @Given I build a :combining multi match query with :type searching :query, and :operator operator with these fields
+     */
+    public function iBuildAMultiMatchQuery(string $combining, string $type, string $query, string $operator, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $fields = [];
+
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $fields[] = new BoostableField($queryRow['field'], $queryRow['boost']);
+        }
+        $this->queryBuilder->addQuery(new MultiMatchQuery($query, $fields, $combining, ['type' => $type, 'operator' => $operator]));
+    }
+
 
     /**
      * @Then todo

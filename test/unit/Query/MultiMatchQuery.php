@@ -7,7 +7,6 @@ namespace Test\Unit\Novaway\ElasticsearchClient\Query;
 use atoum\test;
 use Novaway\ElasticsearchClient\Query\BoostableField;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
-use Novaway\ElasticsearchClient\Query\MatchQuery;
 
 class MultiMatchQuery extends test
 {
