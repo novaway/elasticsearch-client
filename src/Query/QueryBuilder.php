@@ -18,6 +18,8 @@ class QueryBuilder
 
     /** @var Filter[] */
     protected $filterCollection;
+    /** @var Filter[] */
+    protected $postFilterCollection;
 
     /**
      * @var MatchQuery[]
@@ -193,6 +195,17 @@ class QueryBuilder
     }
 
     /**
+     * @param Filter $filter
+     *
+     * @return QueryBuilder
+     */
+    public function addPostFilter(Filter $filter): QueryBuilder
+    {
+        $this->postFilterCollection[] = $filter;
+
+        return $this;
+    }
+    /**
      * @return array
      */
     public function getQueryBody(): array
@@ -218,6 +231,10 @@ class QueryBuilder
 
         foreach ($this->aggregationCollection as $agg) {
             $queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
+        }
+
+        foreach ($this->postFilterCollection as $filter) {
+            $queryBody['post_filter'][] = $filter->formatForQuery();
         }
 
         return array_merge($this->queryBody, $queryBody);
