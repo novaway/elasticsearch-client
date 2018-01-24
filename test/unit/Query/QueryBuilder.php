@@ -197,4 +197,18 @@ class QueryBuilder extends test
             ]);
         ;
     }
+
+    public function testSetPostFilter()
+    {
+
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->setPostFilter(new TermFilter('size', 'M'))
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody()['post_filter'])
+            ->isEqualTo(['term' => ['size' => 'M']])
+        ;
+    }
 }
