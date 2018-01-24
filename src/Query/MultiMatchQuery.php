@@ -28,10 +28,13 @@ class MultiMatchQuery implements Query
      */
     public function __construct(string $value, array $fields, string $combiningFactor = CombiningFactor::SHOULD,array $options = [])
     {
-        array_map(function($field) {
+        $fields = array_map(function($field) {
             if (!($field instanceof BoostableField || is_string($field))) {
                 throw new \Exception('$fields array should either contain strings or BoostableField');
             };
+            // if the field is a string, the cast doesn't do anything
+            // if the field is a BoostableField, it willl be cast as string using the __toString method
+            return (string)$field;
         }, $fields);
 
         $this->value = $value;
@@ -42,17 +45,11 @@ class MultiMatchQuery implements Query
     
     public function formatForQuery(): array
     {
-        $fields = array_map(function($field) {
-            // if the field is a string, the cast doesn't do anything
-            // if the field is a BoostableField, it willl be cast as string using the __toString method
-            return (string)$field;
-        }, $this->fields);
-
         return [
             'multi_match' =>
                 array_merge([
                     'query' => $this->value,
-                    'fields' => $fields
+                    'fields' => $this->fields
                 ], $this->options)
         ];
     }
