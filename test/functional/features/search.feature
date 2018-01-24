@@ -244,3 +244,23 @@ Feature: Search on index
             | nick_name | 1 |
         When  I execute it on the index named "my_index" for type "my_type"
         Then the result should contain exactly ids "[3]"
+
+    Scenario: Simple Post filter
+        Given I build a query with aggregation :
+            | name          | category  | field     |
+            | genders       | terms     | gender    |
+        And I build the query with female post filter
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the bucket result for aggregation "genders" should contain 4 result for "male"
+        And the bucket result for aggregation "genders" should contain 3 result for "female"
+        And the result should contain exactly ids "[2;4;6]"
+
+    Scenario: Complex Post filter using a Bool Query
+        Given I build a query with aggregation :
+            | name          | category  | field     |
+            | genders       | terms     | gender    |
+        And I build the query with female and over 30 post filter
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the bucket result for aggregation "genders" should contain 4 result for "male"
+        And the bucket result for aggregation "genders" should contain 3 result for "female"
+        And the result should contain exactly ids "[2;6]"

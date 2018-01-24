@@ -311,6 +311,29 @@ class FeatureContext implements Context
     }
 
     /**
+     * @Given I build the query with female post filter
+     */
+    public function iBuildAQueryWithFemalePostFilter()
+    {
+
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $this->queryBuilder->setPostFilter(new TermFilter('gender', 'female'));
+    }
+
+    /**
+     * @Given I build the query with female and over 30 post filter
+     */
+    public function iBuildAQueryWithFemaleAndOver30PostFilter()
+    {
+
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $bool = new BoolQuery();
+        $bool->addClause(new TermFilter('gender', 'female'));
+        $bool->addClause(new RangeFilter('age', 30, RangeFilter::GREATER_THAN_OR_EQUAL_OPERATOR));
+
+        $this->queryBuilder->setPostFilter($bool);
+    }
+    /**
      * @When I execute it on the index named :indexName for type :objectType
      */
     public function iExecuteItOnTheIndexNamed($indexName, $objectType)
