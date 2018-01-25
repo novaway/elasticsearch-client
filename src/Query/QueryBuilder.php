@@ -18,7 +18,8 @@ class QueryBuilder
 
     /** @var Filter[] */
     protected $filterCollection;
-
+    /** @var Clause */
+    protected $postFilter;
     /**
      * @var MatchQuery[]
      * @deprecated
@@ -192,6 +193,12 @@ class QueryBuilder
         return array_merge($this->queryCollection, $this->filterCollection, $this->matchCollection);
     }
 
+    public function setPostFilter(Clause $clause): QueryBuilder
+    {
+        $this->postFilter = $clause;
+
+        return $this;
+    }
     /**
      * @return array
      */
@@ -218,6 +225,10 @@ class QueryBuilder
 
         foreach ($this->aggregationCollection as $agg) {
             $queryBody['aggregations'][$agg->getName()][$agg->getCategory()] = $agg->getParameters();
+        }
+
+        if ($this->postFilter) {
+            $queryBody['post_filter'] = $this->postFilter->formatForQuery();
         }
 
         return array_merge($this->queryBody, $queryBody);
