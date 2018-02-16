@@ -4,7 +4,7 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 
-class PrefixQuery
+class PrefixQuery implements Query
 {
     /** @var string */
     private $combiningFactor;
