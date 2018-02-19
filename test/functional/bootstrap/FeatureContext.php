@@ -18,6 +18,7 @@ use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
 use Novaway\ElasticsearchClient\Query\BoostableField;
 use Novaway\ElasticsearchClient\Query\MultiMatchQuery;
+use Novaway\ElasticsearchClient\Query\PrefixQuery;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
 use Novaway\ElasticsearchClient\Query\BoolQuery;
@@ -529,6 +530,18 @@ class FeatureContext implements Context
             $fields[] = new BoostableField($queryRow['field'], $queryRow['boost']);
         }
         $this->queryBuilder->addQuery(new MultiMatchQuery($query, $fields, $combining, ['type' => $type, 'operator' => $operator]));
+    }
+
+    /**
+     * @Given I build a prefix query matching :
+     */
+    public function iBuildAPrefixQueryMatching(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $this->queryBuilder->addQuery(new PrefixQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+        }
     }
 
 

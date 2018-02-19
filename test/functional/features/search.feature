@@ -264,3 +264,10 @@ Feature: Search on index
         Then the bucket result for aggregation "genders" should contain 4 result for "male"
         And the bucket result for aggregation "genders" should contain 3 result for "female"
         And the result should contain exactly ids "[2;6]"
+
+    Scenario: Prefix query
+        Given I build a prefix query matching :
+            | field       | value  | condition |
+            | gender      | mal    | must    |
+        When I execute it on the index named "my_index" for type "my_type"
+        And the result should contain exactly ids "[1;3;5;7]"
