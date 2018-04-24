@@ -88,14 +88,18 @@ class Index
     public function search(array $searchParams, ResultTransformer $resultTransformer = null)
     {
         $searchParams['index'] = $this->name;
-
         $searchResult = $this->client->search($searchParams);
+        $limit = isset($searchParams['body']['size']) ? $searchParams['body']['size'] : null;
 
-        $result = Result::createFromArray($searchResult);
+        $result = Result::createFromArray($searchResult, $limit);
+
         if ($resultTransformer) {
             $result = $resultTransformer->formatResult($result);
+            if ($result->getLimit() === null) {
+                // keep limit if it has not been set by the transformer
+                $result->setLimit($limit);
+            }
         }
-
         return $result;
     }
 
