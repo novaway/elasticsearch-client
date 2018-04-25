@@ -8,15 +8,25 @@ use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
-use Novaway\ElasticsearchClient\Filter\ComparisonFilter;
+use Novaway\ElasticsearchClient\Filter\ExistsFilter;
+use Novaway\ElasticsearchClient\Filter\GeoDistanceFilter;
 use Novaway\ElasticsearchClient\Filter\InArrayFilter;
+use Novaway\ElasticsearchClient\Filter\NestedFilter;
 use Novaway\ElasticsearchClient\Filter\RangeFilter;
 use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
+use Novaway\ElasticsearchClient\Query\BoostableField;
+use Novaway\ElasticsearchClient\Query\MultiMatchQuery;
+use Novaway\ElasticsearchClient\Query\PrefixQuery;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
+use Novaway\ElasticsearchClient\Query\BoolQuery;
+use Novaway\ElasticsearchClient\Query\MatchQuery;
+use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
+use Novaway\ElasticsearchClient\Score\DecayFunctionScore;
+use Novaway\ElasticsearchClient\Score\RandomScore;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
 
@@ -225,6 +235,7 @@ class FeatureContext implements Context
             'term' => TermFilter::class,
             'in_array' => InArrayFilter::class,
             'range' => RangeFilter::class,
+            'exists' => ExistsFilter::class,
         ];
 
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
@@ -248,6 +259,7 @@ class FeatureContext implements Context
      */
     public function iExecuteItOnTheIndexNamed($indexName, $objectType)
     {
+
         $queryExecutor = new QueryExecutor($this->getIndex($indexName));
         $this->result = $queryExecutor->execute($this->queryBuilder->getQueryBody(), $objectType);
     }
@@ -365,6 +377,170 @@ class FeatureContext implements Context
             }
         }
         throw new \Exception("No result found for $value");
+    }
+
+    /**
+     * @Given I build a :combining bool query with :
+     */
+    public function iBuildABoolQueryWithQueries($combining, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $boolQuery = new BoolQuery($combining);
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            if ( $queryRow['condition'] == CombiningFactor::FILTER) {
+                $boolQuery->addClause(new TermFilter($queryRow['field'], $queryRow['value']));
+            } else {
+                $boolQuery->addClause(new MatchQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+            }
+
+        }
+        $this->queryBuilder->addQuery($boolQuery);
+    }
+
+    /**
+     * @When I create geo objects of type "my_geo_type" to index :indexName
+     */
+    public function iCreateObjectsOfTypeMyGeoTypeToIndex($indexName)
+    {
+        $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
+
+        $cityArray =
+            [
+                ['id' => 1, 'city_name' => 'lyon', 'location' => ['lat' => '45.764043', 'lon' => '4.835658999999964' ]],
+                ['id' => 2, 'city_name' => 'paris', 'location' => ['lat' => '48.85661400000001', 'lon' => '2.3522219000000177' ]],
+                ['id' => 3, 'city_name' => 'mâcon', 'location' => ['lat' => '46.30688389999999', 'lon' => '4.828731000000062' ]]
+            ];
+
+        foreach ($cityArray as $cityRow) {
+            $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
+            $objectIndexer->index($indexableObject, 'my_geo_type');
+        }
+
+        sleep(1);
+    }
+
+    /**
+     * @Given I search cities with a coordinate :coordinate at :distance :unit
+     */
+    public function iSearchCitiesWithACoordinateAtDistance($coordinate, $distance, $unit)
+    {
+        $arrayCoordinate = explode(',', $coordinate);
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $this->queryBuilder->addFilter(new GeoDistanceFilter('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance, CombiningFactor::FILTER, $unit));
+    }
+
+    /**
+     * @When I add a random score with :seed as seed
+     */
+    public function iAddARandomSortWithSeed(string $seed)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $this->queryBuilder->addFunctionScore(new RandomScore($seed));
+    }
+
+    /**
+     * @Given I build a :function decay function with :
+     */
+    public function iBuildADecayFunction($function, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $this->queryBuilder->addFunctionScore(new DecayFunctionScore(
+                $queryRow['field'],
+                $function,
+                $queryRow['origin'],
+                $queryRow['offset'],
+                $queryRow['scale']
+            ));
+        }
+    }
+    /**
+     * @When I create nested index and populate it on :indexName
+     */
+    public function iCreateObjectsOfNestedTypeToIndex($indexName)
+    {
+        $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
+
+        $cityArray =
+            [
+                ['id' => 1, 'title' => 'Incredible Hulk', 'authors' => [
+                    ['first_name' => 'Jack', 'last_name' => 'Kirby'] ,
+                    ['first_name' => 'Stan', 'last_name' => 'Lee' ]
+                ]],
+            ];
+
+        foreach ($cityArray as $cityRow) {
+            $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
+            $objectIndexer->index($indexableObject, 'nested_type');
+        }
+
+        sleep(1);
+    }
+
+    /**
+     * @Given I build a nested filter on :property with filters
+     */
+    public function iBuildANestedFilterOnPathWithFilters($property, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $nestedFilter = new NestedFilter($property);
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $nestedFilter->addClause(new TermFilter($queryRow['field'], $queryRow['value']));
+        }
+        $this->queryBuilder->addFilter($nestedFilter);
+    }
+
+    /**
+     * @Given I build a :combining multi match query with :type searching :query, and :operator operator with these fields
+     */
+    public function iBuildAMultiMatchQuery(string $combining, string $type, string $query, string $operator, TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $fields = [];
+
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $fields[] = new BoostableField($queryRow['field'], $queryRow['boost']);
+        }
+        $this->queryBuilder->addQuery(new MultiMatchQuery($query, $fields, $combining, ['type' => $type, 'operator' => $operator]));
+    }
+
+    /**
+     * @Given I build the query with female post filter
+     */
+    public function iBuildAQueryWithFemalePostFilter()
+    {
+
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $this->queryBuilder->setPostFilter(new TermFilter('gender', 'female'));
+    }
+    /**
+     * @Given I build the query with female and over 30 post filter
+     */
+    public function iBuildAQueryWithFemaleAndOver30PostFilter()
+    {
+
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $bool = new BoolQuery();
+        $bool->addClause(new TermFilter('gender', 'female'));
+        $bool->addClause(new RangeFilter('age', 30, RangeFilter::GREATER_THAN_OR_EQUAL_OPERATOR));
+
+        $this->queryBuilder->setPostFilter($bool);
+    }
+
+    /**
+     * @Given I build a prefix query matching :
+     */
+    public function iBuildAPrefixQueryMatching(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $this->queryBuilder->addQuery(new PrefixQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+        }
     }
 
     /**

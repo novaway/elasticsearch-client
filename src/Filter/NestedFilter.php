@@ -30,11 +30,13 @@ class NestedFilter implements Filter
 
     public function formatForQuery(): array
     {
+        ;
+
         return ['nested' => [
             'path' => $this->property,
-            'filter' => [
+            'query' => [
                 'bool' => [
-                    'must' => array_map(function(Clause $clause) {
+                    'filter' => array_map(function(Clause $clause) {
                         return $clause->formatForQuery();
                     }, $this->clauses)
                 ]
