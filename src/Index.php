@@ -89,7 +89,7 @@ class Index
     {
         $searchParams['index'] = $this->name;
         $searchResult = $this->client->search($searchParams);
-        $limit = isset($searchParams['body']['size']) ? $searchParams['body']['size'] : null;
+        $limit = $searchParams['body']['size'] ??  null;
 
         $result = Result::createFromArray($searchResult, $limit);
 
@@ -127,7 +127,7 @@ class Index
             throw new InvalidConfigurationException('Missing key "mappings" in search configuration.');
         }
 
-        $this->config['settings'] = isset($indexConfig['settings']) ? $indexConfig['settings'] : [];
+        $this->config['settings'] = $indexConfig['settings'] ?? [];
 
         foreach ($indexConfig['mappings'] as $typeName => $typeMapping) {
             if (isset($typeMapping)) {
