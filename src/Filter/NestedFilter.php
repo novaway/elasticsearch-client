@@ -30,8 +30,6 @@ class NestedFilter implements Filter
 
     public function formatForQuery(): array
     {
-        ;
-
         return ['nested' => [
             'path' => $this->property,
             'query' => [
