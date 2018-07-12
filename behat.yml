@@ -1,6 +1,6 @@
 default:
     autoload:
-        '': %paths.base%/test/functional/bootstrap
+        '': '%paths.base%/test/functional/bootstrap'
     formatters:
         pretty: true
 
