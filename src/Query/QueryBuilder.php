@@ -29,13 +29,17 @@ class QueryBuilder
     /** @var Query[] */
     protected $queryCollection;
 
-    /** @var Aggregation[]  */
+    /** @var Aggregation[] */
     protected $aggregationCollection;
 
     /** @var FunctionScore[] */
     protected $functionScoreCollection;
 
-    public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
+    /** @var BoostMode $boostMode */
+    protected $boostMode;
+
+
+    public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE, $boostMode = BoostMode::MULTIPLY)
     {
         $this->queryBody = [];
         $this->filterCollection = [];
@@ -43,6 +47,7 @@ class QueryBuilder
         $this->queryCollection = [];
         $this->aggregationCollection = [];
         $this->functionScoreCollection = [];
+        $this->boostMode = $boostMode;
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -99,11 +104,10 @@ class QueryBuilder
 
     public function addSort($field, $order): QueryBuilder
     {
-        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
+        $this->queryBody['sort'][] = [$field => ['order' => $order]];
 
         return $this;
     }
-
 
     /**
      * @param string $field
@@ -186,6 +190,14 @@ class QueryBuilder
     }
 
     /**
+     * @param BoostMode $boostMode
+     */
+    public function setBoostMode(BoostMode $boostMode)
+    {
+        $this->boostMode = $boostMode;
+    }
+
+    /**
      * @return Clause[]
      */
     public function getClauseCollection()
@@ -196,9 +208,9 @@ class QueryBuilder
     public function setPostFilter(Clause $clause): QueryBuilder
     {
         $this->postFilter = $clause;
-
         return $this;
     }
+
     /**
      * @return array
      */
@@ -221,6 +233,7 @@ class QueryBuilder
                 $function['functions'][] = $functionScore->formatForQuery();
             }
             $queryBody['query']['function_score'] = $function;
+            $queryBody['query']['function_score']['boost_mode'] = $this->boostMode;
         }
 
         foreach ($this->aggregationCollection as $agg) {
