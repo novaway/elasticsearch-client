@@ -47,7 +47,7 @@ class QueryBuilder
         $this->queryCollection = [];
         $this->aggregationCollection = [];
         $this->functionScoreCollection = [];
-        $this->boostMode = $boostMode;
+        $this->setBoostMode($boostMode);
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -191,6 +191,9 @@ class QueryBuilder
 
     public function setBoostMode(string $boostMode): QueryBuilder
     {
+        if (!in_array($boostMode, [BoostMode::MULTIPLY, BoostMode::SUM, BoostMode::MIN, BoostMode::MAX, BoostMode::REPLACE])) {
+            throw new \InvalidArgumentException(sprintf("function should be one of %s, %s, %s, %s, %s : %s given", BoostMode::MULTIPLY, BoostMode::SUM, BoostMode::MIN, BoostMode::MAX, BoostMode::REPLACE, $boostMode));
+        }
         $this->boostMode = $boostMode;
         return $this;
     }
