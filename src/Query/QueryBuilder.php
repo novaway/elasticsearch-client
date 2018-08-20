@@ -35,7 +35,7 @@ class QueryBuilder
     /** @var FunctionScore[] */
     protected $functionScoreCollection;
 
-    /** @var BoostMode $boostMode */
+    /** @var string $boostMode */
     protected $boostMode;
 
 
@@ -189,7 +189,7 @@ class QueryBuilder
         return $this;
     }
 
-    public function setBoostMode(BoostMode $boostMode): QueryBuilder
+    public function setBoostMode(string $boostMode): QueryBuilder
     {
         $this->boostMode = $boostMode;
         return $this;
