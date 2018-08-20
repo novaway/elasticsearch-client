@@ -189,12 +189,10 @@ class QueryBuilder
         return $this;
     }
 
-    /**
-     * @param BoostMode $boostMode
-     */
-    public function setBoostMode(BoostMode $boostMode)
+    public function setBoostMode(BoostMode $boostMode): QueryBuilder
     {
         $this->boostMode = $boostMode;
+        return $this;
     }
 
     /**

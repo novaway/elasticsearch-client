@@ -8,6 +8,7 @@ use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Query\BoolQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\MatchQuery;
+use Novaway\ElasticsearchClient\Score\FieldValueFactorScore;
 use Novaway\ElasticsearchClient\Score\RandomScore;
 
 class QueryBuilder extends test
@@ -194,6 +195,32 @@ class QueryBuilder extends test
             ->array($this->testedInstance->getQueryBody()['query']['function_score']['functions'][0])
             ->isEqualTo([
                 'random_score' => ['seed' => 'testSeed']
+            ]);
+        ;
+    }
+
+
+    public function testAddFiedValueFactorScore()
+    {
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addQuery(new MatchQuery('firstname', 'cedric', CombiningFactor::MUST)),
+                $this->testedInstance->addFunctionScore(new FieldValueFactorScore('age', FieldValueFactorScore::SQUARE, 2,15))
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody()['query'])
+            ->hasKey('function_score')
+            ->array($this->testedInstance->getQueryBody()['query']['function_score'])
+            ->hasKey('functions')
+            ->array($this->testedInstance->getQueryBody()['query']['function_score']['functions'][0])
+            ->isEqualTo([
+                'field_value_factor' => [
+                    'field' => 'age',
+                    'modifier' => 'square',
+                    'factor' => 2,
+                    'missing' => 15
+                ]
             ]);
         ;
     }
