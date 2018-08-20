@@ -5,9 +5,10 @@ namespace Test\Unit\Novaway\ElasticsearchClient\Query;
 use atoum\test;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Filter\TermFilter;
-use Novaway\ElasticsearchClient\Query\BoolQuery;
+use Novaway\ElasticsearchClient\Query\BoostMode;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\MatchQuery;
+use Novaway\ElasticsearchClient\Score\FieldValueFactorScore;
 use Novaway\ElasticsearchClient\Score\RandomScore;
 
 class QueryBuilder extends test
@@ -198,6 +199,32 @@ class QueryBuilder extends test
         ;
     }
 
+
+    public function testAddFiedValueFactorScore()
+    {
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addQuery(new MatchQuery('firstname', 'cedric', CombiningFactor::MUST)),
+                $this->testedInstance->addFunctionScore(new FieldValueFactorScore('age', FieldValueFactorScore::SQUARE, 2,15))
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody()['query'])
+            ->hasKey('function_score')
+            ->array($this->testedInstance->getQueryBody()['query']['function_score'])
+            ->hasKey('functions')
+            ->array($this->testedInstance->getQueryBody()['query']['function_score']['functions'][0])
+            ->isEqualTo([
+                'field_value_factor' => [
+                    'field' => 'age',
+                    'modifier' => 'square',
+                    'factor' => 2,
+                    'missing' => 15
+                ]
+            ]);
+        ;
+    }
+
     public function testSetPostFilter()
     {
 
@@ -210,5 +237,24 @@ class QueryBuilder extends test
             ->array($this->testedInstance->getQueryBody()['post_filter'])
             ->isEqualTo(['term' => ['size' => 'M']])
         ;
+    }
+
+    public function testSetBoostMode()
+    {
+
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addQuery(new MatchQuery('firstname', 'cedric', CombiningFactor::MUST)),
+                $this->testedInstance->addFunctionScore(new FieldValueFactorScore('age', FieldValueFactorScore::SQUARE, 2, 15)),
+                $this->testedInstance->setBoostMode(BoostMode::MAX)
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody()['query'])
+            ->hasKey('function_score')
+            ->array($this->testedInstance->getQueryBody()['query']['function_score'])
+            ->hasKey('boost_mode')
+            ->string($this->testedInstance->getQueryBody()['query']['function_score']['boost_mode'])
+            ->isEqualTo( 'max');
     }
 }

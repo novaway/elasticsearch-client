@@ -29,13 +29,17 @@ class QueryBuilder
     /** @var Query[] */
     protected $queryCollection;
 
-    /** @var Aggregation[]  */
+    /** @var Aggregation[] */
     protected $aggregationCollection;
 
     /** @var FunctionScore[] */
     protected $functionScoreCollection;
 
-    public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
+    /** @var string $boostMode */
+    protected $boostMode;
+
+
+    public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE, $boostMode = BoostMode::MULTIPLY)
     {
         $this->queryBody = [];
         $this->filterCollection = [];
@@ -43,6 +47,7 @@ class QueryBuilder
         $this->queryCollection = [];
         $this->aggregationCollection = [];
         $this->functionScoreCollection = [];
+        $this->setBoostMode($boostMode);
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -99,11 +104,10 @@ class QueryBuilder
 
     public function addSort($field, $order): QueryBuilder
     {
-        $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
+        $this->queryBody['sort'][] = [$field => ['order' => $order]];
 
         return $this;
     }
-
 
     /**
      * @param string $field
@@ -185,6 +189,15 @@ class QueryBuilder
         return $this;
     }
 
+    public function setBoostMode(string $boostMode): QueryBuilder
+    {
+        if (!in_array($boostMode, [BoostMode::MULTIPLY, BoostMode::SUM, BoostMode::MIN, BoostMode::MAX, BoostMode::REPLACE])) {
+            throw new \InvalidArgumentException(sprintf("function should be one of %s, %s, %s, %s, %s : %s given", BoostMode::MULTIPLY, BoostMode::SUM, BoostMode::MIN, BoostMode::MAX, BoostMode::REPLACE, $boostMode));
+        }
+        $this->boostMode = $boostMode;
+        return $this;
+    }
+
     /**
      * @return Clause[]
      */
@@ -196,9 +209,9 @@ class QueryBuilder
     public function setPostFilter(Clause $clause): QueryBuilder
     {
         $this->postFilter = $clause;
-
         return $this;
     }
+
     /**
      * @return array
      */
@@ -221,6 +234,7 @@ class QueryBuilder
                 $function['functions'][] = $functionScore->formatForQuery();
             }
             $queryBody['query']['function_score'] = $function;
+            $queryBody['query']['function_score']['boost_mode'] = $this->boostMode;
         }
 
         foreach ($this->aggregationCollection as $agg) {
