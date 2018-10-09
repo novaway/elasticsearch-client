@@ -20,7 +20,7 @@ class ObjectIndexer
      * @param Indexable $object
      * @param string $type
      */
-    public function index(Indexable $object, $type)
+    public function index(Indexable $object, string $type = "_doc")
     {
         $params = [];
         $params['type'] = $type;
