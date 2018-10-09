@@ -100,8 +100,14 @@ const LIMIT = 10;
 $queryBuilder = QueryBuilder::createNew(0, 10, 0.3);
 ```
 
-> + **TODO** : Use a result formater
-+ **TODO** : Filtering results
+#### Advanced Querying
+
+This client provide several ways to improve querying :
+
+- Filtering *(missing documentation)*
+- [Aggregations](doc/aggregation.md)
+- Result Formating *(missing documentation)*
+
 
 ### Clear the index
 
@@ -154,6 +160,16 @@ services:
 
 Then you'll only have to work with the `myapp.search.object_indexer` and `myapp.search.query_executor` services.
 
+## Testing
+
+A testing environment is provided using a dockerized version of elasticsearch.
+
+Testing is done using the [Atoum](http://atoum.org/) framework for unit testing and the [Behat](http://behat.org/en/latest/) framework for behavior testing.
+
+A `Makefile` provide useful commands for testing, so you can run the full test suite by running :
+```sh
+$ make test
+```
 
 ## License
 

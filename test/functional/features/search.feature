@@ -1,18 +1,17 @@
 Feature: Search on index
 
-
     Background:
         Given there is no index named "my_index"
         And I create an index named "my_index" with the configuration from "data/config.yml"
         When I add objects of type "my_type" to index "my_index" with data :
-            | id | first_name | nick_name    | age | gender | description                                                     |
-            | 1  | Barry      | Flash        | 33  | male   | I'm the fastest man alive                                       |
-            | 2  | Diana      | Wonder Woman | 910 | female | I'm badass, period                                              |
-            | 3  | Bruce      | Batman       | 45  | male   | I'm rich and I fight crime, with my dead parents money          |
-            | 4  | Barbara    | Batgirl      | 27  | female | I team up with Batman to fight crime                            |
-            | 5  | Oliver     | Green Arrow  | 35  | male   | I'm rich and I fight crime, pretty much like Batman, with a bow |
-            | 6  | Selena     | Catwoman     | 38  | female | I <3 cats ... and batman                                        |
-            | 7  | Skwi       | Batman       | 33  | male   | I <3 pasta ... and batman                                        |
+            | id | first_name | nick_name    | age | gender | description                                                     | license   |
+            | 1  | Barry      | Flash        | 33  | male   | I'm the fastest man alive                                       | DC Comics |
+            | 2  | Diana      | Wonder Woman | 910 | female | I'm badass, period                                              | DC Comics |
+            | 3  | Bruce      | Batman       | 45  | male   | I'm rich and I fight crime, with my dead parents money          | DC Comics |
+            | 4  | Barbara    | Batgirl      | 27  | female | I team up with Batman to fight crime                            | DC Comics |
+            | 5  | Oliver     | Green Arrow  | 35  | male   | I'm rich and I fight crime, pretty much like Batman, with a bow | DC Comics |
+            | 6  | Selena     | Catwoman     | 38  | female | I <3 cats ... and batman                                        | DC Comics |
+            | 7  | Skwi       | Batman       | 33  | male   | I <3 pasta ... and batman                                       | null      |
 
     Scenario: Search on one fields
         Given I build a query matching :
@@ -98,3 +97,171 @@ Feature: Search on index
         Then the result with the id 7 should contain "<em>Batman</em>" in "nick_name"
         And the result with the id 7 should contain "I <3 pasta ... and <strong>batman</strong>" in "description"
         And the result with the id 3 should contain "<em>Batman</em>" in "nick_name"
+
+    Scenario: Aggregations
+        Given I build a query with aggregation :
+            | name          | category  | field     |
+            | sum_age       | sum       | age       |
+            | genders       | terms     | gender    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result for aggregation "sum_age" should contain 1121
+        And the bucket result for aggregation "genders" should contain 4 result for "male"
+        And the bucket result for aggregation "genders" should contain 3 result for "female"
+
+    Scenario: Simple Bool Query
+        Given I build a must bool query with :
+            | field         | value       | condition |
+            | age           | 910         | should    |
+            | age           | 45          | should    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[3;2]"
+
+    Scenario: Multiple should Bool Query
+        Given I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 910           | should    |
+        And I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 45            | should    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[3;2]"
+
+    Scenario: Multiple must Bool Query
+        Given I build a must bool query with :
+            | field             | value         | condition |
+            | age               | 910           | should    |
+            | age               | 45            | should    |
+        And I build a must bool query with :
+            | field             | value         | condition |
+            | first_name        | Diana         | should    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"
+    Scenario: Combining MUST and SHOULD inside a Bool Query
+        Given I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 910           | should    |
+            | age               | 45            | should    |
+            | first_name        | Diana         | must    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"
+
+    Scenario: Combining MUST and SHOULD outside a Bool Query
+        Given I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 910           | should    |
+        And I build a should bool query with :
+            | field             | value         | condition |
+            | age               | 45            | should    |
+        And I build a must bool query with :
+            | field             | value         | condition |
+            | first_name        | Diana         | must    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"
+    Scenario: Combining queries and filters inside a Bool Query
+        Given I build a should bool query with :
+            | field      | value       | condition |
+            | gender     | male        | should    |
+            | gender     | female      | should    |
+            | age        | 910         | filter    |
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2]"
+
+    Scenario: Search City with geodistance
+        Given I create geo objects of type "my_geo_type" to index "my_index"
+        And I search cities with a coordinate "45.764043,4.835658999999964" at "200" km
+        When I execute it on the index named "my_index" for type "my_geo_type"
+        Then the result should contain exactly ids "[1;3]"
+
+    Scenario: Search City with geodistance and different unit
+        Given I create geo objects of type "my_geo_type" to index "my_index"
+        And I search cities with a coordinate "45.764043,4.835658999999964" at "200" m
+        When I execute it on the index named "my_index" for type "my_geo_type"
+        Then the result should contain exactly ids "[1]"
+    Scenario: Add random sort and the result is the same
+        Given I build a query with filter :
+            | type | field  | value  |
+            | term | gender | female |
+        When I add a random score with "MyTestSeed" as seed
+        And  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[2;4;6]"
+
+    Scenario: Add a linear function sort
+        Given I build a linear decay function with :
+            | field  | origin | offset | scale |
+            | age    | 35     |  1     |  0.8    |
+        When  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[5;1;7]"
+
+    Scenario: Add a gauss function sort
+        Given I build a gauss decay function with :
+            | field  | origin | offset | scale |
+            | age    | 35     |  1     |  0.8    |
+        When  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[5;1;7;6]"
+
+    Scenario: Exist filter
+        Given I build a query with filter :
+            | type   | field        |
+            | exists | license      |
+        When  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[1;2;3;4;5;6]"
+    Scenario: Nested filter differentiate entries
+        Given I create nested index and populate it on "my_index"
+        And I build a nested filter on "authors" with filters
+            | type | field  | value  |
+            | term | authors.first_name | Jack |
+            | term | authors.last_name | Lee |
+        When  I execute it on the index named "my_index" for type "nested_type"
+        Then the result should contain 0 hits
+
+    Scenario: Nested filter works
+        Given I create nested index and populate it on "my_index"
+        And I build a nested filter on "authors" with filters
+            | type | field  | value  |
+            | term | authors.first_name | Jack |
+            | term | authors.last_name | Kirby |
+        When  I execute it on the index named "my_index" for type "nested_type"
+        Then the result should contain exactly ids "[1]"
+
+    Scenario: Best fields don't work on all fields
+        Given I build a "should" multi match query with "best_fields" searching "bruce batman", and "AND" operator with these fields
+            | field  | boost  |
+            | first_name | 1 |
+            | nick_name | 1 |
+        When  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain 0 hits
+
+    Scenario: Cross fields work on all fields
+        Given I build a "should" multi match query with "cross_fields" searching "bruce batman", and "AND" operator with these fields
+            | field  | boost  |
+            | first_name | 1 |
+            | nick_name | 1 |
+        When  I execute it on the index named "my_index" for type "my_type"
+        Then the result should contain exactly ids "[3]"
+
+    Scenario: Simple Post filter
+        Given I build a query with aggregation :
+            | name          | category  | field     |
+            | genders       | terms     | gender    |
+        And I build the query with female post filter
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the bucket result for aggregation "genders" should contain 4 result for "male"
+        And the bucket result for aggregation "genders" should contain 3 result for "female"
+        And the result should contain exactly ids "[2;4;6]"
+
+    Scenario: Complex Post filter using a Bool Query
+        Given I build a query with aggregation :
+            | name          | category  | field     |
+            | genders       | terms     | gender    |
+        And I build the query with female and over 30 post filter
+        When I execute it on the index named "my_index" for type "my_type"
+        Then the bucket result for aggregation "genders" should contain 4 result for "male"
+        And the bucket result for aggregation "genders" should contain 3 result for "female"
+        And the result should contain exactly ids "[2;6]"
+
+    Scenario: Prefix query
+        Given I build a prefix query matching :
+            | field       | value  | condition |
+            | gender      | mal    | must    |
+        When I execute it on the index named "my_index" for type "my_type"
+        And the result should contain exactly ids "[1;3;5;7]"

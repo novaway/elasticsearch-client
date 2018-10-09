@@ -19,7 +19,12 @@ class IndexableObject implements Indexable
     public function __construct($id, array $indexableData)
     {
         $this->id = (string)$id;
-        $this->indexableData = $indexableData;
+        $this->indexableData = array_map(
+            function($value) {
+                return $value === 'null' ?  null : $value;
+            },
+            $indexableData
+        );
     }
 
     /**
