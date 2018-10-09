@@ -12,8 +12,10 @@ Feature: Add and remove data to the elasticsearch index
 
     Scenario: Reload index
         Given there is an index named "my_index"
-        And the index named "my_index" is not new
-        When I reload the index named "my_index"
+        When I add objects of type "my_type" to index "my_index" with data :
+            | id | first_name | nick_name | age |
+            | 1  | Barry      | flash     | 33  |
+        And I reload the index named "my_index"
         Then the index named "my_index" should exist
         And the index named "my_index" is new
 

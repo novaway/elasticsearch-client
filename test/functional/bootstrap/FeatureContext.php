@@ -114,23 +114,6 @@ class FeatureContext implements Context
         }
     }
 
-    /**
-     * @Given the index named :indexName is not new
-     */
-    public function theIndexNamedIsNotNew(string $indexName)
-    {
-        if ($this->countIndexInsertion($indexName) > 0) {
-            return;
-        }
-
-        $this->httpPut(\sprintf('/%s/my_type/%s', $indexName, uniqid()), [
-            'first_name' => 'Barry',
-            'nick_name' => 'Flash',
-            'age' => 32,
-        ]);
-
-        $this->assert->integer($this->countIndexInsertion($indexName))->isGreaterThan(0);
-    }
 
     /**
      * @Then the index named :indexName is new
@@ -620,18 +603,6 @@ class FeatureContext implements Context
 
 
         throw new \Exception('Index has not been deleted');
-    }
-
-    /**
-     * @param string $uri
-     * @throws \Exception
-     */
-    private function httpPut(string $uri, array $data)
-    {
-        $response = $this->httpCall('PUT', $uri, $data);
-        if ($response['status'] !== 201) {
-            throw new \Exception('Error putting data onto server');
-        }
     }
 
     /**
