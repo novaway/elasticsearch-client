@@ -6,15 +6,15 @@ mappings:
         _source : { enabled : true }
         properties:
             first_name:
-                type: string
+                type: text
                 analyzer: standard
                 search_analyzer: standard
             nick_name:
-                type: string
+                type: text
                 analyzer: standard
                 search_analyzer: standard
             description:
-                type: string
+                type: text
                 analyzer: standard
                 search_analyzer: standard
             age:
