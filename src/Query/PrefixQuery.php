@@ -1,9 +1,10 @@
 <?php
 
+
 namespace Novaway\ElasticsearchClient\Query;
 
-//https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
-class MatchQuery implements Query
+
+class PrefixQuery implements Query
 {
     /** @var string */
     private $combiningFactor;
@@ -11,21 +12,15 @@ class MatchQuery implements Query
     private $field;
     /** @var mixed */
     private $value;
-    /** @var array  */
-    private $options;
+    /** @var float */
+    private $boost;
 
-    /**
-     * MatchQuery constructor.
-     *
-     * @param string $field
-     * @param mixed  $value
-     */
-    public function __construct($field, $value, $combiningFactor = CombiningFactor::MUST, array $options = ['operator' => 'AND'])
+    public function __construct($field, $value, $combiningFactor = CombiningFactor::MUST, float $boost = 1)
     {
         $this->field = $field;
         $this->value = $value;
         $this->combiningFactor = $combiningFactor;
-        $this->options = $options;
+        $this->boost = $boost;
     }
 
     /**
@@ -58,13 +53,12 @@ class MatchQuery implements Query
     public function formatForQuery(): array
     {
         return [
-                'match' => [
-                    $this->getField() =>  array_merge([
-                        'query' => $this->getValue()
-                    ], $this->options)
+            'prefix' => [
+                $this->getField() =>  [
+                    'prefix' => $this->getValue(),
+                    'boost' => $this->boost
                 ]
-            ];
+            ]
+        ];
     }
-
-
 }
