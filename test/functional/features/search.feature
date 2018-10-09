@@ -265,7 +265,7 @@ Feature: Search on index
         Then the bucket result for aggregation "genders" should contain 4 result for "male"
         And the bucket result for aggregation "genders" should contain 3 result for "female"
         And the result should contain exactly ids "[2;6]"
-    @failing
+
     Scenario: Prefix query
         Given I build a prefix query matching :
             | field       | value  | condition |
