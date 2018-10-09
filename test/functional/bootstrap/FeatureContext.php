@@ -52,7 +52,7 @@ class FeatureContext implements Context
     public function __construct()
     {
         $this->assert = new AssertGenerator();
-        $this->defaultConfiguration = Yaml::parse(file_get_contents(__DIR__ . '/data/config.yml'));
+        $this->defaultConfiguration = Yaml::parse(file_get_contents(__DIR__ . '/data/config_my_index.yml'));
     }
 
     /**
@@ -66,7 +66,7 @@ class FeatureContext implements Context
             return;
         }
 
-        $this->httpDelete('/my_index');
+        $this->httpDelete(\sprintf('/%s/', $indexName));
     }
 
     /**
@@ -244,6 +244,7 @@ class FeatureContext implements Context
     {
 
         $queryExecutor = new QueryExecutor($this->getIndex($indexName));
+
         $this->result = $queryExecutor->execute($this->queryBuilder->getQueryBody(), $objectType);
     }
 
@@ -382,9 +383,9 @@ class FeatureContext implements Context
     }
 
     /**
-     * @When I create geo objects of type "my_geo_type" to index :indexName
+     * @When I create geo objects of type :objectType to index :indexName
      */
-    public function iCreateObjectsOfTypeMyGeoTypeToIndex($indexName)
+    public function iCreateObjectsOfTypeMyGeoTypeToIndex(string $objectType, string $indexName)
     {
         $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
 
@@ -397,7 +398,7 @@ class FeatureContext implements Context
 
         foreach ($cityArray as $cityRow) {
             $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
-            $objectIndexer->index($indexableObject, 'my_geo_type');
+            $objectIndexer->index($indexableObject, $objectType);
         }
 
         sleep(1);
@@ -456,7 +457,7 @@ class FeatureContext implements Context
 
         foreach ($cityArray as $cityRow) {
             $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
-            $objectIndexer->index($indexableObject, 'nested_type');
+            $objectIndexer->index($indexableObject, '_doc');
         }
 
         sleep(1);
@@ -550,11 +551,11 @@ class FeatureContext implements Context
      */
     private function getIndex(string $indexName, array $config = null): Index
     {
-        if (!$this->index) {
-            $this->index = new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
+        if (!isset($this->index[$indexName])) {
+            $this->index[$indexName] = new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
         }
 
-        return $this->index;
+        return $this->index[$indexName];
     }
 
     /**

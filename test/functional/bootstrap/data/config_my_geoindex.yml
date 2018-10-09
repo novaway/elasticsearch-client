@@ -1,0 +1,12 @@
+settings:
+    number_of_shards : 1
+    number_of_replicas : 1
+mappings:
+    _doc:
+        properties:
+            city_name:
+                type: text
+                analyzer: standard
+                search_analyzer: standard
+            location:
+                type: geo_point
