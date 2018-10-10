@@ -4,16 +4,14 @@
 namespace Novaway\ElasticsearchClient\Script;
 
 
+use Novaway\ElasticsearchClient\Script\Traits\ScriptTrait;
+
 class ScriptField
 {
+    use ScriptTrait;
+
     /** @var string */
     protected $field;
-    /** @var string */
-    protected $lang;
-    /** @var string */
-    protected $source;
-    /** @var array */
-    protected $params;
 
     public function __construct(string $field, string $source, array $params = [], string $lang = ScriptingLanguage::PAINLESS)
     {
@@ -30,20 +28,5 @@ class ScriptField
     public function getField():string
     {
         return $this->field;
-    }
-
-    public function formatForQuery(): array
-    {
-
-        $script =  [
-            'lang' => $this->lang,
-            'source' => $this->source
-        ];
-
-        if (!empty($this->params)) {
-            $script['params'] = $this->params;
-        }
-
-        return ['script' => $script];
     }
 }
