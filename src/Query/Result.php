@@ -48,6 +48,21 @@ class Result
         $hits = [];
         if (isset($arrayResult['hits']['hits'])) {
             $hits = array_map(function ($hit) {
+                $hitFormated = [];
+
+                $underscoreFields = [
+                    '_id',
+                    '_score',
+                    '_type',
+                    '_index'
+                ];
+
+                foreach ($underscoreFields as $field) {
+                    if (isset($hit[$field])) {
+                        $hitFormated[$field] = $hit[$field];
+                    }
+                }
+
                 if (isset($hit['_source'])) {
                     $hitFormated = $hit['_source'];
                 }
