@@ -27,6 +27,7 @@ use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
 use Novaway\ElasticsearchClient\Score\DecayFunctionScore;
 use Novaway\ElasticsearchClient\Score\RandomScore;
+use Novaway\ElasticsearchClient\Score\ScriptScore;
 use Novaway\ElasticsearchClient\Script\ScriptField;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
@@ -451,6 +452,20 @@ class FeatureContext implements Context
             ));
         }
     }
+
+    /**
+     * @Given I build a script score function with :
+     */
+    public function iBuildAScriptScoreFunction(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $params =  isset($queryRow['params']) ?  json_decode($queryRow['params'], true) : [];
+            $this->queryBuilder->addFunctionScore(new ScriptScore($queryRow['source'], $params, $queryRow['lang']));
+        }
+    }
+
     /**
      * @When I create nested index and populate it on :indexName
      */
@@ -652,4 +667,5 @@ class FeatureContext implements Context
 
         return $handler($request);
     }
+
 }

@@ -292,3 +292,13 @@ Feature: Search on index
             | double_age   | doc['age'].value * params.multiplier     | {"multiplier":3}        | painless |
         When I execute it on the index named "my_index" for type "_doc"
         Then the result n° "0" should contain field "double_age" equaling "99"
+
+    Scenario: Script score
+        Given I build a query matching :
+            | field       | value  | condition |
+            | id          | 1      | must      |
+        And I build a script score function with :
+            | source  | params    | lang     |
+            |  doc['age'].value * params.multiplier     | {"multiplier":3}        | painless |
+        When I execute it on the index named "my_index" for type "_doc"
+        Then the result n° "0" should contain field "_score" equaling "99"
