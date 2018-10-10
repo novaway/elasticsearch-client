@@ -27,6 +27,7 @@ use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
 use Novaway\ElasticsearchClient\Score\DecayFunctionScore;
 use Novaway\ElasticsearchClient\Score\RandomScore;
+use Novaway\ElasticsearchClient\Script\ScriptField;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
 
@@ -261,6 +262,16 @@ class FeatureContext implements Context
 
         $this->assert->integer($this->result->totalHits())->isEqualTo(count($idList));
         $this->assert->integer($foundCount)->isEqualTo(count($idList));
+    }
+
+    /**
+     * @Then the result n° :index should contain field :fieldName equaling :value
+     */
+    public function theNthResultShouldContainFieldEqualing(int $index, string $fieldName, string $value)
+    {
+        $nthHit = $this->result->hits()[$index];
+
+        $this->assert->string((string)$nthHit[$fieldName])->isEqualTo($value);
     }
 
     /**
@@ -524,6 +535,19 @@ class FeatureContext implements Context
         $queryHash = $queryTable->getHash();
         foreach ($queryHash as $queryRow) {
             $this->queryBuilder->addQuery(new PrefixQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+        }
+    }
+
+    /**
+     * @Given I build a script field matching :
+     */
+    public function iBuildAScriptFieldMatching(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $params =  isset($queryRow['params']) ?  json_decode($queryRow['params'], true) : [];
+            $this->queryBuilder->addScriptField(new ScriptField($queryRow['field'], $queryRow['source'], $params, $queryRow['lang']));
         }
     }
 

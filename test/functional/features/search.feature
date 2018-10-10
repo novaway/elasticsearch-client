@@ -272,3 +272,23 @@ Feature: Search on index
             | gender      | mal    | must    |
         When I execute it on the index named "my_index" for type "_doc"
         And the result should contain exactly ids "[1;3;5;7]"
+
+    Scenario: Script field
+        Given I build a query matching :
+            | field       | value  | condition |
+            | id          | 1      | must      |
+        And I build a script field matching :
+            | field       | source  | params    | lang     |
+            | double_age   | doc['age'].value * 2     | {}        | painless |
+        When I execute it on the index named "my_index" for type "_doc"
+        Then the result n° "0" should contain field "double_age" equaling "66"
+
+    Scenario: Script field with param
+        Given I build a query matching :
+            | field       | value  | condition |
+            | id          | 1      | must      |
+        And I build a script field matching :
+            | field       | source  | params    | lang     |
+            | double_age   | doc['age'].value * params.multiplier     | {"multiplier":3}        | painless |
+        When I execute it on the index named "my_index" for type "_doc"
+        Then the result n° "0" should contain field "double_age" equaling "99"
