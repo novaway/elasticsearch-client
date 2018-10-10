@@ -50,6 +50,10 @@ class Result
             $hits = array_map(function ($hit) {
                 $hitFormated = [];
 
+                if (isset($hit['_source'])) {
+                    $hitFormated = $hit['_source'];
+                }
+
                 $underscoreFields = [
                     '_id',
                     '_score',
@@ -63,9 +67,6 @@ class Result
                     }
                 }
 
-                if (isset($hit['_source'])) {
-                    $hitFormated = $hit['_source'];
-                }
                 if (isset($hit['highlight'])) {
                     foreach ($hit['highlight'] as $key => $highlight) {
                         $hitFormated[$key] = current($highlight);
@@ -82,7 +83,6 @@ class Result
                         $hitFormated[$key] = current($computedFields);
                     }
                 }
-
                 return $hitFormated;
             }, $arrayResult['hits']['hits']);
         };
