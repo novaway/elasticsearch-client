@@ -9,6 +9,13 @@ class DecayFunctionScore implements FunctionScore
     const GAUSS = 'gauss';
     const EXP = 'exp';
     const LINEAR = 'linear';
+
+    public static $availableFunctions = [
+        self::GAUSS,
+        self::EXP,
+        self::LINEAR
+    ];
+
     const DECAY = 0.5;
 
     /** @var string */
@@ -27,8 +34,8 @@ class DecayFunctionScore implements FunctionScore
 
     public function __construct(string $property, string $function, $origin, string $offset, string $scale, array $options = [], float $decay = self::DECAY)
     {
-        if (!in_array($function, [DecayFunctionScore::GAUSS, DecayFunctionScore::EXP, DecayFunctionScore::LINEAR])) {
-            throw new \InvalidArgumentException(sprintf("function should be one of %s, %s, %s : %s given", DecayFunctionScore::GAUSS, DecayFunctionScore::EXP, DecayFunctionScore::LINEAR, $function));
+        if (!in_array($function, self::$availableFunctions)) {
+            throw new \InvalidArgumentException(sprintf("function should be one of %s : %s given", implode("," , self::$availableFunctions), $function));
         }
         $this->property = $property;
         $this->function = $function;
