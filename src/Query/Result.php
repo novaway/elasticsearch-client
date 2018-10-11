@@ -48,15 +48,41 @@ class Result
         $hits = [];
         if (isset($arrayResult['hits']['hits'])) {
             $hits = array_map(function ($hit) {
+                $hitFormated = [];
+
                 if (isset($hit['_source'])) {
                     $hitFormated = $hit['_source'];
                 }
+
+                $underscoreFields = [
+                    '_id',
+                    '_score',
+                    '_type',
+                    '_index'
+                ];
+
+                foreach ($underscoreFields as $field) {
+                    if (isset($hit[$field])) {
+                        $hitFormated[$field] = $hit[$field];
+                    }
+                }
+
                 if (isset($hit['highlight'])) {
                     foreach ($hit['highlight'] as $key => $highlight) {
                         $hitFormated[$key] = current($highlight);
                     }
                 }
 
+                if (isset($hit['fields'])) {
+                    foreach ($hit['fields'] as $key => $computedFields) {
+                        if ($key === '_source') {
+                            // the _source key is special, and its content should be appended to hitFormated directly
+                            $hitFormated +=  current($computedFields);
+                            continue;
+                        }
+                        $hitFormated[$key] = current($computedFields);
+                    }
+                }
                 return $hitFormated;
             }, $arrayResult['hits']['hits']);
         };

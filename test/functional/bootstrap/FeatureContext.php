@@ -27,6 +27,8 @@ use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
 use Novaway\ElasticsearchClient\Score\DecayFunctionScore;
 use Novaway\ElasticsearchClient\Score\RandomScore;
+use Novaway\ElasticsearchClient\Score\ScriptScore;
+use Novaway\ElasticsearchClient\Script\ScriptField;
 use Symfony\Component\Yaml\Yaml;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
 
@@ -264,6 +266,16 @@ class FeatureContext implements Context
     }
 
     /**
+     * @Then the result n° :index should contain field :fieldName equaling :value
+     */
+    public function theNthResultShouldContainFieldEqualing(int $index, string $fieldName, string $value)
+    {
+        $nthHit = $this->result->hits()[$index];
+
+        $this->assert->string((string)$nthHit[$fieldName])->isEqualTo($value);
+    }
+
+    /**
      * @Then the result should contain only ids :idList
      */
     public function theResultShouldContainOnlyIds($idList)
@@ -440,6 +452,20 @@ class FeatureContext implements Context
             ));
         }
     }
+
+    /**
+     * @Given I build a script score function with :
+     */
+    public function iBuildAScriptScoreFunction(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $params =  isset($queryRow['params']) ?  json_decode($queryRow['params'], true) : [];
+            $this->queryBuilder->addFunctionScore(new ScriptScore($queryRow['source'], $params, $queryRow['lang']));
+        }
+    }
+
     /**
      * @When I create nested index and populate it on :indexName
      */
@@ -524,6 +550,19 @@ class FeatureContext implements Context
         $queryHash = $queryTable->getHash();
         foreach ($queryHash as $queryRow) {
             $this->queryBuilder->addQuery(new PrefixQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
+        }
+    }
+
+    /**
+     * @Given I build a script field matching :
+     */
+    public function iBuildAScriptFieldMatching(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $params =  isset($queryRow['params']) ?  json_decode($queryRow['params'], true) : [];
+            $this->queryBuilder->addScriptField(new ScriptField($queryRow['field'], $queryRow['source'], $params, $queryRow['lang']));
         }
     }
 
@@ -628,4 +667,5 @@ class FeatureContext implements Context
 
         return $handler($request);
     }
+
 }
