@@ -2,6 +2,12 @@
 
 A lightweight PHP 7.0+ client for Elasticsearch, providing features over [Elasticsearch-PHP](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html)
 
+## Compatibility
+
+This branch is tested and compatible with ElasticSearch 6.*
+
+The compatibility with ElasticSearch 5.* is supported, and should work, but is to be considered hazardous.
+
 ## Installation
 
 Install using [composer](https://getcomposer.org):

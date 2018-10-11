@@ -52,7 +52,7 @@ class FeatureContext implements Context
     public function __construct()
     {
         $this->assert = new AssertGenerator();
-        $this->defaultConfiguration = Yaml::parse(file_get_contents(__DIR__ . '/data/config.yml'));
+        $this->defaultConfiguration = Yaml::parse(file_get_contents(__DIR__ . '/data/config_my_index.yml'));
     }
 
     /**
@@ -66,7 +66,7 @@ class FeatureContext implements Context
             return;
         }
 
-        $this->httpDelete('/my_index');
+        $this->httpDelete(\sprintf('/%s/', $indexName));
     }
 
     /**
@@ -114,23 +114,6 @@ class FeatureContext implements Context
         }
     }
 
-    /**
-     * @Given the index named :indexName is not new
-     */
-    public function theIndexNamedIsNotNew(string $indexName)
-    {
-        if ($this->countIndexInsertion($indexName) > 0) {
-            return;
-        }
-
-        $this->httpPut(\sprintf('/%s/my_type/%s', $indexName, uniqid()), [
-            'first_name' => 'Barry',
-            'nick_name' => 'Flash',
-            'age' => 32,
-        ]);
-
-        $this->assert->integer($this->countIndexInsertion($indexName))->isGreaterThan(0);
-    }
 
     /**
      * @Then the index named :indexName is new
@@ -261,6 +244,7 @@ class FeatureContext implements Context
     {
 
         $queryExecutor = new QueryExecutor($this->getIndex($indexName));
+
         $this->result = $queryExecutor->execute($this->queryBuilder->getQueryBody(), $objectType);
     }
 
@@ -399,9 +383,9 @@ class FeatureContext implements Context
     }
 
     /**
-     * @When I create geo objects of type "my_geo_type" to index :indexName
+     * @When I create geo objects of type :objectType to index :indexName
      */
-    public function iCreateObjectsOfTypeMyGeoTypeToIndex($indexName)
+    public function iCreateObjectsOfTypeMyGeoTypeToIndex(string $objectType, string $indexName)
     {
         $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
 
@@ -414,7 +398,7 @@ class FeatureContext implements Context
 
         foreach ($cityArray as $cityRow) {
             $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
-            $objectIndexer->index($indexableObject, 'my_geo_type');
+            $objectIndexer->index($indexableObject, $objectType);
         }
 
         sleep(1);
@@ -473,7 +457,7 @@ class FeatureContext implements Context
 
         foreach ($cityArray as $cityRow) {
             $indexableObject = new IndexableObject($cityRow['id'], $cityRow);
-            $objectIndexer->index($indexableObject, 'nested_type');
+            $objectIndexer->index($indexableObject, '_doc');
         }
 
         sleep(1);
@@ -567,11 +551,11 @@ class FeatureContext implements Context
      */
     private function getIndex(string $indexName, array $config = null): Index
     {
-        if (!$this->index) {
-            $this->index = new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
+        if (!isset($this->index[$indexName])) {
+            $this->index[$indexName] = new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
         }
 
-        return $this->index;
+        return $this->index[$indexName];
     }
 
     /**
@@ -620,18 +604,6 @@ class FeatureContext implements Context
 
 
         throw new \Exception('Index has not been deleted');
-    }
-
-    /**
-     * @param string $uri
-     * @throws \Exception
-     */
-    private function httpPut(string $uri, array $data)
-    {
-        $response = $this->httpCall('PUT', $uri, $data);
-        if ($response['status'] !== 201) {
-            throw new \Exception('Error putting data onto server');
-        }
     }
 
     /**
