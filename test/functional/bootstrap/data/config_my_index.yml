@@ -1,0 +1,22 @@
+settings:
+    number_of_shards : 1
+    number_of_replicas : 1
+mappings:
+    _doc:
+        properties:
+            first_name:
+                type: text
+                analyzer: standard
+                search_analyzer: standard
+            nick_name:
+                type: text
+                analyzer: standard
+                search_analyzer: standard
+            description:
+                type: text
+                analyzer: standard
+                search_analyzer: standard
+            age:
+                type: integer
+            gender:
+                type: keyword

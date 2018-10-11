@@ -55,7 +55,7 @@ class PrefixQuery implements Query
         return [
             'prefix' => [
                 $this->getField() =>  [
-                    'prefix' => $this->getValue(),
+                    'value' => $this->getValue(),
                     'boost' => $this->boost
                 ]
             ]
