@@ -75,11 +75,6 @@ class Result
 
                 if (isset($hit['fields'])) {
                     foreach ($hit['fields'] as $key => $computedFields) {
-                        if ($key === '_source') {
-                            // the _source key is special, and its content should be appended to hitFormated directly
-                            $hitFormated +=  current($computedFields);
-                            continue;
-                        }
                         $hitFormated[$key] = current($computedFields);
                     }
                 }
