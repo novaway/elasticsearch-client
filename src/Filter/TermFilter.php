@@ -13,12 +13,7 @@ class TermFilter implements Filter
     /** @var string */
     private $combiningFactor;
 
-    /**
-     * TermFilter constructor.
-     * @param string $property
-     * @param string $value
-     */
-    public function __construct(string $property, string $value, string $combiningFactor = CombiningFactor::FILTER)
+    public function __construct(string $property, $value, string $combiningFactor = CombiningFactor::FILTER)
     {
         $this->property = $property;
         $this->value = $value;
