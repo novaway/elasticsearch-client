@@ -237,6 +237,10 @@ class QueryBuilder
      */
     public function getQueryBody(): array
     {
+        if ($this->sourceInScriptFields !== false) {
+            $queryBody['_source'] = [];
+        }
+
         if (count($this->queryCollection) === 0) {
             $queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = new \stdClass();
         }
@@ -245,12 +249,6 @@ class QueryBuilder
         }
 
         foreach ($this->getScriptFieldCollection() as $script) {
-            if ($this->sourceInScriptFields && !isset($queryBody['script_fields']['_source'])) {
-                // when a script_field is added, the _source field is not returned in the $hit
-                // which is annoying as it creates a behaviour discrepency
-                // therefore, we add a scripted_field retrieving _source by default, deactivable
-                $queryBody['script_fields']['_source'] =  ['script' => "params._source"];
-            }
             $queryBody['script_fields'][$script->getField()] = $script->formatForQuery();
         }
 
