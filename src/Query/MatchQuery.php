@@ -14,13 +14,7 @@ class MatchQuery implements Query
     /** @var array  */
     private $options;
 
-    /**
-     * MatchQuery constructor.
-     *
-     * @param string $field
-     * @param mixed  $value
-     */
-    public function __construct($field, $value, $combiningFactor = CombiningFactor::MUST, array $options = ['operator' => 'AND'])
+    public function __construct(string $field, $value, string $combiningFactor = CombiningFactor::MUST, array $options = ['operator' => 'AND'])
     {
         $this->field = $field;
         $this->value = $value;

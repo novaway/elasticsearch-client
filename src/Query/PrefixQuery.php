@@ -15,7 +15,7 @@ class PrefixQuery implements Query
     /** @var float */
     private $boost;
 
-    public function __construct($field, $value, $combiningFactor = CombiningFactor::MUST, float $boost = 1)
+    public function __construct(string $field, $value, string $combiningFactor = CombiningFactor::MUST, float $boost = 1)
     {
         $this->field = $field;
         $this->value = $value;
