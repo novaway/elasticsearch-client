@@ -7,7 +7,7 @@ use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
 use Novaway\ElasticsearchClient\Score\FunctionScore;
 use Novaway\ElasticsearchClient\Script\ScriptField;
-use Novaway\ElasticsearchClient\Script\ScriptScore;
+use Novaway\ElasticsearchClient\Score\ScriptScore;
 
 class QueryBuilder
 {
