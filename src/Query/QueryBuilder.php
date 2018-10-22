@@ -101,7 +101,7 @@ class QueryBuilder
         return $this;
     }
 
-    public function addSort($field, $order): QueryBuilder
+    public function addSort(string $field,string $order): QueryBuilder
     {
         $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
 
