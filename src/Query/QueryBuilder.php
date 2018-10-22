@@ -118,10 +118,7 @@ class QueryBuilder
     {
         unset($this->queryBody['sort']);
 
-        $this->queryBody['sort'] = [
-            [$field => ['order' => $order]]
-        ];
-        return $this;
+        return $this->addSort($field, $order);
     }
 
     /**
