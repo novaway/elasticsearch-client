@@ -108,6 +108,21 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Reset sort value, and set it at the new value
+     * @param string $field
+     * @param string $order
+     * @return QueryBuilder
+     */
+    public function setSort(string $field, string $order): QueryBuilder
+    {
+        unset($this->queryBody['sort']);
+
+        $this->queryBody['sort'] = [
+            [$field => ['order' => $order]]
+        ];
+        return $this;
+    }
 
     /**
      * @param string $field
