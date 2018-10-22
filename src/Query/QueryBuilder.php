@@ -37,15 +37,6 @@ class QueryBuilder
     protected $scriptFieldCollection;
     /** @var null|ScriptScore */
     protected $scriptScore;
-    /**
-     * With script fields, by default _source is removed in the response
-     * which as it creates a behaviour discrepency
-     * therefore, we add a scripted_field retrieving _source by default.
-     * This boolean allows sto remove that scripted_field in case it is
-     *
-     * @var bool
-     */
-    protected $sourceInScriptFields;
 
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
@@ -56,7 +47,6 @@ class QueryBuilder
         $this->aggregationCollection = [];
         $this->functionScoreCollection = [];
         $this->scriptFieldCollection = [];
-        $this->sourceInScriptFields = true;
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -227,16 +217,13 @@ class QueryBuilder
         return $this->scriptFieldCollection;
     }
 
-    public function deactivateSourceInScriptFields()
-    {
-        $this->sourceInScriptFields = false;
-    }
-
     /**
      * @return array
      */
     public function getQueryBody(): array
     {
+        $queryBody['_source'] = [];
+
         if (count($this->queryCollection) === 0) {
             $queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = new \stdClass();
         }
@@ -245,12 +232,6 @@ class QueryBuilder
         }
 
         foreach ($this->getScriptFieldCollection() as $script) {
-            if ($this->sourceInScriptFields && !isset($queryBody['script_fields']['_source'])) {
-                // when a script_field is added, the _source field is not returned in the $hit
-                // which is annoying as it creates a behaviour discrepency
-                // therefore, we add a scripted_field retrieving _source by default, deactivable
-                $queryBody['script_fields']['_source'] =  ['script' => "params._source"];
-            }
             $queryBody['script_fields'][$script->getField()] = $script->formatForQuery();
         }
 
