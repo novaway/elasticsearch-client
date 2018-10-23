@@ -7,7 +7,7 @@ use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
 use Novaway\ElasticsearchClient\Score\FunctionScore;
 use Novaway\ElasticsearchClient\Script\ScriptField;
-use Novaway\ElasticsearchClient\Script\ScriptScore;
+use Novaway\ElasticsearchClient\Score\ScriptScore;
 
 class QueryBuilder
 {
@@ -101,13 +101,25 @@ class QueryBuilder
         return $this;
     }
 
-    public function addSort($field, $order): QueryBuilder
+    public function addSort(string $field,string $order): QueryBuilder
     {
         $this->queryBody['sort'][] = [$field => [ 'order' => $order]];
 
         return $this;
     }
 
+    /**
+     * Reset sort value, and set it at the new value
+     * @param string $field
+     * @param string $order
+     * @return QueryBuilder
+     */
+    public function setSort(string $field, string $order): QueryBuilder
+    {
+        unset($this->queryBody['sort']);
+
+        return $this->addSort($field, $order);
+    }
 
     /**
      * @param string $field
