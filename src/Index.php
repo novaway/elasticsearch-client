@@ -13,10 +13,10 @@ class Index
 {
     /** @var Client */
     protected $client;
-
     /** @var string */
     protected $name;
-
+    /** @var string */
+    protected $tmpName;
     /** @var array */
     protected $config;
 
@@ -34,6 +34,7 @@ class Index
     )
     {
         $this->name = $name;
+        $this->tmpName = $name . "_tmp";
 
         $clientBuilder = ClientBuilder::create()->setHosts($hosts);
         if ($serializer) {
@@ -53,10 +54,14 @@ class Index
      */
     public function reload()
     {
-        if ($this->client->indices()->exists(['index' => $this->name])) {
-            $this->client->indices()->delete(['index' => $this->name]);
-        }
-        $this->create();
+        $this->clearIndex($this->name);
+        $this->create($this->name);
+    }
+
+    public function reloadTmp()
+    {
+        $this->clearIndex($this->tmpName);
+        $this->create($this->tmpName);
     }
 
     /**
@@ -64,8 +69,15 @@ class Index
      */
     public function index(array $params)
     {
-        $params['index'] = $this->name;
-        $this->client->index($params);
+        $this->reloadIndex($this->name, $params);
+    }
+
+    /**
+     * @params array
+     */
+    public function indexTmp(array $params)
+    {
+        $this->reloadIndex($this->tmpName, $params);
     }
 
     /**
@@ -78,6 +90,23 @@ class Index
         if ($this->client->exists($params) === true) {
             $this->client->delete($params);
         }
+    }
+
+    public function reindexTmpToMain()
+    {
+        $this->client->reindex([
+            'body' =>
+                [
+                    'source' => [
+                        'index' => $this->tmpName
+                    ],
+                    'dest' => [
+                        'index' => $this->name
+                    ],
+                ],
+            'wait_for_completion' => true
+        ]);
+        $this->clearIndex($this->tmpName);
     }
 
     /**
@@ -106,14 +135,34 @@ class Index
     /**
      * Create index from config
      */
-    private function create()
+    private function create(string $name)
     {
-        $indexParams['index'] = $this->name;
+        $indexParams['index'] = $name;
         $indexParams['body'] = $this->config;
 
         $this->client->indices()->create($indexParams);
     }
 
+    private function createTmp()
+    {
+        $indexParams['index'] = $this->tmpName;
+        $indexParams['body'] = $this->config;
+
+        $this->client->indices()->create($indexParams);
+    }
+
+    private function reloadIndex(string $name, array $params)
+    {
+        $params['index'] = $name;
+        $this->client->index($params);
+    }
+
+    private function clearIndex(string $name)
+    {
+        if ($this->client->indices()->exists(['index' => $name])) {
+            $this->client->indices()->delete(['index' => $name]);
+        }
+    }
     /**
      * Reformat and store configuration
      *
