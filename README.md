@@ -73,6 +73,9 @@ $objectIndexer->remove($object, 'my_type');
 // Alternatively, you can remove an indexed object knowing only it's ID.
 $objectIndexer->removeById($objectId, 'my_type');
 ```
+#### Advanced Indexing
+
+- [Hotswap / Reindexing](doc/hotswap.md)
 
 ### Search the index
 
