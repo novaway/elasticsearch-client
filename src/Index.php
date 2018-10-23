@@ -94,6 +94,9 @@ class Index
 
     public function reindexTmpToMain()
     {
+        // reload main index to ensure settings are correct
+        $this->reload();
+        // reindex documents from tmp to main index
         $this->client->reindex([
             'body' =>
                 [
@@ -106,6 +109,7 @@ class Index
                 ],
             'wait_for_completion' => true
         ]);
+        // and remove the now obsolete tmp index
         $this->clearIndex($this->tmpName);
     }
 
