@@ -23,12 +23,18 @@ class ObjectIndexer
     public function index(Indexable $object, string $type = "_doc")
     {
         $params = $this->getIndexParams($object, $type);
+        if (!$params) {
+            return;
+        }
         $this->index->index($params);
     }
 
     public function indexTmp(Indexable $object, string $type = "_doc")
     {
         $params = $this->getIndexParams($object, $type);
+        if (!$params) {
+            return;
+        }
         $this->index->indexTmp($params);
     }
 
@@ -56,13 +62,13 @@ class ObjectIndexer
 
     private function getIndexParams(Indexable $object, string $type = "_doc")
     {
-        $params = [];
-        $params['type'] = $type;
-        $params['id'] = $object->getId();
-
         if (!$object->shouldBeIndexed()) {
             return;
         }
+
+        $params = [];
+        $params['type'] = $type;
+        $params['id'] = $object->getId();
 
         $params['body'] = $object->toArray();
 
