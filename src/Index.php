@@ -45,7 +45,7 @@ class Index
         $this->loadConfig($indexConfig);
 
         if (!$this->client->indices()->exists(['index' => $this->name])) {
-            $this->create();
+            $this->create($this->name);
         }
     }
 
