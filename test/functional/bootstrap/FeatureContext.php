@@ -134,6 +134,23 @@ class FeatureContext implements Context
     }
 
     /**
+     * @When I hotswap :indexName to tmp
+     */
+    public function iHotswapToTmp(string $indexName)
+    {
+        $this->getIndex($indexName)->hotswapToTmp();
+    }
+
+    /**
+     * @When I hotswap :indexName to main
+     */
+    public function iHotswapToMain(string $indexName)
+    {
+        $this->getIndex($indexName)->hotswapToMain();
+    }
+
+
+    /**
      * @Then the index named :indexName is empty
      */
     public function theIndexNamedIsEmpty(string $indexName)
@@ -173,7 +190,7 @@ class FeatureContext implements Context
      */
     public function theObjectOfTypeIndexedInWithIdHasData($objectType, $indexName, $id, TableNode $expectedDataList)
     {
-        $objectInfo = $this->httpGet(sprintf('/%s/%s/%s', $indexName, $objectType, $id));
+        $objectInfo = $this->httpGet(sprintf('/%s/%s/%s', $this->getIndex($indexName)->getSearchIndexName(), $objectType, $id));
         $expectedData = $expectedDataList->getHash()[0];
 
         foreach ($expectedDataList->getRow(0) as $key) {

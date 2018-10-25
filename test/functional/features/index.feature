@@ -47,3 +47,20 @@ Feature: Add and remove data to the elasticsearch index
             | 1  | Barry      | flash     | 33  |
         When I delete the object with id "1" of type "_doc" indexed in "my_index"
         Then the object of type "_doc" indexed in "my_index" with id "1" does not exist
+
+    @hotswap
+    Scenario: Hotswap
+        Given I reload the index named "my_index"
+        And I add objects of type "_doc" to index "my_index" with data :
+            | id | first_name | nick_name | age |
+            | 1  | Barry      | flash     | 33  |
+        Then the object of type "_doc" indexed in "my_index" with id "1" has data :
+            | first_name | nick_name | age |
+            | Barry      | flash     | 33  |
+        And I hotswap "my_index" to tmp
+        When I delete the object with id "1" of type "_doc" indexed in "my_index"
+        Then the object of type "_doc" indexed in "my_index" with id "1" has data :
+            | first_name | nick_name | age |
+            | Barry      | flash     | 33  |
+        And I hotswap "my_index" to main
+        Then the object of type "_doc" indexed in "my_index" with id "1" does not exist
