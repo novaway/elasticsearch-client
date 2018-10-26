@@ -43,7 +43,7 @@ class Index
 
         $this->loadConfig($indexConfig);
 
-        if (!$this->client->indices()->exists(['index' => $this->name])) {
+        if (!$this->client->indices()->exists(['index' => $this->getMainIndexName()])) {
             $this->create();
         }
     }
@@ -53,8 +53,8 @@ class Index
      */
     public function reload()
     {
-        if ($this->client->indices()->exists(['index' => $this->name])) {
-            $this->client->indices()->delete(['index' => $this->name]);
+        if ($this->client->indices()->exists(['index' => $this->getMainIndexName()])) {
+            $this->client->indices()->delete(['index' => $this->getMainIndexName()]);
         }
         $this->create();
     }
@@ -64,7 +64,7 @@ class Index
      */
     public function index(array $params)
     {
-        $params['index'] = $this->name;
+        $params['index'] = $this->getMainIndexName();
         $this->client->index($params);
     }
 
@@ -73,7 +73,7 @@ class Index
      */
     public function delete(array $params)
     {
-        $params['index'] = $this->name;
+        $params['index'] = $this->getMainIndexName();
 
         if ($this->client->exists($params) === true) {
             $this->client->delete($params);
@@ -87,7 +87,8 @@ class Index
      */
     public function search(array $searchParams, ResultTransformer $resultTransformer = null)
     {
-        $searchParams['index'] = $this->name;
+        // always search on the aliased index
+        $searchParams['index'] = $this->getSearchIndexName();
         $searchResult = $this->client->search($searchParams);
         $limit = $searchParams['body']['size'] ??  null;
 
@@ -103,15 +104,40 @@ class Index
         return $result;
     }
 
+    public function hotswapToTmp()
+    {
+        $this->client->reindex([
+            'body' => [
+                'source' => [
+                    'index' => $this->getMainIndexName()
+                ],
+                'dest' => [
+                    'index' => $this->getTmpIndexName()
+                ],
+            ]
+        ]);
+        $this->setTmpAsAlias();
+        // and the reload the main
+        $this->reload();
+    }
+
+    public function hotswapToMain()
+    {
+        $this->setMainAsAlias();
+        $this->client->indices()->delete(['index' => $this->getTmpIndexName()]);
+    }
+
     /**
      * Create index from config
      */
     private function create()
     {
-        $indexParams['index'] = $this->name;
+        $indexParams['index'] = $this->getMainIndexName();
         $indexParams['body'] = $this->config;
 
         $this->client->indices()->create($indexParams);
+
+        $this->initAliasIfNoneExist();
     }
 
     /**
@@ -136,4 +162,72 @@ class Index
         }
     }
 
+    /**
+     * Returns the alias of the current index
+     *
+     * @return string
+     */
+    public function getSearchIndexName(): string
+    {
+        return $this->name . '_alias';
+    }
+
+    public function getMainIndexName(): string
+    {
+        return $this->name;
+    }
+
+    private function getTmpIndexName(): string
+    {
+        return $this->name . '_tmp';
+    }
+
+    private function setMainAsAlias(): array
+    {
+        $this->removeParamsAsAlias($this->getTmpAliasParams());
+        return $this->setParamsAsAlias($this->getMainAliasParams());
+    }
+
+    private function setTmpAsAlias(): array
+    {
+        $this->removeParamsAsAlias($this->getMainAliasParams());
+        return $this->setParamsAsAlias($this->getTmpAliasParams());
+    }
+
+    private function getMainAliasParams(): array
+    {
+        return [
+            'index' => $this->getMainIndexName(),
+            'name' => $this->getSearchIndexName()
+        ];
+    }
+
+    private function getTmpAliasParams(): array
+    {
+        return [
+            'index' => $this->getTmpIndexName(),
+            'name' => $this->getSearchIndexName()
+        ];
+    }
+
+    private function removeParamsAsAlias(array $params)
+    {
+        if ($this->client->indices()->existsAlias($params) === true) {
+            $this->client->indices()->deleteAlias($params);
+        };
+    }
+
+    private function setParamsAsAlias(array $params): array
+    {
+        return $this->client->indices()->putAlias($params);
+    }
+
+    private function initAliasIfNoneExist()
+    {
+        if (!$this->client->indices()->existsAlias($this->getMainAliasParams())
+            && !$this->client->indices()->existsAlias($this->getTmpAliasParams())
+        ) {
+            $this->setMainAsAlias();
+        }
+    }
 }

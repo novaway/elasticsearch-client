@@ -123,6 +123,20 @@ You might want, for some reason, to purge an index. The `reload` method drops an
 $index->reload();
 ```
 
+### Hotswapping
+
+You will want to reindex all your data sometimes.
+
+It is possible to do it without downtime using the hotswap mechanisme
+
+```php
+$index->hotswapToTmp();
+// at that point, all your search request will go to the tmp index, and your create/delete will go to the main index
+// when your are done reindexing your data, simply call 
+$index->hotswapToMain()
+
+```
+
 
 ## Recommended usage with Symfony
 
