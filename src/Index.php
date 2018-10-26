@@ -210,7 +210,7 @@ class Index
         ];
     }
 
-    private function removeParamsAsAlias(array $params): void
+    private function removeParamsAsAlias(array $params)
     {
         if ($this->client->indices()->existsAlias($params) === true) {
             $this->client->indices()->deleteAlias($params);
@@ -222,7 +222,7 @@ class Index
         return $this->client->indices()->putAlias($params);
     }
 
-    private function initAliasIfNoneExist(): void
+    private function initAliasIfNoneExist()
     {
         if (!$this->client->indices()->existsAlias($this->getMainAliasParams())
             && !$this->client->indices()->existsAlias($this->getTmpAliasParams())
