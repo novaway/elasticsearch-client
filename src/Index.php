@@ -106,6 +106,8 @@ class Index
 
     public function hotswapToTmp()
     {
+        $this->createTmpIndex();
+        // copy data from main to tmp
         $this->client->reindex([
             'body' => [
                 'source' => [
@@ -228,6 +230,29 @@ class Index
             && !$this->client->indices()->existsAlias($this->getTmpAliasParams())
         ) {
             $this->setMainAsAlias();
+        }
+    }
+
+    private function createTmpIndex()
+    {
+        if ($this->client->indices()->exists(['index' => $this->getTmpIndexName()])) {
+            // delete index if already existing, to have a clean one
+            $this->client->indices()->delete(['index' => $this->getTmpIndexName()]);
+        }
+
+        // create the tmp index
+        $this->client->indices()->create([
+            'index' => $this->getTmpIndexName()
+        ]);
+        // retrieve mappings from main index, to copy it to tmp
+        $mapping = $this->client->indices()->getMapping(['index' => $this->getMainIndexName()]);
+        foreach ($mapping[$this->getMainIndexName()]['mappings'] as $type => $mapping) {
+
+            $this->client->indices()->putMapping([
+                'index' => $this->getTmpIndexName(),
+                'type' => $type,
+                'body' => $mapping
+            ]);
         }
     }
 }
