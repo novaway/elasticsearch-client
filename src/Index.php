@@ -61,8 +61,7 @@ class Index
                 'indexConfig' => $indexConfig,
                 'exception' => $ne,
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->addLog('critical', sprintf("Error: can not instantiate Elasticsearch server : %s", $ne->getMessage()), [
                 'hosts' => $hosts,
                 'name' => $name,
