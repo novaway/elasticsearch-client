@@ -54,19 +54,19 @@ class Index
             if (!$this->client->indices()->exists(['index' => $this->getMainIndexName()])) {
                 $this->create();
             }
-        } catch (NoNodesAvailableException $ne) {
-            $this->addLog('critical', sprintf("Error: Elasticsearch server is not available : %s", $ne->getMessage()), [
+        } catch (NoNodesAvailableException $e) {
+            $this->addLog('critical', sprintf("Error: Elasticsearch server is not available : %s", $e->getMessage()), [
                 'hosts' => $hosts,
                 'name' => $name,
                 'indexConfig' => $indexConfig,
-                'exception' => $ne,
+                'exception' => $e,
             ]);
         } catch (\Exception $e) {
-            $this->addLog('critical', sprintf("Error: can not instantiate Elasticsearch server : %s", $ne->getMessage()), [
+            $this->addLog('critical', sprintf("Error: can not instantiate Elasticsearch server : %s", $e->getMessage()), [
                 'hosts' => $hosts,
                 'name' => $name,
                 'indexConfig' => $indexConfig,
-                'exception' => $ne,
+                'exception' => $e,
             ]);
         }
     }
