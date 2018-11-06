@@ -8,6 +8,7 @@ use Novaway\ElasticsearchClient\Query\ResultTransformer;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Serializers\SerializerInterface;
+use Psr\Log\LoggerInterface;
 
 class Index
 {
@@ -20,6 +21,9 @@ class Index
     /** @var array */
     protected $config;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     /**
      * @param array $hosts
      * @param string $name
@@ -30,21 +34,40 @@ class Index
         array $hosts = [],
         $name,
         array $indexConfig = [],
-        SerializerInterface $serializer = null
+        SerializerInterface $serializer = null,
+        LoggerInterface $logger = null
     )
     {
         $this->name = $name;
 
-        $clientBuilder = ClientBuilder::create()->setHosts($hosts);
-        if ($serializer) {
-            $clientBuilder->setSerializer($serializer);
-        }
-        $this->client = $clientBuilder->build();
+        $this->logger = $logger;
 
-        $this->loadConfig($indexConfig);
+        try {
+            $clientBuilder = ClientBuilder::create()->setHosts($hosts);
+            if ($serializer) {
+                $clientBuilder->setSerializer($serializer);
+            }
+            $this->client = $clientBuilder->build();
 
-        if (!$this->client->indices()->exists(['index' => $this->getMainIndexName()])) {
-            $this->create();
+            $this->loadConfig($indexConfig);
+
+            if (!$this->client->indices()->exists(['index' => $this->getMainIndexName()])) {
+                $this->create();
+            }
+        } catch (NoNodesAvailableException $e) {
+            $this->addLog('critical', sprintf("Error: Elasticsearch server is not available : %s", $e->getMessage()), [
+                'hosts' => $hosts,
+                'name' => $name,
+                'indexConfig' => $indexConfig,
+                'exception' => $e,
+            ]);
+        } catch (\Exception $e) {
+            $this->addLog('critical', sprintf("Error: can not instantiate Elasticsearch server : %s", $e->getMessage()), [
+                'hosts' => $hosts,
+                'name' => $name,
+                'indexConfig' => $indexConfig,
+                'exception' => $e,
+            ]);
         }
     }
 
@@ -253,6 +276,13 @@ class Index
                 'type' => $type,
                 'body' => $mapping
             ]);
+        }
+    }
+
+    protected function addLog(string $level, string $message, array $context = [])
+    {
+        if (null !== $this->logger) {
+            $this->logger->$level($message, $context);
         }
     }
 }
