@@ -35,6 +35,25 @@ class ObjectIndexer
     }
 
     /**
+     * @param Indexable[] $objects
+     * @param string $type
+     */
+    public function bulkIndex(array $objects, string $type = "_doc")
+    {
+        $params['type'] = $type;
+
+        foreach ($objects as $indexable) {
+            $key = $indexable->shouldBeIndexed() ? 'index' : 'delete';
+            $body[] = [$key => ['_id' => $indexable->getId()]];
+            if ($indexable->shouldBeIndexed()) {
+                $body[] = $indexable->toArray();
+            }
+        }
+        $params['body'] = $body;
+        $this->index->bulkIndex($params);
+    }
+
+    /**
      * @param Indexable $object
      * @param string $type
      */

@@ -30,6 +30,7 @@ use Novaway\ElasticsearchClient\Score\RandomScore;
 use Novaway\ElasticsearchClient\Score\ScriptScore;
 use Novaway\ElasticsearchClient\Script\ScriptField;
 use Symfony\Component\Yaml\Yaml;
+use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\DesindexableObject;
 use Test\Functional\Novaway\ElasticsearchClient\Context\Gizmos\IndexableObject;
 
 /**
@@ -166,11 +167,11 @@ class FeatureContext implements Context
         $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
 
         $objectListHash = $objectList->getHash();
+        $indexableObjects = [];
         foreach ($objectListHash as $objectListRow) {
-            $indexableObject = new IndexableObject($objectListRow['id'], $objectListRow);
-            $objectIndexer->index($indexableObject, $objectType);
+            $indexableObjects[] = new IndexableObject($objectListRow['id'], $objectListRow);
         }
-
+        $objectIndexer->bulkIndex($indexableObjects, $objectType);
         sleep(1);
     }
 
@@ -205,6 +206,27 @@ class FeatureContext implements Context
     {
         $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
         $objectIndexer->removeById($id, $objectType);
+    }
+
+    /**
+     * @When I bulk delete the objects with ids :ids of type :objectType indexed in :indexName
+     */
+    public function iBulkDeleteTheObjectWithIdOfTypeIndexedIn($ids, $objectType, $indexName)
+    {
+        $objectIndexer = new ObjectIndexer($this->getIndex($indexName));
+        $objects = [];
+        foreach ($ids as $id) {
+            $objects[] = new DesindexableObject($id, []);
+        }
+        $objectIndexer->bulkIndex($objects, $objectType);
+    }
+
+    /**
+     * @Then the object of type :objectType indexed in :indexName with id :id exists
+     */
+    public function theObjectOfTypeIndexedInWithIdExists($objectType, $indexName, $id)
+    {
+        $this->assert->integer($this->httpGetStatus(sprintf('/%s/%s/%s', $indexName, $objectType, $id)))->isEqualTo(200);
     }
 
     /**
