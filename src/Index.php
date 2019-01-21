@@ -94,10 +94,10 @@ class Index
     /**
      * @params array
      */
-    public function bulkIndex(array $params)
+    public function bulkIndex(array $params): array
     {
         $params['index'] = $this->getMainIndexName();
-        $this->client->bulk($params);
+        return $this->client->bulk($params);
     }
 
     /**

@@ -40,7 +40,7 @@ class ObjectIndexer
      * @param Indexable[] $objects
      * @param string $type
      */
-    public function bulkIndex(array $objects, string $type = "_doc")
+    public function bulkIndex(array $objects, string $type = "_doc"): array
     {
         $params['type'] = $type;
 
@@ -54,7 +54,7 @@ class ObjectIndexer
             }
         }
         $params['body'] = $body;
-        $this->index->bulkIndex($params);
+        return $this->index->bulkIndex($params);
     }
 
     /**
