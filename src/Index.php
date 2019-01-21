@@ -94,6 +94,15 @@ class Index
     /**
      * @params array
      */
+    public function bulkIndex(array $params): array
+    {
+        $params['index'] = $this->getMainIndexName();
+        return $this->client->bulk($params);
+    }
+
+    /**
+     * @params array
+     */
     public function delete(array $params)
     {
         $params['index'] = $this->getMainIndexName();

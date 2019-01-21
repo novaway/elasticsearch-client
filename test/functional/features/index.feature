@@ -48,6 +48,23 @@ Feature: Add and remove data to the elasticsearch index
         When I delete the object with id "1" of type "_doc" indexed in "my_index"
         Then the object of type "_doc" indexed in "my_index" with id "1" does not exist
 
+    @bulk-delete
+    Scenario: Delete bulk objects
+        Given I reload the index named "my_index"
+        And I add objects of type "_doc" to index "my_index" with data :
+            | id | first_name | nick_name    | age |
+            | 1  | Barry      | flash        | 33  |
+            | 2  | Diana      | Wonder Woman | 910 |
+            | 3  | Bruce      | Batman       | 45  |
+            | 4  | Barbara    | Batgirl      | 27  |
+            | 5  | Oliver     | Green Arrow  | 35  |
+        When I bulk delete the objects with ids "[1;3;5]" of type "_doc" indexed in "my_index"
+        Then the object of type "_doc" indexed in "my_index" with id "1" does not exist
+        And the object of type "_doc" indexed in "my_index" with id "2" exists
+        And the object of type "_doc" indexed in "my_index" with id "3" does not exist
+        And the object of type "_doc" indexed in "my_index" with id "4" exists
+        And the object of type "_doc" indexed in "my_index" with id "5" does not exist
+
     @hotswap
     Scenario: Hotswap
         Given I reload the index named "my_index"
