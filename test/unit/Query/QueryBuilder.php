@@ -86,9 +86,9 @@ class QueryBuilder extends test
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array[CombiningFactor::MUST]->object['match_all']->isEqualTo(new \stdClass())
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
+                ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => ['value' => 'M', 'boost' => 1]]])
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['filter']->array[1]->isEqualTo(['term' => ['color' => 'blue']])
+                ->array['query']->array['bool']->array['filter']->array[1]->isEqualTo(['term' => ['color' => ['value' => 'blue', 'boost' => 1]]])
         ;
     }
 
@@ -102,9 +102,9 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
-            ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
+            ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => ['value' => 'M', 'boost' => 1]]])
             ->array($this->testedInstance->getQueryBody())
-            ->array['query']->array['bool']->array['filter']->array[1]->isEqualTo(['term' => ['color' => 'blue']])
+            ->array['query']->array['bool']->array['filter']->array[1]->isEqualTo(['term' => ['color' => ['value' => 'blue', 'boost' => 1]]])
         ;
     }
 
@@ -121,7 +121,7 @@ class QueryBuilder extends test
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array[CombiningFactor::MUST]->notHasKey('match_all')
             ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => 'M']])
+                ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => ['value' => 'M', 'boost' => 1]]])
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array[CombiningFactor::MUST]->array[0]->isEqualTo(['match' => ['firstname' => ['query' => 'cedric', 'operator' => 'AND']]])
             ->array($this->testedInstance->getQueryBody())
@@ -208,7 +208,7 @@ class QueryBuilder extends test
             )
             ->then
             ->array($this->testedInstance->getQueryBody()['post_filter'])
-            ->isEqualTo(['term' => ['size' => 'M']])
+            ->isEqualTo(['term' => ['size' => ['value' => 'M', 'boost' => 1]]])
         ;
     }
 }

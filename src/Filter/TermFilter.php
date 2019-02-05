@@ -12,12 +12,15 @@ class TermFilter implements Filter
     private $value;
     /** @var string */
     private $combiningFactor;
+    /** @var float */
+    private $boost;
 
-    public function __construct(string $property, $value, string $combiningFactor = CombiningFactor::FILTER)
+    public function __construct(string $property, $value, string $combiningFactor = CombiningFactor::FILTER, float $boost = 1)
     {
         $this->property = $property;
         $this->value = $value;
         $this->combiningFactor = $combiningFactor;
+        $this->boost = $boost;
     }
 
     /**
@@ -33,7 +36,14 @@ class TermFilter implements Filter
      */
     public function formatForQuery(): array
     {
-        return ['term' => [$this->property => $this->value]];
+        return [
+            'term' => [
+                $this->property =>  [
+                    'value' => $this->value,
+                    'boost' => $this->boost
+                ]
+            ]
+        ];
     }
 }
 
