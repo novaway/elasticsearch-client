@@ -6,6 +6,7 @@ use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
 use Novaway\ElasticsearchClient\Score\FunctionScore;
+use Novaway\ElasticsearchClient\Score\FunctionScoreOptions;
 use Novaway\ElasticsearchClient\Script\ScriptField;
 use Novaway\ElasticsearchClient\Score\ScriptScore;
 
@@ -37,6 +38,8 @@ class QueryBuilder
     protected $scriptFieldCollection;
     /** @var null|ScriptScore */
     protected $scriptScore;
+    /** @var null|FunctionScoreOptions */
+    protected $functionsScoreOptions;
 
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
@@ -142,6 +145,7 @@ class QueryBuilder
     /**
      * @param $field
      * @param $value
+     * @param string $combiningFactor
      *
      * @return QueryBuilder
      */
@@ -230,6 +234,19 @@ class QueryBuilder
     }
 
     /**
+     * @return null|FunctionScoreOptions
+     */
+    public function getFunctionsScoreOptions()
+    {
+        return $this->functionsScoreOptions;
+    }
+
+    public function setFunctionsScoreOptions(FunctionScoreOptions $functionsScoreOptions)
+    {
+        $this->functionsScoreOptions = $functionsScoreOptions;
+    }
+
+    /**
      * @return array
      */
     public function getQueryBody(): array
@@ -251,7 +268,9 @@ class QueryBuilder
             $query = $queryBody['query'];
             unset($queryBody['query']['bool']);
 
-            $function = ['query' => $query];
+            $function = $this->getFunctionsScoreOptions() ? $this->getFunctionsScoreOptions()->formatForQuery() : [];
+
+            $function += ['query' => $query];
 
             foreach ($this->functionScoreCollection as $functionScore) {
                 $function['functions'][] = $functionScore->formatForQuery();
