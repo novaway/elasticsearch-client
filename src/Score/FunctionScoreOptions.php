@@ -4,6 +4,8 @@
 namespace Novaway\ElasticsearchClient\Score;
 
 
+use Webmozart\Assert\Assert;
+
 class FunctionScoreOptions
 {
     /** @var string */
@@ -19,11 +21,11 @@ class FunctionScoreOptions
 
     public function __construct(string $scoreMode = null, string $boostMode = BoostMode::REPLACE, int $boost = null, int $maxBoost = null, int $minBoost = null)
     {
-        if ($scoreMode && !in_array($scoreMode, ScoreMode::$available)) {
-            throw new \InvalidArgumentException('$scoreMode should be one of ' . implode(",", ScoreMode::$available) . ". $scoreMode given");
+        if ($scoreMode) {
+            Assert::oneOf($scoreMode, ScoreMode::$available);
         }
-        if ($boostMode && !in_array($boostMode, BoostMode::$available)) {
-            throw new \InvalidArgumentException('$boostMode should be one of ' . implode(",", BoostMode::$available) . ". $boostMode given");
+        if ($boostMode) {
+            Assert::oneOf($boostMode, BoostMode::$available);
         }
 
         $this->scoreMode = $scoreMode;
