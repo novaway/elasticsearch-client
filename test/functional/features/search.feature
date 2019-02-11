@@ -302,3 +302,27 @@ Feature: Search on index
             |  doc['age'].value * params.multiplier     | {"multiplier":3}        | painless |
         When I execute it on the index named "my_index" for type "_doc"
         Then the result n° "0" should contain field "_score" equaling "99"
+
+    Scenario: Function score options
+        Given I build a query matching :
+            | field       | value  | condition |
+            | id          | 1      | must      |
+        And I build a script score function with :
+            | source  | params    | lang     |
+            |  doc['age'].value * params.multiplier     | {"multiplier":3}        | painless |
+            |  doc['age'].value * params.multiplier     | {"multiplier":5}        | painless |
+        And I set the function score options as :
+            | scoreMode  | boostMode |
+            |  sum       | replace   |
+        When I execute it on the index named "my_index" for type "_doc"
+        Then the result n° "0" should contain field "_score" equaling "264"
+        And I set the function score options as :
+            | scoreMode  | boostMode |
+            |  avg       | replace   |
+        When I execute it on the index named "my_index" for type "_doc"
+        Then the result n° "0" should contain field "_score" equaling "132"
+        And I set the function score options as :
+            | scoreMode  | boostMode |
+            |  min       | replace   |
+        When I execute it on the index named "my_index" for type "_doc"
+        Then the result n° "0" should contain field "_score" equaling "99"

@@ -26,6 +26,7 @@ use Novaway\ElasticsearchClient\Query\MatchQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\QueryExecutor;
 use Novaway\ElasticsearchClient\Score\DecayFunctionScore;
+use Novaway\ElasticsearchClient\Score\FunctionScoreOptions;
 use Novaway\ElasticsearchClient\Score\RandomScore;
 use Novaway\ElasticsearchClient\Score\ScriptScore;
 use Novaway\ElasticsearchClient\Script\ScriptField;
@@ -505,6 +506,23 @@ class FeatureContext implements Context
         }
     }
 
+    /**
+     * @Given I set the function score options as :
+     */
+    public function iSetTheFunctionScoreOptionsAs(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        $queryRow = reset($queryHash);
+        $this->queryBuilder->setFunctionsScoreOptions(new FunctionScoreOptions(
+            $queryRow['scoreMode'] ?? null,
+            $queryRow['boostMode'] ?? null,
+            $queryRow['boost'] ?? null,
+            $queryRow['maxBoost'] ?? null,
+            $queryRow['minBoost'] ?? null
+        ));
+    }
+    
     /**
      * @When I create nested index and populate it on :indexName
      */
