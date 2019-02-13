@@ -3,6 +3,8 @@
 namespace Novaway\ElasticsearchClient\Filter;
 
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Novaway\ElasticsearchClient\Query\Geo\DistanceUnits;
+use Webmozart\Assert\Assert;
 
 class GeoDistanceFilter implements Filter
 {
@@ -31,8 +33,11 @@ class GeoDistanceFilter implements Filter
      * @param string $unit Should be one of those https://www.elastic.co/guide/en/elasticsearch/reference/2.3/common-options.html#distance-units
      * @param array $options Used to pass options from https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-geo-distance-query.html#_options_4
      */
-    public function __construct(string $property, float $latitude, float $longitude, float $distance, string $combiningFactor = CombiningFactor::FILTER, string $unit = 'km', array $options = [])
+    public function __construct(string $property, float $latitude, float $longitude, float $distance, string $combiningFactor = CombiningFactor::FILTER, string $unit = DistanceUnits::KM, array $options = [])
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
+        Assert::oneOf($unit, DistanceUnits::toArray());
+
         $this->property  = $property;
         $this->latitude  = $latitude;
         $this->longitude = $longitude;
