@@ -4,6 +4,8 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 
+use Webmozart\Assert\Assert;
+
 class MultiMatchQuery implements Query
 {
     const BEST_FIELDS = 'best_fields';
@@ -28,6 +30,7 @@ class MultiMatchQuery implements Query
      */
     public function __construct(string $value, array $fields, string $combiningFactor = CombiningFactor::SHOULD,array $options = [])
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $fields = array_map(function($field) {
             if (!($field instanceof BoostableField || is_string($field))) {
                 throw new \Exception('$fields array should either contain strings or BoostableField');

@@ -4,6 +4,8 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 
+use Webmozart\Assert\Assert;
+
 class PrefixQuery implements Query
 {
     /** @var string */
@@ -17,6 +19,7 @@ class PrefixQuery implements Query
 
     public function __construct(string $field, $value, string $combiningFactor = CombiningFactor::MUST, float $boost = 1)
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $this->field = $field;
         $this->value = $value;
         $this->combiningFactor = $combiningFactor;

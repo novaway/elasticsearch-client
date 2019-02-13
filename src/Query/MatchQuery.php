@@ -3,6 +3,8 @@
 namespace Novaway\ElasticsearchClient\Query;
 
 //https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
+use Webmozart\Assert\Assert;
+
 class MatchQuery implements Query
 {
     /** @var string */
@@ -16,6 +18,7 @@ class MatchQuery implements Query
 
     public function __construct(string $field, $value, string $combiningFactor = CombiningFactor::MUST, array $options = ['operator' => 'AND'])
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $this->field = $field;
         $this->value = $value;
         $this->combiningFactor = $combiningFactor;

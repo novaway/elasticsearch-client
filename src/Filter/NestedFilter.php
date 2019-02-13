@@ -6,6 +6,7 @@ namespace Novaway\ElasticsearchClient\Filter;
 
 use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Webmozart\Assert\Assert;
 
 class NestedFilter implements Filter
 {
@@ -18,6 +19,7 @@ class NestedFilter implements Filter
 
     public function __construct(string $property, $combiningFactor = CombiningFactor::FILTER)
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $this->property = $property;
         $this->combiningFactor = $combiningFactor;
         $this->clauses = [];

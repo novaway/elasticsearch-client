@@ -14,13 +14,4 @@ class BoostMode extends Enum
     const AVG = 'avg';
     const MAX = 'max';
     const MIN = 'min';
-
-    public static $available = [
-        self::MULTIPLY,
-        self::REPLACE,
-        self::SUM,
-        self::AVG,
-        self::MAX,
-        self::MIN
-    ];
 }
