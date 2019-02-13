@@ -4,7 +4,9 @@
 namespace Novaway\ElasticsearchClient\Score;
 
 
-class BoostMode
+use MyCLabs\Enum\Enum;
+
+class BoostMode extends Enum
 {
     const MULTIPLY = 'multiply';
     const REPLACE = 'replace';

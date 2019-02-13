@@ -15,8 +15,8 @@ class ScriptScore implements FunctionScore
 
     public function __construct(string $source, array $params = [], string $lang = ScriptingLanguage::PAINLESS)
     {
-        if (!in_array($lang, ScriptingLanguage::$available)) {
-            throw new \Exception('$lang should be one of ' . implode(",", ScriptingLanguage::$available) . ". $lang given");
+        if (!in_array($lang, ScriptingLanguage::toArray())) {
+            throw new \Exception('$lang should be one of ' . implode(",", ScriptingLanguage::toArray()) . ". $lang given");
         }
 
         $this->lang = $lang;

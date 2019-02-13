@@ -2,7 +2,9 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
-final class CombiningFactor
+use MyCLabs\Enum\Enum;
+
+final class CombiningFactor extends Enum
 {
     const MUST = 'must';
     const SHOULD = 'should';

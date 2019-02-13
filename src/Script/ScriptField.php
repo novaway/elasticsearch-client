@@ -15,8 +15,8 @@ class ScriptField
 
     public function __construct(string $field, string $source, array $params = [], string $lang = ScriptingLanguage::PAINLESS)
     {
-        if (!in_array($lang, ScriptingLanguage::$available)) {
-            throw new \Exception('$lang should be one of ' . implode(",", ScriptingLanguage::$available) . ". $lang given");
+        if (!in_array($lang, ScriptingLanguage::toArray())) {
+            throw new \Exception('$lang should be one of ' . implode(",", ScriptingLanguage::toArray()) . ". $lang given");
         }
 
         $this->field = $field;
