@@ -6,6 +6,7 @@ namespace Novaway\ElasticsearchClient\Score;
 
 use Novaway\ElasticsearchClient\Script\ScriptingLanguage;
 use Novaway\ElasticsearchClient\Script\Traits\ScriptTrait;
+use Webmozart\Assert\Assert;
 
 class ScriptScore implements FunctionScore
 {
@@ -15,10 +16,7 @@ class ScriptScore implements FunctionScore
 
     public function __construct(string $source, array $params = [], string $lang = ScriptingLanguage::PAINLESS)
     {
-        if (!in_array($lang, ScriptingLanguage::$available)) {
-            throw new \Exception('$lang should be one of ' . implode(",", ScriptingLanguage::$available) . ". $lang given");
-        }
-
+        Assert::oneOf($lang, ScriptingLanguage::toArray());
         $this->lang = $lang;
         $this->source = $source;
         $this->params = $params;

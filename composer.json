@@ -9,7 +9,8 @@
   "require": {
     "php": "^7.0",
     "elasticsearch/elasticsearch": "^5.2 || ^6.0",
-    "symfony/dependency-injection": "^3.0 || ^4.0"
+    "symfony/dependency-injection": "^3.0 || ^4.0",
+    "myclabs/php-enum": "^1.0"
   },
   "require-dev": {
     "atoum/atoum": "^3.0",

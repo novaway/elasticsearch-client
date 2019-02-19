@@ -3,6 +3,7 @@
 namespace Novaway\ElasticsearchClient\Filter;
 
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Webmozart\Assert\Assert;
 
 class InArrayFilter implements Filter
 {
@@ -13,13 +14,9 @@ class InArrayFilter implements Filter
     /** @var string */
     private $combiningFactor;
 
-    /**
-     * InArrayFilter constructor.
-     * @param string $property
-     * @param array $values
-     */
     public function __construct(string $property, array $values, string $combiningFactor = CombiningFactor::FILTER)
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $this->property = $property;
         $this->values = $values;
         $this->combiningFactor = $combiningFactor;

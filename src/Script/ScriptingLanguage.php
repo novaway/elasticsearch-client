@@ -4,15 +4,11 @@
 namespace Novaway\ElasticsearchClient\Script;
 
 
-final class ScriptingLanguage
+use MyCLabs\Enum\Enum;
+
+final class ScriptingLanguage extends Enum
 {
     const PAINLESS = 'painless';
     const EXPRESSION = 'expression';
     const MUSTACHE = 'mustache';
-
-    public static $available = [
-        self::PAINLESS,
-        self::EXPRESSION,
-        self::MUSTACHE
-    ];
 }

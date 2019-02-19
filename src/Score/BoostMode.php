@@ -4,7 +4,9 @@
 namespace Novaway\ElasticsearchClient\Score;
 
 
-class BoostMode
+use MyCLabs\Enum\Enum;
+
+class BoostMode extends Enum
 {
     const MULTIPLY = 'multiply';
     const REPLACE = 'replace';
@@ -12,13 +14,4 @@ class BoostMode
     const AVG = 'avg';
     const MAX = 'max';
     const MIN = 'min';
-
-    public static $available = [
-        self::MULTIPLY,
-        self::REPLACE,
-        self::SUM,
-        self::AVG,
-        self::MAX,
-        self::MIN
-    ];
 }

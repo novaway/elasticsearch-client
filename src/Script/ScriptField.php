@@ -5,6 +5,7 @@ namespace Novaway\ElasticsearchClient\Script;
 
 
 use Novaway\ElasticsearchClient\Script\Traits\ScriptTrait;
+use Webmozart\Assert\Assert;
 
 class ScriptField
 {
@@ -15,9 +16,7 @@ class ScriptField
 
     public function __construct(string $field, string $source, array $params = [], string $lang = ScriptingLanguage::PAINLESS)
     {
-        if (!in_array($lang, ScriptingLanguage::$available)) {
-            throw new \Exception('$lang should be one of ' . implode(",", ScriptingLanguage::$available) . ". $lang given");
-        }
+        Assert::oneOf($lang, ScriptingLanguage::toArray());
 
         $this->field = $field;
         $this->lang = $lang;

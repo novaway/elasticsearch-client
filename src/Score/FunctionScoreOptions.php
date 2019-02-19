@@ -22,10 +22,10 @@ class FunctionScoreOptions
     public function __construct(string $scoreMode = null, string $boostMode = BoostMode::REPLACE, int $boost = null, int $maxBoost = null, int $minBoost = null)
     {
         if ($scoreMode) {
-            Assert::oneOf($scoreMode, ScoreMode::$available);
+            Assert::oneOf($scoreMode, ScoreMode::toArray());
         }
         if ($boostMode) {
-            Assert::oneOf($boostMode, BoostMode::$available);
+            Assert::oneOf($boostMode, BoostMode::toArray());
         }
 
         $this->scoreMode = $scoreMode;

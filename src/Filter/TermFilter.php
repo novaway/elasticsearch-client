@@ -3,6 +3,7 @@
 namespace Novaway\ElasticsearchClient\Filter;
 
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Webmozart\Assert\Assert;
 
 class TermFilter implements Filter
 {
@@ -17,6 +18,7 @@ class TermFilter implements Filter
 
     public function __construct(string $property, $value, string $combiningFactor = CombiningFactor::FILTER, float $boost = 1)
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $this->property = $property;
         $this->value = $value;
         $this->combiningFactor = $combiningFactor;

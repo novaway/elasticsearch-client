@@ -5,6 +5,7 @@ namespace Novaway\ElasticsearchClient\Query;
 
 
 use Novaway\ElasticsearchClient\Clause;
+use Webmozart\Assert\Assert;
 
 class BoolQuery implements Query
 {
@@ -16,6 +17,7 @@ class BoolQuery implements Query
 
     public function __construct(string $combiningFactor = CombiningFactor::MUST)
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $this->combiningFactor = $combiningFactor;
         $this->clauses = [];
     }

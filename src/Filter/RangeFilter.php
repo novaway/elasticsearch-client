@@ -3,6 +3,7 @@
 namespace Novaway\ElasticsearchClient\Filter;
 
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Webmozart\Assert\Assert;
 
 class RangeFilter implements Filter
 {
@@ -28,6 +29,8 @@ class RangeFilter implements Filter
      */
     public function __construct(string $property, $value, $operator, string $combiningFactor = CombiningFactor::FILTER)
     {
+        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
+
         if(is_array($value) && !is_array($operator)) {
             throw new \InvalidArgumentException("Operator should be an array when range filter value is an array");
         }
