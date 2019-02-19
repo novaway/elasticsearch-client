@@ -272,11 +272,25 @@ class Index
             $this->client->indices()->delete(['index' => $this->getTmpIndexName()]);
         }
 
-        // create the tmp index
+        // retrieve main current settings
+        $settings =  $this->client->indices()->getSettings(['index' => $this->getMainIndexName()]);
+
+        $body = [];
+
+        if (isset($settings[$this->getMainIndexName()]['settings']['index']['analysis'])) {
+            // if the settings alreayd existed before, we need to copy them,
+            // especially if there are custom analyzer, and not only default and default_search,
+            // As they would not have been transfered, and would break the index creation
+            $body = ['settings' => ['analysis' => $settings[$this->getMainIndexName()]['settings']['index']['analysis']]];
+        }
+
+        // create the tmp index with main current settings
         $this->client->indices()->create([
-            'index' => $this->getTmpIndexName()
+            'index' => $this->getTmpIndexName(),
+            'body' => $body
         ]);
-        // retrieve mappings from main index, to copy it to tmp
+
+        // retrieve current mappings from main index, to copy it to tmp
         $mapping = $this->client->indices()->getMapping(['index' => $this->getMainIndexName()]);
         foreach ($mapping[$this->getMainIndexName()]['mappings'] as $type => $mapping) {
 
