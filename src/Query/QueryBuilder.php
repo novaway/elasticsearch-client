@@ -5,10 +5,11 @@ namespace Novaway\ElasticsearchClient\Query;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
-use Novaway\ElasticsearchClient\Score\FunctionScore;
+use Novaway\ElasticsearchClient\Query\Compound\FunctionScore;
 use Novaway\ElasticsearchClient\Score\FunctionScoreOptions;
 use Novaway\ElasticsearchClient\Script\ScriptField;
 use Novaway\ElasticsearchClient\Score\ScriptScore;
+use Novaway\ElasticsearchClient\Query\FullText\MatchQuery;
 
 class QueryBuilder
 {
