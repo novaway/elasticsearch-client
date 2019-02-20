@@ -7,6 +7,7 @@ namespace Novaway\ElasticsearchClient\Score;
 use Novaway\ElasticsearchClient\Script\ScriptingLanguage;
 use Novaway\ElasticsearchClient\Script\Traits\ScriptTrait;
 use Webmozart\Assert\Assert;
+use Novaway\ElasticsearchClient\Query\Compound\FunctionScore as FunctionScore;
 
 class ScriptScore implements FunctionScore
 {

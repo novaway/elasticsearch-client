@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Test\Unit\Novaway\ElasticsearchClient\Query;
+namespace Test\Unit\Novaway\ElasticsearchClient\Query\FullText;
 
 
 use atoum\test;

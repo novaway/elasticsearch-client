@@ -2,6 +2,8 @@
 
 namespace Novaway\ElasticsearchClient\Score;
 
+use Novaway\ElasticsearchClient\Query\Compound\FunctionScore as FunctionScore;
+
 class RandomScore implements FunctionScore
 {
     /** @var string */

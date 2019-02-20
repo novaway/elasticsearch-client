@@ -8,22 +8,22 @@ use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
-use Novaway\ElasticsearchClient\Filter\ExistsFilter;
-use Novaway\ElasticsearchClient\Filter\GeoDistanceFilter;
-use Novaway\ElasticsearchClient\Filter\InArrayFilter;
-use Novaway\ElasticsearchClient\Filter\NestedFilter;
-use Novaway\ElasticsearchClient\Filter\RangeFilter;
-use Novaway\ElasticsearchClient\Filter\TermFilter;
 use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
 use Novaway\ElasticsearchClient\Query\BoostableField;
-use Novaway\ElasticsearchClient\Query\MultiMatchQuery;
-use Novaway\ElasticsearchClient\Query\PrefixQuery;
+use Novaway\ElasticsearchClient\Query\Compound\BoolQuery;
+use Novaway\ElasticsearchClient\Query\FullText\MatchQuery;
+use Novaway\ElasticsearchClient\Query\FullText\MultiMatchQuery;
+use Novaway\ElasticsearchClient\Query\Geo\GeoDistanceQuery;
+use Novaway\ElasticsearchClient\Query\Joining\NestedQuery;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
-use Novaway\ElasticsearchClient\Query\BoolQuery;
-use Novaway\ElasticsearchClient\Query\MatchQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Novaway\ElasticsearchClient\Query\Term\ExistsQuery;
+use Novaway\ElasticsearchClient\Query\Term\InArrayQuery;
+use Novaway\ElasticsearchClient\Query\Term\PrefixQuery;
+use Novaway\ElasticsearchClient\Query\Term\RangeQuery;
+use Novaway\ElasticsearchClient\Query\Term\TermQuery;
 use Novaway\ElasticsearchClient\QueryExecutor;
 use Novaway\ElasticsearchClient\Score\DecayFunctionScore;
 use Novaway\ElasticsearchClient\Score\FunctionScoreOptions;
@@ -257,10 +257,10 @@ class FeatureContext implements Context
     public function iBuildAQueryWithFilter(TableNode $filterTable)
     {
         $typeClasses = [
-            'term' => TermFilter::class,
-            'in_array' => InArrayFilter::class,
-            'range' => RangeFilter::class,
-            'exists' => ExistsFilter::class,
+            'term' => TermQuery::class,
+            'in_array' => InArrayQuery::class,
+            'range' => RangeQuery::class,
+            'exists' => ExistsQuery::class,
         ];
 
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
@@ -271,7 +271,7 @@ class FeatureContext implements Context
             $typeClass = $typeClasses[$filterRow['type']];
             unset($filterRow['type']);
 
-            if($typeClass === InArrayFilter::class) {
+            if($typeClass === InArrayQuery::class) {
                 $filterRow['value'] = explode(';', $filterRow['value']);
             }
 
@@ -425,7 +425,7 @@ class FeatureContext implements Context
         $queryHash = $queryTable->getHash();
         foreach ($queryHash as $queryRow) {
             if ( $queryRow['condition'] == CombiningFactor::FILTER) {
-                $boolQuery->addClause(new TermFilter($queryRow['field'], $queryRow['value']));
+                $boolQuery->addClause(new TermQuery($queryRow['field'], $queryRow['value']));
             } else {
                 $boolQuery->addClause(new MatchQuery($queryRow['field'], $queryRow['value'], $queryRow['condition']));
             }
@@ -463,7 +463,7 @@ class FeatureContext implements Context
     {
         $arrayCoordinate = explode(',', $coordinate);
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
-        $this->queryBuilder->addFilter(new GeoDistanceFilter('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance, CombiningFactor::FILTER, $unit));
+        $this->queryBuilder->addFilter(new GeoDistanceQuery('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance, CombiningFactor::FILTER, $unit));
     }
 
     /**
@@ -552,10 +552,10 @@ class FeatureContext implements Context
     public function iBuildANestedFilterOnPathWithFilters($property, TableNode $queryTable)
     {
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
-        $nestedFilter = new NestedFilter($property);
+        $nestedFilter = new NestedQuery($property);
         $queryHash = $queryTable->getHash();
         foreach ($queryHash as $queryRow) {
-            $nestedFilter->addClause(new TermFilter($queryRow['field'], $queryRow['value']));
+            $nestedFilter->addClause(new TermQuery($queryRow['field'], $queryRow['value']));
         }
         $this->queryBuilder->addFilter($nestedFilter);
     }
@@ -582,7 +582,7 @@ class FeatureContext implements Context
     {
 
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
-        $this->queryBuilder->setPostFilter(new TermFilter('gender', 'female'));
+        $this->queryBuilder->setPostFilter(new TermQuery('gender', 'female'));
     }
     /**
      * @Given I build the query with female and over 30 post filter
@@ -592,8 +592,8 @@ class FeatureContext implements Context
 
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
         $bool = new BoolQuery();
-        $bool->addClause(new TermFilter('gender', 'female'));
-        $bool->addClause(new RangeFilter('age', 30, RangeFilter::GREATER_THAN_OR_EQUAL_OPERATOR));
+        $bool->addClause(new TermQuery('gender', 'female'));
+        $bool->addClause(new RangeQuery('age', 30, RangeQuery::GREATER_THAN_OR_EQUAL_OPERATOR));
 
         $this->queryBuilder->setPostFilter($bool);
     }
