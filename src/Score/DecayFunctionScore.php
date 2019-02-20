@@ -36,7 +36,7 @@ class DecayFunctionScore implements FunctionScore
 
     public function __construct(string $property, string $function, $origin, string $offset, string $scale, array $options = [], float $decay = self::DECAY)
     {
-        Assert::oneOf($decay, self::$availableFunctions);
+        Assert::oneOf($function, self::$availableFunctions);
         $this->property = $property;
         $this->function = $function;
         $this->origin = $origin;
