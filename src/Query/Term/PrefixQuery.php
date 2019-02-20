@@ -1,14 +1,14 @@
 <?php
 
-namespace Novaway\ElasticsearchClient\Query\FullText;
 
-//https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
+namespace Novaway\ElasticsearchClient\Query\Term;
+
+
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Query;
 use Webmozart\Assert\Assert;
 
-
-class MatchQuery implements Query
+class PrefixQuery implements Query
 {
     /** @var string */
     private $combiningFactor;
@@ -16,16 +16,16 @@ class MatchQuery implements Query
     private $field;
     /** @var mixed */
     private $value;
-    /** @var array  */
-    private $options;
+    /** @var float */
+    private $boost;
 
-    public function __construct(string $field, $value, string $combiningFactor = CombiningFactor::MUST, array $options = ['operator' => 'AND'])
+    public function __construct(string $field, $value, string $combiningFactor = CombiningFactor::MUST, float $boost = 1)
     {
         Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $this->field = $field;
         $this->value = $value;
         $this->combiningFactor = $combiningFactor;
-        $this->options = $options;
+        $this->boost = $boost;
     }
 
     /**
@@ -58,13 +58,12 @@ class MatchQuery implements Query
     public function formatForQuery(): array
     {
         return [
-                'match' => [
-                    $this->getField() =>  array_merge([
-                        'query' => $this->getValue()
-                    ], $this->options)
+            'prefix' => [
+                $this->getField() =>  [
+                    'value' => $this->getValue(),
+                    'boost' => $this->boost
                 ]
-            ];
+            ]
+        ];
     }
-
-
 }

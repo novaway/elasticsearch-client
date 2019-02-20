@@ -2,50 +2,12 @@
 
 namespace Novaway\ElasticsearchClient\Filter;
 
-use Novaway\ElasticsearchClient\Query\CombiningFactor;
-use Webmozart\Assert\Assert;
+use Novaway\ElasticsearchClient\Filter\Term\TermQuery;
 
-class TermFilter implements Filter
+/**
+ * @deprecated use Novaway\ElasticsearchClient\Filter\Term\TermQuery instead
+ */
+class TermFilter extends TermQuery
 {
-    /** @var string */
-    private $property;
-    /** @var string */
-    private $value;
-    /** @var string */
-    private $combiningFactor;
-    /** @var float */
-    private $boost;
-
-    public function __construct(string $property, $value, string $combiningFactor = CombiningFactor::FILTER, float $boost = 1)
-    {
-        Assert::oneOf($combiningFactor, CombiningFactor::toArray());
-        $this->property = $property;
-        $this->value = $value;
-        $this->combiningFactor = $combiningFactor;
-        $this->boost = $boost;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCombiningFactor(): string
-    {
-        return $this->combiningFactor;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function formatForQuery(): array
-    {
-        return [
-            'term' => [
-                $this->property =>  [
-                    'value' => $this->value,
-                    'boost' => $this->boost
-                ]
-            ]
-        ];
-    }
 }
 
