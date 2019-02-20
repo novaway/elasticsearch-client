@@ -21,9 +21,7 @@ class InlineGeoShapeQuery implements Query
     private $combiningFactor;
     /** @var array */
     private $options;
-    /**
-     * @var string
-     */
+    /** @var string */
     private $relation;
 
     public function __construct(
