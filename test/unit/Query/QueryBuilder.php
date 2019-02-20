@@ -4,10 +4,9 @@ namespace Test\Unit\Novaway\ElasticsearchClient\Query;
 
 use atoum\test;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
-use Novaway\ElasticsearchClient\Filter\TermFilter;
-use Novaway\ElasticsearchClient\Query\BoolQuery;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
-use Novaway\ElasticsearchClient\Query\MatchQuery;
+use Novaway\ElasticsearchClient\Query\FullText\MatchQuery;
+use Novaway\ElasticsearchClient\Query\Term\TermQuery;
 use Novaway\ElasticsearchClient\Score\RandomScore;
 
 class QueryBuilder extends test
@@ -79,12 +78,10 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addFilter(new TermFilter('size', 'M')),
-                $this->testedInstance->addFilter(new TermFilter('color', 'blue'))
+                $this->testedInstance->addFilter(new TermQuery('size', 'M')),
+                $this->testedInstance->addFilter(new TermQuery('color', 'blue'))
             )
             ->then
-            ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array[CombiningFactor::MUST]->object['match_all']->isEqualTo(new \stdClass())
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => ['value' => 'M', 'boost' => 1]]])
             ->array($this->testedInstance->getQueryBody())
@@ -92,13 +89,29 @@ class QueryBuilder extends test
         ;
     }
 
+    public function testAddOneQueryFilterKeepMatchAll()
+    {
+
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addQuery(new TermQuery('size', 'M', CombiningFactor::FILTER))
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody())
+                ->array['query']->array['bool']->array[CombiningFactor::MUST]->object['match_all']->isEqualTo(new \stdClass())
+
+        ;
+    }
+
+
     public function setMultipleFiltersAtOnce()
     {
 
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->setFilters([new TermFilter('size', 'M'), new TermFilter('color', 'blue')])
+                $this->testedInstance->setFilters([new TermQuery('size', 'M'), new TermQuery('color', 'blue')])
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
@@ -113,7 +126,7 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addFilter(new TermFilter('size', 'M')),
+                $this->testedInstance->addFilter(new TermQuery('size', 'M')),
                 $this->testedInstance->match('firstname', 'cedric', CombiningFactor::MUST),
                 $this->testedInstance->match('nickname', 'skwi', CombiningFactor::SHOULD)
             )
@@ -204,7 +217,7 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->setPostFilter(new TermFilter('size', 'M'))
+                $this->testedInstance->setPostFilter(new TermQuery('size', 'M'))
             )
             ->then
             ->array($this->testedInstance->getQueryBody()['post_filter'])
