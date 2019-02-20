@@ -1,11 +1,11 @@
 <?php
 
-namespace Test\Unit\Novaway\ElasticsearchClient\Filter;
+namespace Test\Unit\Novaway\ElasticsearchClient\Query\Geo;
 
 use atoum\test;
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 
-class GeoDistanceFilter extends test
+class GeoDistanceQuery extends test
 {
     public function testFormat()
     {
