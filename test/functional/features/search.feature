@@ -220,7 +220,6 @@ Feature: Search on index
         When  I execute it on the index named "nested_index" for type "_doc"
         Then the result should contain 0 hits
 
-
     Scenario: Nested filter works
         Given I create nested index and populate it on "nested_index"
         And I build a nested filter on "authors" with filters
@@ -326,3 +325,15 @@ Feature: Search on index
             |  min       | replace   |
         When I execute it on the index named "my_index" for type "_doc"
         Then the result n° "0" should contain field "_score" equaling "99"
+
+    Scenario: Search City with intersect geoshape
+        Given I create geo objects of type "_doc" to index "my_geoindex"
+        And I search cities with a relation "intersects" to rhône
+        When I execute it on the index named "my_geoindex" for type "_doc"
+        Then the result should contain exactly ids "[1]"
+
+    Scenario: Search City with disjoint geoshape
+        Given I create geo objects of type "_doc" to index "my_geoindex"
+        And I search cities with a relation "disjoint" to rhône
+        When I execute it on the index named "my_geoindex" for type "_doc"
+        Then the result should contain exactly ids "[2;3]"
