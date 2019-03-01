@@ -149,6 +149,8 @@ class QueryBuilder
      * @param string $combiningFactor
      *
      * @return QueryBuilder
+     *
+     * @deprecated Use MatchQuery instead
      */
     public function match($field, $value, $combiningFactor = CombiningFactor::SHOULD): QueryBuilder
     {
@@ -165,6 +167,7 @@ class QueryBuilder
      * @param Filter $filter
      *
      * @return QueryBuilder
+     * @deprecated Use addQuery instead
      */
     public function addFilter(Filter $filter): QueryBuilder
     {
@@ -177,6 +180,7 @@ class QueryBuilder
      * @param array $filters
      *
      * @return QueryBuilder
+     * @deprecated Use addQuery instead
      */
     public function setFilters(array $filters): QueryBuilder
     {
