@@ -11,6 +11,7 @@ use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Index;
 use Novaway\ElasticsearchClient\ObjectIndexer;
 use Novaway\ElasticsearchClient\Query\BoostableField;
+use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Compound\BoolQuery;
 use Novaway\ElasticsearchClient\Query\FullText\MatchQuery;
 use Novaway\ElasticsearchClient\Query\FullText\MultiMatchQuery;
@@ -18,7 +19,6 @@ use Novaway\ElasticsearchClient\Query\Geo\GeoDistanceQuery;
 use Novaway\ElasticsearchClient\Query\Joining\NestedQuery;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
-use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Term\ExistsQuery;
 use Novaway\ElasticsearchClient\Query\Term\InArrayQuery;
 use Novaway\ElasticsearchClient\Query\Term\PrefixQuery;
@@ -275,7 +275,7 @@ class FeatureContext implements Context
                 $filterRow['value'] = explode(';', $filterRow['value']);
             }
 
-            $this->queryBuilder->addFilter(new $typeClass(...array_values($filterRow)));
+            $this->queryBuilder->addQuery(new $typeClass(...array_values($filterRow)));
         }
     }
 
@@ -463,7 +463,7 @@ class FeatureContext implements Context
     {
         $arrayCoordinate = explode(',', $coordinate);
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
-        $this->queryBuilder->addFilter(new GeoDistanceQuery('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance, CombiningFactor::FILTER, $unit));
+        $this->queryBuilder->addQuery(new GeoDistanceQuery('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance, CombiningFactor::FILTER, $unit));
     }
 
     /**
@@ -557,7 +557,7 @@ class FeatureContext implements Context
         foreach ($queryHash as $queryRow) {
             $nestedFilter->addClause(new TermQuery($queryRow['field'], $queryRow['value']));
         }
-        $this->queryBuilder->addFilter($nestedFilter);
+        $this->queryBuilder->addQuery($nestedFilter);
     }
 
     /**

@@ -56,9 +56,9 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->match('civility', 'm', CombiningFactor::MUST),
-                $this->testedInstance->match('firstname', 'cedric', CombiningFactor::MUST),
-                $this->testedInstance->match('nickname', 'skwi', CombiningFactor::SHOULD)
+                $this->testedInstance->addQuery(new MatchQuery('civility', 'm', CombiningFactor::MUST)),
+                $this->testedInstance->addQuery(new MatchQuery('firstname', 'cedric', CombiningFactor::MUST)),
+                $this->testedInstance->addQuery(new MatchQuery('nickname', 'skwi', CombiningFactor::SHOULD))
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
@@ -78,8 +78,8 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addFilter(new TermQuery('size', 'M')),
-                $this->testedInstance->addFilter(new TermQuery('color', 'blue'))
+                $this->testedInstance->addQuery(new TermQuery('size', 'M')),
+                $this->testedInstance->addQuery(new TermQuery('color', 'blue'))
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
@@ -111,7 +111,8 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->setFilters([new TermQuery('size', 'M'), new TermQuery('color', 'blue')])
+                $this->testedInstance->addQuery(new TermQuery('size', 'M')),
+                $this->testedInstance->addQuery(new TermQuery('color', 'blue'))
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
@@ -126,7 +127,7 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addFilter(new TermQuery('size', 'M')),
+                $this->testedInstance->addQuery(new TermQuery('size', 'M')),
                 $this->testedInstance->match('firstname', 'cedric', CombiningFactor::MUST),
                 $this->testedInstance->match('nickname', 'skwi', CombiningFactor::SHOULD)
             )
