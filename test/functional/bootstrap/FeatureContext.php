@@ -16,6 +16,7 @@ use Novaway\ElasticsearchClient\Query\Compound\BoolQuery;
 use Novaway\ElasticsearchClient\Query\FullText\MatchQuery;
 use Novaway\ElasticsearchClient\Query\FullText\MultiMatchQuery;
 use Novaway\ElasticsearchClient\Query\Geo\GeoDistanceQuery;
+use Novaway\ElasticsearchClient\Query\Geo\InlineGeoShapeQuery;
 use Novaway\ElasticsearchClient\Query\Joining\NestedQuery;
 use Novaway\ElasticsearchClient\Query\QueryBuilder;
 use Novaway\ElasticsearchClient\Query\Result;
@@ -443,9 +444,9 @@ class FeatureContext implements Context
 
         $cityArray =
             [
-                ['id' => 1, 'city_name' => 'lyon', 'location' => ['lat' => '45.764043', 'lon' => '4.835658999999964' ]],
-                ['id' => 2, 'city_name' => 'paris', 'location' => ['lat' => '48.85661400000001', 'lon' => '2.3522219000000177' ]],
-                ['id' => 3, 'city_name' => 'mâcon', 'location' => ['lat' => '46.30688389999999', 'lon' => '4.828731000000062' ]]
+                ['id' => 1, 'city_name' => 'lyon', 'location' => ['lat' => '45.764043', 'lon' => '4.835658999999964' ], 'centerAsGeoshape' => 'POINT(4.835658999999964 45.764043)'],
+                ['id' => 2, 'city_name' => 'paris', 'location' => ['lat' => '48.85661400000001', 'lon' => '2.3522219000000177' ], 'centerAsGeoshape' => 'POINT(2.3522219000000177 48.85661400000001)'],
+                ['id' => 3, 'city_name' => 'mâcon', 'location' => ['lat' => '46.30688389999999', 'lon' => '4.828731000000062' ], 'centerAsGeoshape' => 'POINT(4.828731000000062 46.30688389999999)']
             ];
 
         foreach ($cityArray as $cityRow) {
@@ -465,6 +466,19 @@ class FeatureContext implements Context
         $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
         $this->queryBuilder->addQuery(new GeoDistanceQuery('location', $arrayCoordinate[0], $arrayCoordinate[1], $distance, CombiningFactor::FILTER, $unit));
     }
+
+    /**
+     * @Given I search cities with a relation :relation to rhône
+     */
+    public function iSearchCitiesWithARelationToRhone($relation)
+    {
+
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $shape = json_decode(file_get_contents(__DIR__ . '/data/geoshapes/rhone.json'));
+
+        $this->queryBuilder->addQuery(new InlineGeoShapeQuery('centerAsGeoshape', $shape, CombiningFactor::MUST, $relation));
+    }
+
 
     /**
      * @When I add a random score with :seed as seed

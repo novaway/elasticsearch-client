@@ -10,3 +10,5 @@ mappings:
                 search_analyzer: standard
             location:
                 type: geo_point
+            centerAsGeoshape:
+                type: geo_shape
