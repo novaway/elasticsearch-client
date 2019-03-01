@@ -164,7 +164,7 @@ class Index
     /**
      * Create index from config
      */
-    private function create()
+    protected function create()
     {
         $indexParams['index'] = $this->getMainIndexName();
         $indexParams['body'] = $this->config;
@@ -181,7 +181,7 @@ class Index
      *d
      * @throws InvalidConfigurationException
      */
-    private function loadConfig(array $indexConfig)
+    protected function loadConfig(array $indexConfig)
     {
         if (!isset($indexConfig['mappings'])) {
             throw new InvalidConfigurationException('Missing key "mappings" in search configuration.');
@@ -201,34 +201,34 @@ class Index
      *
      * @return string
      */
-    public function getSearchIndexName(): string
+    protected function getSearchIndexName(): string
     {
         return $this->name . '_alias';
     }
 
-    public function getMainIndexName(): string
+    protected function getMainIndexName(): string
     {
         return $this->name;
     }
 
-    private function getTmpIndexName(): string
+    protected function getTmpIndexName(): string
     {
         return $this->name . '_tmp';
     }
 
-    private function setMainAsAlias(): array
+    protected function setMainAsAlias(): array
     {
         $this->removeParamsAsAlias($this->getTmpAliasParams());
         return $this->setParamsAsAlias($this->getMainAliasParams());
     }
 
-    private function setTmpAsAlias(): array
+    protected function setTmpAsAlias(): array
     {
         $this->removeParamsAsAlias($this->getMainAliasParams());
         return $this->setParamsAsAlias($this->getTmpAliasParams());
     }
 
-    private function getMainAliasParams(): array
+    protected function getMainAliasParams(): array
     {
         return [
             'index' => $this->getMainIndexName(),
@@ -236,7 +236,7 @@ class Index
         ];
     }
 
-    private function getTmpAliasParams(): array
+    protected function getTmpAliasParams(): array
     {
         return [
             'index' => $this->getTmpIndexName(),
@@ -244,19 +244,19 @@ class Index
         ];
     }
 
-    private function removeParamsAsAlias(array $params)
+    protected function removeParamsAsAlias(array $params)
     {
         if ($this->client->indices()->existsAlias($params) === true) {
             $this->client->indices()->deleteAlias($params);
         };
     }
 
-    private function setParamsAsAlias(array $params): array
+    protected function setParamsAsAlias(array $params): array
     {
         return $this->client->indices()->putAlias($params);
     }
 
-    private function initAliasIfNoneExist()
+    protected function initAliasIfNoneExist()
     {
         if (!$this->client->indices()->existsAlias($this->getMainAliasParams())
             && !$this->client->indices()->existsAlias($this->getTmpAliasParams())
@@ -265,7 +265,7 @@ class Index
         }
     }
 
-    private function createTmpIndex()
+    protected function createTmpIndex()
     {
         if ($this->client->indices()->exists(['index' => $this->getTmpIndexName()])) {
             // delete index if already existing, to have a clean one
