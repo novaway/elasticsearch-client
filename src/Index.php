@@ -2,12 +2,12 @@
 
 namespace Novaway\ElasticsearchClient;
 
-use Novaway\ElasticsearchClient\Exception\InvalidConfigurationException;
-use Novaway\ElasticsearchClient\Query\Result;
-use Novaway\ElasticsearchClient\Query\ResultTransformer;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Serializers\SerializerInterface;
+use Novaway\ElasticsearchClient\Exception\InvalidConfigurationException;
+use Novaway\ElasticsearchClient\Query\Result;
+use Novaway\ElasticsearchClient\Query\ResultTransformer;
 use Psr\Log\LoggerInterface;
 
 class Index
@@ -119,9 +119,8 @@ class Index
      */
     public function search(array $searchParams, ResultTransformer $resultTransformer = null)
     {
-        // always search on the aliased index
-        $searchParams['index'] = $this->getSearchIndexName();
-        $searchResult = $this->client->search($searchParams);
+        $searchParams = $this->finalizeParamsForSearch($searchParams);
+        $searchResult = $this->executeSearch($searchParams);
         $limit = $searchParams['body']['size'] ??  null;
 
         $result = Result::createFromArray($searchResult, $limit);
@@ -307,5 +306,17 @@ class Index
         if (null !== $this->logger) {
             $this->logger->$level($message, $context);
         }
+    }
+
+    protected function finalizeParamsForSearch(array $searchParams): array
+    {
+        // always search on the aliased index
+        $searchParams['index'] = $this->getSearchIndexName();
+        return $searchParams;
+    }
+
+    protected function executeSearch(array $searchParams): array
+    {
+        return $this->client->search($searchParams);
     }
 }
