@@ -6,10 +6,10 @@ use Novaway\ElasticsearchClient\Aggregation\Aggregation;
 use Novaway\ElasticsearchClient\Clause;
 use Novaway\ElasticsearchClient\Filter\Filter;
 use Novaway\ElasticsearchClient\Query\Compound\FunctionScore;
-use Novaway\ElasticsearchClient\Score\FunctionScoreOptions;
-use Novaway\ElasticsearchClient\Script\ScriptField;
-use Novaway\ElasticsearchClient\Score\ScriptScore;
 use Novaway\ElasticsearchClient\Query\FullText\MatchQuery;
+use Novaway\ElasticsearchClient\Score\FunctionScoreOptions;
+use Novaway\ElasticsearchClient\Score\ScriptScore;
+use Novaway\ElasticsearchClient\Script\ScriptField;
 
 class QueryBuilder
 {
@@ -149,6 +149,8 @@ class QueryBuilder
      * @param string $combiningFactor
      *
      * @return QueryBuilder
+     *
+     * @deprecated Use MatchQuery instead
      */
     public function match($field, $value, $combiningFactor = CombiningFactor::SHOULD): QueryBuilder
     {
@@ -165,6 +167,7 @@ class QueryBuilder
      * @param Filter $filter
      *
      * @return QueryBuilder
+     * @deprecated Use addQuery instead
      */
     public function addFilter(Filter $filter): QueryBuilder
     {
@@ -177,6 +180,7 @@ class QueryBuilder
      * @param array $filters
      *
      * @return QueryBuilder
+     * @deprecated Use addQuery instead
      */
     public function setFilters(array $filters): QueryBuilder
     {
@@ -247,6 +251,14 @@ class QueryBuilder
         $this->functionsScoreOptions = $functionsScoreOptions;
     }
 
+    public function hasNoNonFilterQueries(): bool
+    {
+        $nonFilterQueries = array_filter($this->getClauseCollection(), function (Clause $clause) {
+            return $clause->getCombiningFactor() !== CombiningFactor::FILTER;
+        });
+        return empty($nonFilterQueries);
+    }
+
     /**
      * @return array
      */
@@ -254,7 +266,7 @@ class QueryBuilder
     {
         $queryBody['_source'] = [];
 
-        if (count($this->queryCollection) === 0) {
+        if ($this->hasNoNonFilterQueries()) {
             $queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = new \stdClass();
         }
         foreach ($this->getClauseCollection() as $clause) {

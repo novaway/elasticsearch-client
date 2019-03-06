@@ -56,9 +56,9 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->match('civility', 'm', CombiningFactor::MUST),
-                $this->testedInstance->match('firstname', 'cedric', CombiningFactor::MUST),
-                $this->testedInstance->match('nickname', 'skwi', CombiningFactor::SHOULD)
+                $this->testedInstance->addQuery(new MatchQuery('civility', 'm', CombiningFactor::MUST)),
+                $this->testedInstance->addQuery(new MatchQuery('firstname', 'cedric', CombiningFactor::MUST)),
+                $this->testedInstance->addQuery(new MatchQuery('nickname', 'skwi', CombiningFactor::SHOULD))
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
@@ -78,12 +78,10 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addFilter(new TermQuery('size', 'M')),
-                $this->testedInstance->addFilter(new TermQuery('color', 'blue'))
+                $this->testedInstance->addQuery(new TermQuery('size', 'M')),
+                $this->testedInstance->addQuery(new TermQuery('color', 'blue'))
             )
             ->then
-            ->array($this->testedInstance->getQueryBody())
-                ->array['query']->array['bool']->array[CombiningFactor::MUST]->object['match_all']->isEqualTo(new \stdClass())
             ->array($this->testedInstance->getQueryBody())
                 ->array['query']->array['bool']->array['filter']->array[0]->isEqualTo(['term' => ['size' => ['value' => 'M', 'boost' => 1]]])
             ->array($this->testedInstance->getQueryBody())
@@ -91,13 +89,30 @@ class QueryBuilder extends test
         ;
     }
 
+    public function testAddOneQueryFilterKeepMatchAll()
+    {
+
+        $this
+            ->given($this->newTestedInstance())
+            ->if(
+                $this->testedInstance->addQuery(new TermQuery('size', 'M', CombiningFactor::FILTER))
+            )
+            ->then
+            ->array($this->testedInstance->getQueryBody())
+                ->array['query']->array['bool']->array[CombiningFactor::MUST]->object['match_all']->isEqualTo(new \stdClass())
+
+        ;
+    }
+
+
     public function setMultipleFiltersAtOnce()
     {
 
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->setFilters([new TermQuery('size', 'M'), new TermQuery('color', 'blue')])
+                $this->testedInstance->addQuery(new TermQuery('size', 'M')),
+                $this->testedInstance->addQuery(new TermQuery('color', 'blue'))
             )
             ->then
             ->array($this->testedInstance->getQueryBody())
@@ -112,7 +127,7 @@ class QueryBuilder extends test
         $this
             ->given($this->newTestedInstance())
             ->if(
-                $this->testedInstance->addFilter(new TermQuery('size', 'M')),
+                $this->testedInstance->addQuery(new TermQuery('size', 'M')),
                 $this->testedInstance->match('firstname', 'cedric', CombiningFactor::MUST),
                 $this->testedInstance->match('nickname', 'skwi', CombiningFactor::SHOULD)
             )
