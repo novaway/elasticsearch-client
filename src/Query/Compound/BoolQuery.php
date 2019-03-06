@@ -16,12 +16,15 @@ class BoolQuery implements Query
     private $combiningFactor;
     /** @var Clause[] */
     private $clauses;
+    /** @var array */
+    private $options;
 
-    public function __construct(string $combiningFactor = CombiningFactor::MUST)
+    public function __construct(string $combiningFactor = CombiningFactor::MUST, array $options = [])
     {
         Assert::oneOf($combiningFactor, CombiningFactor::toArray());
         $this->combiningFactor = $combiningFactor;
         $this->clauses = [];
+        $this->options = $options;
     }
 
     public function getCombiningFactor(): string
@@ -36,7 +39,7 @@ class BoolQuery implements Query
 
     public function formatForQuery(): array
     {
-        $res = [];
+        $res = $this->options;
         foreach ($this->clauses as $clause) {
             $res[$clause->getCombiningFactor()][] = $clause->formatForQuery();
         }
