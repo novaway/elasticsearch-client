@@ -5,6 +5,8 @@ namespace Test\Functional\Novaway\ElasticsearchClient\Context;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\TableNode;
+use Elasticsearch\Client;
+use Elasticsearch\ClientBuilder;
 use GuzzleHttp\Ring\Client\CurlHandler;
 use mageekguy\atoum\asserter\generator as AssertGenerator;
 use Novaway\ElasticsearchClient\Aggregation\Aggregation;
@@ -50,6 +52,8 @@ class FeatureContext implements Context
     private $queryBuilder;
     /** @var Result */
     private $result;
+    /** @var Client */
+    private $client;
 
     /**
      * FeatureContext constructor.
@@ -662,7 +666,11 @@ class FeatureContext implements Context
     private function getIndex(string $indexName, array $config = null): Index
     {
         if (!isset($this->index[$indexName])) {
-            $this->index[$indexName] = new Index(['127.0.0.1:9200'], $indexName, $config ?? $this->defaultConfiguration);
+            if (!isset($this->client)) {
+                $builder = ClientBuilder::create()->setHosts(['127.0.0.1:9200']);
+                $this->client = $builder->build();
+            }
+            $this->index[$indexName] = Index::createWithClient($this->client,  $indexName, $config ?? $this->defaultConfiguration);
         }
 
         return $this->index[$indexName];

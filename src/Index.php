@@ -2,12 +2,12 @@
 
 namespace Novaway\ElasticsearchClient;
 
-use Novaway\ElasticsearchClient\Exception\InvalidConfigurationException;
-use Novaway\ElasticsearchClient\Query\Result;
-use Novaway\ElasticsearchClient\Query\ResultTransformer;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Serializers\SerializerInterface;
+use Novaway\ElasticsearchClient\Exception\InvalidConfigurationException;
+use Novaway\ElasticsearchClient\Query\Result;
+use Novaway\ElasticsearchClient\Query\ResultTransformer;
 use Psr\Log\LoggerInterface;
 
 class Index
@@ -25,17 +25,23 @@ class Index
     protected $logger;
 
     /**
-     * @param array $hosts
-     * @param string $name
-     * @param array $indexConfig
-     * @param SerializerInterface $serializer
+     * @param array     $hosts          only useful if a client is not provided
+     * @param string    $name           name of the main index
+     * @param array     $indexConfig    config of the index
+     * @param SerializerInterface   $serializer only useful if a client is not provided
+     * @param LoggerInterface   $logger logs connection errors
+     * @param Client   $client  If provided, the client on which every operations will be executed
+     *
+     * @deprecated The default constructor without client is deprecated since 6.5 and is replaced by "createWithoutClient", it will be removed in 7.0. Prefer using "createWithClient", which will be the default constructor in 7.0
+     *
      */
     public function __construct(
         array $hosts = [],
         $name,
         array $indexConfig = [],
         SerializerInterface $serializer = null,
-        LoggerInterface $logger = null
+        LoggerInterface $logger = null,
+        Client $client = null
     )
     {
         $this->name = $name;
@@ -43,11 +49,14 @@ class Index
         $this->logger = $logger;
 
         try {
-            $clientBuilder = ClientBuilder::create()->setHosts($hosts);
-            if ($serializer) {
-                $clientBuilder->setSerializer($serializer);
+            if ($client === null) {
+                $clientBuilder = ClientBuilder::create()->setHosts($hosts);
+                if ($serializer) {
+                    $clientBuilder->setSerializer($serializer);
+                }
+                $client = $clientBuilder->build();
             }
-            $this->client = $clientBuilder->build();
+            $this->client = $client;
 
             $this->loadConfig($indexConfig);
 
@@ -69,6 +78,46 @@ class Index
                 'exception' => $e,
             ]);
         }
+    }
+
+    /**
+     * Simpler constructor when providing a client. Will be the default contructor in 7.0
+     *
+     * @param Client $client
+     * @param $name
+     * @param array $indexConfig
+     * @param LoggerInterface|null $logger
+     * @return Index
+     */
+    public static function createWithClient(
+        Client $client,
+        $name,
+        array $indexConfig = [],
+        LoggerInterface $logger = null
+    ): Index
+    {
+        return new static([], $name, $indexConfig, null, $logger, $client);
+    }
+
+    /**
+     * alias for now the deprecated constructor, intended for BC when 7.0 arrives
+     *
+     * @param array $hosts
+     * @param $name
+     * @param array $indexConfig
+     * @param SerializerInterface|null $serializer
+     * @param LoggerInterface|null $logger
+     * @return Index
+     */
+    public static function createWithoutClient(
+        array $hosts = [],
+        $name,
+        array $indexConfig = [],
+        SerializerInterface $serializer = null,
+        LoggerInterface $logger = null
+    ): Index
+    {
+        return new static($hosts, $name, $indexConfig, $serializer, $logger);
     }
 
     /**
