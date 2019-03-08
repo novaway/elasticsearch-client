@@ -25,10 +25,15 @@ class Index
     protected $logger;
 
     /**
-     * @param array $hosts
-     * @param string $name
-     * @param array $indexConfig
-     * @param SerializerInterface $serializer
+     * @param array     $hosts          only useful if a client is not provided
+     * @param string    $name           name of the main index
+     * @param array     $indexConfig    config of the index
+     * @param SerializerInterface   $serializer only useful if a client is not provided
+     * @param LoggerInterface   $logger logs connection errors
+     * @param Client   $client  If provided, the client on which every operations will be executed
+     *
+     * @deprecated The default constructor without client is deprecated since 6.5 and is replaced by "createWithoutClient", it will be removed in 7.0. Prefer using "createWithClient", which will be the default constructor in 7.0
+     *
      */
     public function __construct(
         array $hosts = [],
