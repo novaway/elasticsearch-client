@@ -2,12 +2,12 @@
 
 namespace Novaway\ElasticsearchClient;
 
-use Novaway\ElasticsearchClient\Exception\InvalidConfigurationException;
-use Novaway\ElasticsearchClient\Query\Result;
-use Novaway\ElasticsearchClient\Query\ResultTransformer;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Serializers\SerializerInterface;
+use Novaway\ElasticsearchClient\Exception\InvalidConfigurationException;
+use Novaway\ElasticsearchClient\Query\Result;
+use Novaway\ElasticsearchClient\Query\ResultTransformer;
 use Psr\Log\LoggerInterface;
 
 class Index
@@ -35,7 +35,8 @@ class Index
         $name,
         array $indexConfig = [],
         SerializerInterface $serializer = null,
-        LoggerInterface $logger = null
+        LoggerInterface $logger = null,
+        Client $client = null
     )
     {
         $this->name = $name;
@@ -43,11 +44,14 @@ class Index
         $this->logger = $logger;
 
         try {
-            $clientBuilder = ClientBuilder::create()->setHosts($hosts);
-            if ($serializer) {
-                $clientBuilder->setSerializer($serializer);
+            if ($client === null) {
+                $clientBuilder = ClientBuilder::create()->setHosts($hosts);
+                if ($serializer) {
+                    $clientBuilder->setSerializer($serializer);
+                }
+                $client = $clientBuilder->build();
             }
-            $this->client = $clientBuilder->build();
+            $this->client = $client;
 
             $this->loadConfig($indexConfig);
 
