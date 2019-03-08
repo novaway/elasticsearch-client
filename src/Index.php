@@ -76,6 +76,46 @@ class Index
     }
 
     /**
+     * Simpler constructor when providing a client. Will be the default contructor in 7.0
+     *
+     * @param Client $client
+     * @param $name
+     * @param array $indexConfig
+     * @param LoggerInterface|null $logger
+     * @return Index
+     */
+    public static function createWithClient(
+        Client $client,
+        $name,
+        array $indexConfig = [],
+        LoggerInterface $logger = null
+    ): Index
+    {
+        return new static([], $name, $indexConfig, null, $logger, $client);
+    }
+
+    /**
+     * alias for now the deprecated constructor, intended for BC when 7.0 arrives
+     *
+     * @param array $hosts
+     * @param $name
+     * @param array $indexConfig
+     * @param SerializerInterface|null $serializer
+     * @param LoggerInterface|null $logger
+     * @return Index
+     */
+    public static function createWithoutClient(
+        array $hosts = [],
+        $name,
+        array $indexConfig = [],
+        SerializerInterface $serializer = null,
+        LoggerInterface $logger = null
+    ): Index
+    {
+        return new static($hosts, $name, $indexConfig, $serializer, $logger);
+    }
+
+    /**
      * Delete and recreate index from config
      */
     public function reload()
