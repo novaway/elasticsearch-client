@@ -44,6 +44,11 @@ class QueryBuilder
     protected $scriptScore;
     /** @var null|FunctionScoreOptions */
     protected $functionsScoreOptions;
+    /**
+     * @var array
+     * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-search-after.html
+     */
+    protected $searchAfter;
 
     public function __construct($offset = self::DEFAULT_OFFSET, $limit = self::DEFAULT_LIMIT, $minScore = self::DEFAULT_MIN_SCORE)
     {
@@ -54,6 +59,7 @@ class QueryBuilder
         $this->aggregationCollection = [];
         $this->functionScoreCollection = [];
         $this->scriptFieldCollection = [];
+        $this->searchAfter = [];
 
         $this->queryBody['from'] = $offset;
         $this->queryBody['size'] = $limit;
@@ -254,6 +260,16 @@ class QueryBuilder
         $this->functionsScoreOptions = $functionsScoreOptions;
     }
 
+    public function getSearchAfter(): array
+    {
+        return $this->searchAfter;
+    }
+
+    public function setSearchAfter(array $searchAfter)
+    {
+        $this->searchAfter = $searchAfter;
+    }
+
     public function hasNoMatchingQueries(): bool
     {
         $nonFilterQueries = array_filter($this->getClauseCollection(), function (Clause $clause) {
@@ -300,6 +316,10 @@ class QueryBuilder
 
         if ($this->postFilter) {
             $queryBody['post_filter'] = $this->postFilter->formatForQuery();
+        }
+
+        if ($this->searchAfter) {
+            $queryBody['search_after'] = $this->searchAfter;
         }
 
         return array_merge($this->queryBody, $queryBody);
