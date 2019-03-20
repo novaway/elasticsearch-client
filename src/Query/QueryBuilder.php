@@ -20,7 +20,10 @@ class QueryBuilder
     /** @var array */
     protected $queryBody;
 
-    /** @var Filter[] */
+    /**
+     * @var Filter[]
+     * @deprecated
+     */
     protected $filterCollection;
     /** @var Clause */
     protected $postFilter;
