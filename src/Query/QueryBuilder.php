@@ -251,10 +251,10 @@ class QueryBuilder
         $this->functionsScoreOptions = $functionsScoreOptions;
     }
 
-    public function hasNoNonFilterQueries(): bool
+    public function hasNoMatchingQueries(): bool
     {
         $nonFilterQueries = array_filter($this->getClauseCollection(), function (Clause $clause) {
-            return $clause->getCombiningFactor() !== CombiningFactor::FILTER;
+            return !in_array($clause->getCombiningFactor(), [CombiningFactor::FILTER, CombiningFactor::MUST_NOT]);
         });
         return empty($nonFilterQueries);
     }
@@ -266,7 +266,7 @@ class QueryBuilder
     {
         $queryBody['_source'] = [];
 
-        if ($this->hasNoNonFilterQueries()) {
+        if ($this->hasNoMatchingQueries()) {
             $queryBody['query']['bool'][CombiningFactor::MUST]['match_all'] = new \stdClass();
         }
         foreach ($this->getClauseCollection() as $clause) {
