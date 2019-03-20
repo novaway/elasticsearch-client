@@ -4,6 +4,8 @@ settings:
 mappings:
     _doc:
         properties:
+            id:
+                type: keyword
             first_name:
                 type: text
                 analyzer: standard

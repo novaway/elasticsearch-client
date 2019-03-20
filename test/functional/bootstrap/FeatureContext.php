@@ -256,6 +256,29 @@ class FeatureContext implements Context
     }
 
     /**
+     * @Given I add sorting on :
+     */
+    public function iAddSortingOn(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        foreach ($queryHash as $queryRow) {
+            $this->queryBuilder->addSort($queryRow['field'], $queryRow['order']);
+        }
+    }
+
+    /**
+     * @Given I add search after :
+     */
+    public function iAddSearchAfter(TableNode $queryTable)
+    {
+        $this->queryBuilder = $this->queryBuilder ?? QueryBuilder::createNew();
+        $queryHash = $queryTable->getHash();
+        $this->queryBuilder->setSearchAfter(array_column($queryHash,'sort'));
+    }
+
+
+    /**
      * @Given I build the query with filter :
      * @Given I build a query with filter :
      */
@@ -306,8 +329,9 @@ class FeatureContext implements Context
             $foundCount += in_array($hit['id'], $idList) ? 1 : 0;
         }
 
-        $this->assert->integer($this->result->totalHits())->isEqualTo(count($idList));
-        $this->assert->integer($foundCount)->isEqualTo(count($idList));
+
+        $this->assert->integer(\count($this->result->hits()))->isEqualTo(\count($idList));
+        $this->assert->integer($foundCount)->isEqualTo(\count($idList));
     }
 
     /**

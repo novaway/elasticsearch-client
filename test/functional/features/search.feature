@@ -161,6 +161,7 @@ Feature: Search on index
             | first_name        | Diana         | must    |
         When I execute it on the index named "my_index" for type "_doc"
         Then the result should contain exactly ids "[2]"
+
     Scenario: Combining queries and filters inside a Bool Query
         Given I build a should bool query with :
             | field      | value       | condition |
@@ -337,3 +338,15 @@ Feature: Search on index
         And I search cities with a relation "disjoint" to rhône
         When I execute it on the index named "my_geoindex" for type "_doc"
         Then the result should contain exactly ids "[2;3]"
+
+    Scenario: After search
+        Given I add sorting on :
+            | field  | order |
+            |  age   | asc  |
+            |  id   | asc  |
+        And I add search after :
+            | sort  |
+            |  35   |
+            |  5   |
+        When I execute it on the index named "my_index" for type "_doc"
+        Then the result should contain exactly ids "[6;3;2]"
