@@ -6,12 +6,19 @@ namespace Novaway\ElasticsearchClient\Score;
 use Novaway\ElasticsearchClient\Query\Compound\FunctionScore as FunctionScore;
 use Webmozart\Assert\Assert;
 
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-decay
+ */
 class DecayFunctionScore implements FunctionScore
 {
+    /** @deprecated use Novaway\ElasticsearchClient\Score\DecayFunction::GAUSS instead  */
     const GAUSS = 'gauss';
+    /** @deprecated use Novaway\ElasticsearchClient\Score\DecayFunction::EXP instead  */
     const EXP = 'exp';
+    /** @deprecated use Novaway\ElasticsearchClient\Score\DecayFunction::LINEAR instead  */
     const LINEAR = 'linear';
 
+    /** @deprecated use Novaway\ElasticsearchClient\Score\DecayFunction::toArray() instead  */
     public static $availableFunctions = [
         self::GAUSS,
         self::EXP,
@@ -36,7 +43,7 @@ class DecayFunctionScore implements FunctionScore
 
     public function __construct(string $property, string $function, $origin, string $offset, string $scale, array $options = [], float $decay = self::DECAY)
     {
-        Assert::oneOf($function, self::$availableFunctions);
+        Assert::oneOf($function, DecayFunction::toArray());
         $this->property = $property;
         $this->function = $function;
         $this->origin = $origin;
