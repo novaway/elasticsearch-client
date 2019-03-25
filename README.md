@@ -163,12 +163,20 @@ parameters:
                         type: integer
                         
 services:
+    Novaway\ElasticsearchBundle\Elasticsearch\Client:
+        factory: Novaway\ElasticsearchBundle\Factory\ClientFactory:createClient
+        arguments:
+            - ['%elasticsearch_host%'] # define it in the parameter.yml file
+
     myapp.search.index:
         class: Novaway\ElasticsearchClient\Index
         arguments:
-            - ['127.0.0.1:9200'] #define it in the parameter.yml file
+            - []
             - 'myapp_myindex_%kernel.environment%'
             - 'myapp.search.myindex.config'
+            - null
+            - null
+            - Novaway\ElasticsearchBundle\Elasticsearch\Client
 
     myapp.search.object_indexer:
         class: Novaway\ElasticsearchClient\ObjectIndexer
