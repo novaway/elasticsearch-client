@@ -6,6 +6,9 @@ namespace Novaway\ElasticsearchClient\Score;
 
 use Webmozart\Assert\Assert;
 
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#query-dsl-function-score-query
+ */
 class FunctionScoreOptions
 {
     /** @var string */

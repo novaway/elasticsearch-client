@@ -2,12 +2,13 @@
 
 namespace Novaway\ElasticsearchClient\Query\FullText;
 
-//https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Query;
 use Webmozart\Assert\Assert;
 
-
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
+ */
 class MatchQuery implements Query
 {
     /** @var string */

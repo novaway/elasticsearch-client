@@ -8,6 +8,9 @@ use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Query;
 use Webmozart\Assert\Assert;
 
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-prefix-query.html
+ */
 class PrefixQuery implements Query
 {
     /** @var string */

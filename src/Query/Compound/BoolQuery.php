@@ -9,9 +9,11 @@ use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Query;
 use Webmozart\Assert\Assert;
 
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
+ */
 class BoolQuery implements Query
 {
-
     /** @var string */
     private $combiningFactor;
     /** @var Clause[] */
@@ -46,6 +48,4 @@ class BoolQuery implements Query
 
         return ['bool' => $res];
     }
-
-
 }

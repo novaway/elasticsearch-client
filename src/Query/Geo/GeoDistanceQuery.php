@@ -7,6 +7,9 @@ use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Query;
 use Webmozart\Assert\Assert;
 
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html
+ */
 class GeoDistanceQuery implements Query, Filter
 {
     /** @var string */
@@ -31,8 +34,8 @@ class GeoDistanceQuery implements Query, Filter
      * @param float $longitude
      * @param float $distance
      * @param string $combiningFactor
-     * @param string $unit Should be one of those https://www.elastic.co/guide/en/elasticsearch/reference/2.3/common-options.html#distance-units
-     * @param array $options Used to pass options from https://www.elastic.co/guide/en/elasticsearch/reference/2.3/query-dsl-geo-distance-query.html#_options_4
+     * @param string $unit Should be one of those https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#distance-units
+     * @param array $options Used to pass options from https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html#_options_4
      */
     public function __construct(string $property, float $latitude, float $longitude, float $distance, string $combiningFactor = CombiningFactor::FILTER, string $unit = DistanceUnits::KM, array $options = [])
     {

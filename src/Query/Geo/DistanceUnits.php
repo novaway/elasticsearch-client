@@ -6,6 +6,9 @@ namespace Novaway\ElasticsearchClient\Query\Geo;
 
 use MyCLabs\Enum\Enum;
 
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#distance-units
+ */
 class DistanceUnits extends Enum
 {
     const MILES = 'miles';
