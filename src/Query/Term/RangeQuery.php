@@ -7,11 +7,18 @@ use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Query;
 use Webmozart\Assert\Assert;
 
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
+ */
 class RangeQuery implements Filter, Query
 {
+    /** @deprecated use Novaway\ElasticsearchClient\Query\Term\RangeOperator::GREATER_THAN_OPERATOR instead */
     const GREATER_THAN_OPERATOR = 'gt';
+    /** @deprecated use Novaway\ElasticsearchClient\Query\Term\RangeOperator::GREATER_THAN_OR_EQUAL_OPERATOR instead */
     const GREATER_THAN_OR_EQUAL_OPERATOR = 'gte';
+    /** @deprecated use Novaway\ElasticsearchClient\Query\Term\RangeOperator::LESS_THAN_OPERATOR instead */
     const LESS_THAN_OPERATOR = 'lt';
+    /** @deprecated use Novaway\ElasticsearchClient\Query\Term\RangeOperator::LESS_THAN_OR_EQUAL_OPERATOR instead */
     const LESS_THAN_OR_EQUAL_OPERATOR = 'lte';
 
     /** @var string */
