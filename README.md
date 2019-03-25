@@ -113,11 +113,28 @@ $queryBuilder = QueryBuilder::createNew(0, 10, 0.3);
 
 This client provide several ways to improve querying :
 
-- Filtering *(missing documentation)*
 - [Aggregations](doc/aggregation.md)
 - Result Formating *(missing documentation)*
-
-
+- Supported Query DSL
+    * [Match All Query](src/Query/MatchAllQuery.php)
+    * Full Text Queries
+        * [Match Query](src/Query/FullText/MatchQuery.php)
+        * [Multi Match Query](src/Query/FullText/MultiMatchQuery.php)
+    * Term Level Queries
+        * [Term Query](src/Query/Term/TermQuery.php)
+        * [Range Query](src/Query/Term/RangeQuery.php)
+        * [Exist Query](src/Query/Term/ExistsQuery.php)
+        * [Prefix Query](src/Query/Term/PrefixQuery.php)
+        * [In Array Query](src/Query/Term/InArrayQuery.php)
+    * Compound Queries
+        * [Bool Query](src/Query/Compound/BoolQuery.php)
+        * [Function Score Query](src/Query/Compound/FunctionScore.php)
+    * Joining Queries
+        * [Nested Query](src/Query/Joining/NestedQuery.php)
+    * Geo Queries
+        * [GeoShape Query](src/Query/Geo/InlineGeoShapeQuery.php)
+        * [Geo Distance Query](src/Query/Geo/GeoDistanceQuery.php)
+        
 ### Clear the index
 
 You might want, for some reason, to purge an index. The `reload` method drops and recreates the index.
