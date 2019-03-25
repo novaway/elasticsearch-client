@@ -20,11 +20,13 @@ $ composer require novaway/elasticsearch-client
 
 ### Create an index
 
-The first thing you'll need to do to use this library is to instatiate an index. This will be the keystone of the client.
+The first thing you'll need to do to use this library is to instatiate a client and an index. They will be the keystones of the client.
 
 ```php
-$index = new \Novaway\ElasticsearchClient\Index(
-	['127.0.0.1:9200'],  	# elasticsearch hosts
+$client = \Elasticsearch\ClientBuilder::create()->setHosts(['127.0.0.1:9200'] # elasticsearch hosts);
+
+$index = \Novaway\ElasticsearchClient\Index::createWithClient(
+	$client,  	
 	'main_index',				# index name
 	[
         'settings' => [
@@ -88,9 +90,10 @@ Use the `QueryBuilder` to build your query and execute it.
 
 ```php
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Novaway\ElasticsearchClient\Query\FullText\MatchQuery;
 
 $queryBody = QueryBuilder::createNew()
-					->match('first_name', 'John', CombiningFactor::MUST)
+					->addQuery(new MatchQuery('first_name', 'John', CombiningFactor::MUST))
 					->getQueryBody()
 ;
 $queryExecutor->execute($queryBody, 'my_type');
@@ -140,7 +143,7 @@ $index->hotswapToMain()
 
 ## Recommended usage with Symfony
 
-If you are using this library in a symfony project, we recommend to use it as service.
+If you are using this library in a symfony project, we recommend to use it as service, in comnbination with https://github.com/novaway/elasticsearch-bundle, which provides, among others, a ClientFactory.
 
 ```yml
 # services.yml
