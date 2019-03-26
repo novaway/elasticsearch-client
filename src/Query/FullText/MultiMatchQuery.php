@@ -14,10 +14,15 @@ use Webmozart\Assert\Assert;
  */
 class MultiMatchQuery implements Query
 {
+    /** @deprecated use Novaway\ElasticsearchClient\Query\FullText\MultiMatchType::BEST_FIELDS instead */
     const BEST_FIELDS = 'best_fields';
+    /** @deprecated use Novaway\ElasticsearchClient\Query\FullText\MultiMatchType::MOST_FIELDS instead */
     const MOST_FIELDS = 'most_fields';
+    /** @deprecated use Novaway\ElasticsearchClient\Query\FullText\MultiMatchType::CROSS_FIELDS instead */
     const CROSS_FIELDS = 'cross_fields';
+    /** @deprecated use Novaway\ElasticsearchClient\Query\FullText\MultiMatchType::PHRASE instead */
     const PHRASE = 'phrase';
+    /** @deprecated use Novaway\ElasticsearchClient\Query\FullText\MultiMatchType::PHRASE_PREFIX instead */
     const PHRASE_PREFIX = 'phrase_prefix';
     /** @var string */
     private $value;
