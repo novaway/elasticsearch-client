@@ -1,5 +1,7 @@
 # Novaway ElasticSearch Client
 
+Note : this project is discontinued in favor of the [ElasticsearchBundle](https://github.com/novaway/elasticsearch-bundle), as it was more or less trying to do what elastica does already well
+
 A lightweight PHP 7.0+ client for Elasticsearch, providing features over [Elasticsearch-PHP](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html)
 
 ## Compatibility
