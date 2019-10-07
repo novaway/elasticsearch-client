@@ -1,6 +1,6 @@
 {
   "name": "novaway/elasticsearch-client",
-  "description": "A lightweight PHP client for Elasticsearch",
+  "description": "[Discontinued] A lightweight PHP client for Elasticsearch",
   "type": "library",
   "keywords": [
     "elasticsearch"
