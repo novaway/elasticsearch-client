@@ -7,6 +7,10 @@ use Novaway\ElasticsearchClient\Query\CombiningFactor;
 use Novaway\ElasticsearchClient\Query\Query;
 use Webmozart\Assert\Assert;
 
+/**
+ * Combines multiple TermQueries
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html
+ */
 class InArrayQuery implements Filter, Query
 {
     /** @var string */

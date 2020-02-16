@@ -7,6 +7,9 @@ namespace Novaway\ElasticsearchClient\Script;
 use Novaway\ElasticsearchClient\Script\Traits\ScriptTrait;
 use Webmozart\Assert\Assert;
 
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-script-fields.html
+ */
 class ScriptField
 {
     use ScriptTrait;

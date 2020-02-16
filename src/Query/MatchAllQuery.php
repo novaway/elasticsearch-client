@@ -3,7 +3,9 @@
 
 namespace Novaway\ElasticsearchClient\Query;
 
-
+/**
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html
+ */
 class MatchAllQuery implements Query
 {
 

@@ -22,11 +22,13 @@ $ composer require novaway/elasticsearch-client
 
 ### Create an index
 
-The first thing you'll need to do to use this library is to instatiate an index. This will be the keystone of the client.
+The first thing you'll need to do to use this library is to instatiate a client and an index. They will be the keystones of the client.
 
 ```php
-$index = new \Novaway\ElasticsearchClient\Index(
-	['127.0.0.1:9200'],  	# elasticsearch hosts
+$client = \Elasticsearch\ClientBuilder::create()->setHosts(['127.0.0.1:9200'] # elasticsearch hosts);
+
+$index = \Novaway\ElasticsearchClient\Index::createWithClient(
+	$client,  	
 	'main_index',				# index name
 	[
         'settings' => [
@@ -90,9 +92,10 @@ Use the `QueryBuilder` to build your query and execute it.
 
 ```php
 use Novaway\ElasticsearchClient\Query\CombiningFactor;
+use Novaway\ElasticsearchClient\Query\FullText\MatchQuery;
 
 $queryBody = QueryBuilder::createNew()
-					->match('first_name', 'John', CombiningFactor::MUST)
+					->addQuery(new MatchQuery('first_name', 'John', CombiningFactor::MUST))
 					->getQueryBody()
 ;
 $queryExecutor->execute($queryBody, 'my_type');
@@ -112,11 +115,28 @@ $queryBuilder = QueryBuilder::createNew(0, 10, 0.3);
 
 This client provide several ways to improve querying :
 
-- Filtering *(missing documentation)*
 - [Aggregations](doc/aggregation.md)
 - Result Formating *(missing documentation)*
-
-
+- Supported Query DSL
+    * [Match All Query](src/Query/MatchAllQuery.php)
+    * Full Text Queries
+        * [Match Query](src/Query/FullText/MatchQuery.php)
+        * [Multi Match Query](src/Query/FullText/MultiMatchQuery.php)
+    * Term Level Queries
+        * [Term Query](src/Query/Term/TermQuery.php)
+        * [Range Query](src/Query/Term/RangeQuery.php)
+        * [Exist Query](src/Query/Term/ExistsQuery.php)
+        * [Prefix Query](src/Query/Term/PrefixQuery.php)
+        * [In Array Query](src/Query/Term/InArrayQuery.php)
+    * Compound Queries
+        * [Bool Query](src/Query/Compound/BoolQuery.php)
+        * [Function Score Query](src/Query/Compound/FunctionScore.php)
+    * Joining Queries
+        * [Nested Query](src/Query/Joining/NestedQuery.php)
+    * Geo Queries
+        * [GeoShape Query](src/Query/Geo/InlineGeoShapeQuery.php)
+        * [Geo Distance Query](src/Query/Geo/GeoDistanceQuery.php)
+        
 ### Clear the index
 
 You might want, for some reason, to purge an index. The `reload` method drops and recreates the index.
@@ -142,7 +162,7 @@ $index->hotswapToMain()
 
 ## Recommended usage with Symfony
 
-If you are using this library in a symfony project, we recommend to use it as service.
+If you are using this library in a symfony project, we recommend to use it as service, in comnbination with https://github.com/novaway/elasticsearch-bundle, which provides, among others, a ClientFactory.
 
 ```yml
 # services.yml
@@ -162,12 +182,20 @@ parameters:
                         type: integer
                         
 services:
+    Novaway\ElasticsearchBundle\Elasticsearch\Client:
+        factory: Novaway\ElasticsearchBundle\Factory\ClientFactory:createClient
+        arguments:
+            - ['%elasticsearch_host%'] # define it in the parameter.yml file
+
     myapp.search.index:
         class: Novaway\ElasticsearchClient\Index
         arguments:
-            - ['127.0.0.1:9200'] #define it in the parameter.yml file
+            - []
             - 'myapp_myindex_%kernel.environment%'
             - 'myapp.search.myindex.config'
+            - null
+            - null
+            - Novaway\ElasticsearchBundle\Elasticsearch\Client
 
     myapp.search.object_indexer:
         class: Novaway\ElasticsearchClient\ObjectIndexer
